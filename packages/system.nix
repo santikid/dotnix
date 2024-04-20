@@ -9,6 +9,7 @@ with pkgs; [
   pandoc
   sqlite
   wget
+  watch
   zip
 
   gnupg
