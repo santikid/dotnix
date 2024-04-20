@@ -1,0 +1,3 @@
+_: [
+  "rustup-init"
+]
