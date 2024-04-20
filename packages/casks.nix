@@ -1,22 +1,37 @@
 _: [
+  # dev tools / productivity 
   "alacritty"
-
   "visual-studio-code"
   "zed"
-
-  "google-chrome"
-
-  "discord"
-  "ferdium"
-
-  "appcleaner"
-  "iina"
-
-  "utm"
-
-  "openvpn-connect"
-  "tailscale"
+  "obsidian"
   "gpg-suite"
 
+  # "browsers" and communication
+  "google-chrome"
+  "ferdium"
+  "discord"
+
+
+  # utilities
+  "appcleaner"
+  "bitwarden"
+  "hyperkey"
+  "lulu"
+
+  # vm
   "homebrew/cask-versions/parallels18"
+  "utm"
+
+  # media
+  "iina"
+  "spotify"
+  "discord"
+
+  # vpn
+  "openvpn-connect"
+  "tailscale"
+
+  # creativity
+  "affinity-photo"
+  "affinity-designer"
 ]

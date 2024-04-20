@@ -9,3 +9,7 @@
 3. *Assign Full Disk Access permissions to Terminal.app*
 ```System Settings / Privacy / Full Disk Access -> add Terminal.app```
 
+# NOTES
+
+## macOS
+- Disable Input Switching shortcut in System Settings; otherwise Ctrl + Space won't work.
