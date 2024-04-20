@@ -10,6 +10,10 @@
 
   environment.systemPackages = with pkgs; [] ++ (import ../packages/system.nix {inherit pkgs;}) ++ (import ./scripts.nix {inherit pkgs;});
 
+  environment.interactiveShellInit = ''
+    alias rebuild='darwin-rebuild switch --flake ~/.nix#santibook'
+  '';
+
   fonts.fontDir.enable = true;
   fonts.fonts = with pkgs; [] ++ (import ../packages/fonts.nix {inherit pkgs;});
 
@@ -50,12 +54,13 @@
     autohide-time-modifier = 0.0;
     show-recents = false;
     orientation = "left";
+    tilesize = 32;
 
     persistent-apps = [
       "/System/Applications/Mail.app"
+      "/System/Cryptexes/App/System/Applications/Safari.app"
       "/Applications/Ferdium.app"
       "/Applications/Alacritty.app"
-      "/Applications/Safari.app"
     ];
   };
 

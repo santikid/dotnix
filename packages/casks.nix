@@ -11,12 +11,12 @@ _: [
   "ferdium"
   "discord"
 
-
   # utilities
   "appcleaner"
   "bitwarden"
   "hyperkey"
   "lulu"
+  "rectangle"
 
   # vm
   "homebrew/cask-versions/parallels18"

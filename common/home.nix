@@ -47,6 +47,7 @@
 
         eval "$(/opt/homebrew/bin/brew shellenv)"
         eval "$(fnm env)"
+        . "$HOME/.cargo/env"
       '';
     };
     programs.starship.enable = true;
