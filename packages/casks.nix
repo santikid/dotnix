@@ -17,4 +17,6 @@ _: [
   "openvpn-connect"
   "tailscale"
   "gpg-suite"
+
+  "homebrew/cask-versions/parallels18"
 ]

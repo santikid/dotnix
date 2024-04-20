@@ -14,6 +14,9 @@
 
     homebrew-cask.url = "github:homebrew/homebrew-cask";
     homebrew-cask.flake = false;
+
+    homebrew-cask-versions.url = "github:homebrew/homebrew-cask-versions";
+    homebrew-cask-versions.flake = false;
   };
   outputs = inputs @ {
     self,
@@ -22,6 +25,7 @@
     darwin,
     nix-homebrew,
     homebrew-cask,
+    homebrew-cask-versions,
     ...
   }: let
     makeDarwin = system: extraModules: hostName: let
@@ -46,6 +50,7 @@
                 user = "santi";
                 taps = {
                   "homebrew/homebrew-cask" = homebrew-cask;
+                  "homebrew/homebrew-cask-versions" = homebrew-cask-versions;
                 };
               };
             }
