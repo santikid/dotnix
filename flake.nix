@@ -17,6 +17,10 @@
 
     homebrew-cask-versions.url = "github:homebrew/homebrew-cask-versions";
     homebrew-cask-versions.flake = false;
+
+    nixos-apple-silicon.url = "github:tpwrules/nixos-apple-silicon";
+    nixos-apple-silicon.inputs.nixpkgs.follows = "nixpkgs";
+
   };
   outputs = inputs @ {
     self,
@@ -26,6 +30,7 @@
     nix-homebrew,
     homebrew-cask,
     homebrew-cask-versions,
+    nixos-apple-silicon,
     ...
   }: let
     makeDarwin = system: extraModules: hostName: let
@@ -67,6 +72,7 @@
         specialArgs = {inherit pkgs inputs self;};
         modules =
           [
+            nixos-apple-silicon.nixosModules.apple-silicon-support
             home-manager.nixosModules.default
             {
               networking.hostName = hostName;
@@ -84,7 +90,7 @@
       santibook = makeDarwin "aarch64-darwin" [] "santibook";
     };
     nixosConfigurations = {
-      santisasahi = makeAsahi "aarch64-linux" [] "santisasahi";
+      santisasahi = makeAsahi "aarch64-linux" [ ./machines/santisasahi/ ] "santisasahi";
     };
   };
 }
