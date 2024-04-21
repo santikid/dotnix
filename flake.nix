@@ -3,7 +3,6 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    # manage user configuration with home-manager
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -20,7 +19,6 @@
 
     nixos-apple-silicon.url = "github:tpwrules/nixos-apple-silicon";
     nixos-apple-silicon.inputs.nixpkgs.follows = "nixpkgs";
-
   };
   outputs = inputs @ {
     self,
@@ -60,28 +58,27 @@
               };
             }
             ./common/darwin.nix
-            ./common/home.nix
+            ./home/darwin.nix
           ]
           ++ extraModules;
       };
-    makeAsahi = system: extraModules: hostName: let
-      pkgs = import nixpkgs {inherit system;};
-    in
+    makeAsahi = system: extraModules: hostName:
       nixpkgs.lib.nixosSystem {
         system = system;
-        specialArgs = {inherit pkgs inputs self;};
+        specialArgs = {inherit inputs self;};
         modules =
           [
-            nixos-apple-silicon.nixosModules.apple-silicon-support
+
             home-manager.nixosModules.default
             {
               networking.hostName = hostName;
               home-manager.useUserPackages = true;
               home-manager.useGlobalPkgs = true;
-              home-manager.extraSpecialArgs = {inherit inputs pkgs;};
+              home-manager.extraSpecialArgs = {inherit inputs;};
+              system.stateVersion = "24.05";
             }
             ./common/linux.nix
-            ./common/home.nix
+            ./home/linux.nix
           ]
           ++ extraModules;
       };
@@ -90,7 +87,7 @@
       santibook = makeDarwin "aarch64-darwin" [] "santibook";
     };
     nixosConfigurations = {
-      santisasahi = makeAsahi "aarch64-linux" [ ./machines/santisasahi/ ] "santisasahi";
+      santisasahi = makeAsahi "aarch64-linux" [ ./machines/santisasahi ] "santisasahi";
     };
   };
 }
