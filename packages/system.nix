@@ -28,4 +28,6 @@ with pkgs; [
   ripgrep
   tmux
   starship
+
+  imagemagick
 ]
