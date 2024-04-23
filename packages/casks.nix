@@ -5,6 +5,7 @@ _: [
   "zed"
   "obsidian"
   "gpg-suite"
+  "blender"
 
   # "browsers" and communication
   "google-chrome"

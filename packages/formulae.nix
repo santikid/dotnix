@@ -1,3 +1,4 @@
 _: [
   "rustup-init"
+  "luajit"
 ]
