@@ -12,6 +12,7 @@
 
   environment.interactiveShellInit = ''
     alias rebuild='darwin-rebuild switch --flake ~/.nix#santibook'
+    alias update='nix flake update ~/.nix && rebuild'
   '';
 
   fonts.fontDir.enable = true;
