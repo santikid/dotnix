@@ -4,7 +4,6 @@ with pkgs; [
   coreutils
   curl
   cmake
-  gcc
   openssh
   pandoc
   sqlite

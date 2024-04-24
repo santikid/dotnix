@@ -10,6 +10,7 @@
 
   environment.systemPackages = with pkgs; [
     docker
+    gcc
   ] ++ (import ../packages/system.nix {inherit pkgs;}) ++ (import ./scripts.nix {inherit pkgs;});
 
   fonts.fontDir.enable = true;
