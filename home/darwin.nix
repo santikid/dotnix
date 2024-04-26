@@ -11,6 +11,14 @@
     ...
   }: {
     imports = [ ./common.nix ];
+    home.file = {
+      ".config/nvim" = {
+        source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/configs/nvim";
+      };
+      ".config/alacritty/alacritty.toml" = {
+        source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/configs/alacritty.toml";
+      };
+    };
     programs.zsh = {
       enable = true;
       initExtra = ''

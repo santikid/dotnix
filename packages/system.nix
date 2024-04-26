@@ -17,7 +17,7 @@ with pkgs; [
   ffmpeg
   neovim
 
-  fnm
+#  fnm
   fzf
 
   gh

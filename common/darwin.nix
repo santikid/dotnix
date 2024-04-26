@@ -8,7 +8,9 @@
 
   environment.shells = [pkgs.zsh];
 
-  environment.systemPackages = with pkgs; [] ++ (import ../packages/system.nix {inherit pkgs;}) ++ (import ./scripts.nix {inherit pkgs;});
+  environment.systemPackages = with pkgs; [
+    "fnm"
+  ] ++ (import ../packages/system.nix {inherit pkgs;}) ++ (import ./scripts.nix {inherit pkgs;});
 
   environment.interactiveShellInit = ''
     alias rebuild='darwin-rebuild switch --flake ~/.nix#santibook'
