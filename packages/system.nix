@@ -15,7 +15,6 @@ with pkgs; [
   libfido2
 
   ffmpeg
-  neovim
 
 #  fnm
   fzf

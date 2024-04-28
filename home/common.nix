@@ -17,11 +17,6 @@
         init.defaultBranch = "main";
       };
     };
-    programs.neovim = {
-      enable = true;
-      defaultEditor = true;
-      vimdiffAlias = true;
-    };
 
     programs.tmux = {
       enable = true;
@@ -31,6 +26,10 @@
       mouse = true;
       keyMode = "vi";
       customPaneNavigationAndResize = true;
+			terminal = "screen-256color";
+			extraConfig = ''
+set-option -sa terminal-features ',alacritty:RGB'
+			'';
     };
 
     programs.starship.enable = true;
