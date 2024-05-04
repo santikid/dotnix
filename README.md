@@ -1,3 +1,5 @@
+# Nix Experiment failed
+
 # Installation on macOS
 
 1. Install Xcode CLI Tools
