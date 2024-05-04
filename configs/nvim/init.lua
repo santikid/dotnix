@@ -11,11 +11,15 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-vim.opt.clipboard = "unnamed";
-vim.opt.tabstop = 2;
-vim.opt.softtabstop = 2;
+vim.opt.clipboard = "unnamed"
+vim.opt.tabstop = 2
+vim.opt.softtabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.smartindent = true
+vim.opt.expandtab = true
 
-vim.g.mapleader = " ";
+vim.g.mapleader = " "
+vim.g.maplocalleader = ","
 
-require("lazy").setup({ spec = { { import = "plugins" } } });
-require("autocmds");
+require("lazy").setup({ spec = { { import = "plugins" } } })
+require("autocmds")

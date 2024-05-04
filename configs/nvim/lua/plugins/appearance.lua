@@ -11,11 +11,7 @@ return { -- colorscheme
 		"folke/noice.nvim",
 		event = "VeryLazy",
 		dependencies = {
-			-- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
 			"MunifTanjim/nui.nvim",
-			-- OPTIONAL:
-			--   `nvim-notify` is only needed, if you want to use the notification view.
-			--   If not available, we use `mini` as the fallback
 			"rcarriga/nvim-notify",
 		},
 		config = function()
@@ -103,7 +99,7 @@ return { -- colorscheme
 					lualine_b = { "branch", "diff", "diagnostics" },
 					lualine_c = { "filename" },
 					lualine_x = { "encoding", "fileformat", "filetype" },
-					lualine_y = { "progress" },
+					lualine_y = { "searchcount", "progress" },
 					lualine_z = { "location" },
 				},
 				inactive_sections = {
