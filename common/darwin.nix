@@ -9,7 +9,6 @@
   environment.shells = [pkgs.zsh];
 
   environment.systemPackages = with pkgs; [
-    "fnm"
   ] ++ (import ../packages/system.nix {inherit pkgs;}) ++ (import ./scripts.nix {inherit pkgs;});
 
   environment.interactiveShellInit = ''
