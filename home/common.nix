@@ -28,9 +28,6 @@
       customPaneNavigationAndResize = true;
 			terminal = "screen-256color";
 			extraConfig = ''
-set-option -sa terminal-features ',alacritty:RGB'
 			'';
     };
-
-    programs.starship.enable = true;
 }

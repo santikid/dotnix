@@ -34,8 +34,8 @@
 
   homebrew = {
     enable = true;
-    casks = pkgs.callPackage ../packages/casks.nix {};
-    brews = pkgs.callPackage ../packages/formulae.nix {};
+    casks = pkgs.callPackage ../packages/brew/casks.nix {};
+    brews = pkgs.callPackage ../packages/brew/formulae.nix {};
   };
 
   system.stateVersion = 4;
@@ -62,8 +62,6 @@
     persistent-apps = [
       "/System/Applications/Mail.app"
       "/System/Cryptexes/App/System/Applications/Safari.app"
-      "/Applications/Ferdium.app"
-      "/Applications/Alacritty.app"
     ];
   };
 

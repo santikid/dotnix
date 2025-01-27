@@ -5,8 +5,9 @@ with pkgs; [
   curl
   cmake
   openssh
+
   pandoc
-  sqlite
+
   wget
   watch
   zip
@@ -16,7 +17,6 @@ with pkgs; [
 
   ffmpeg
 
-#  fnm
   fzf
 
   gh
@@ -25,7 +25,8 @@ with pkgs; [
   jq
   ripgrep
   tmux
-  starship
+
+  neovim
 
   imagemagick
 ]
