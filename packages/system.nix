@@ -1,9 +1,7 @@
 {pkgs, ...}:
 # called from both common/darwin.nix and common/linux.nix
 with pkgs; [
-  coreutils
   curl
-  cmake
   openssh
 
   pandoc

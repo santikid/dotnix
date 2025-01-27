@@ -69,4 +69,6 @@
     ShowPathbar = true;
     FXPreferredViewStyle = "clmv";
   };
+
+  security.pam.enableSudoTouchIdAuth = true;
 }
