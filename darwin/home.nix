@@ -1,21 +1,10 @@
-
 {
   config,
   pkgs,
-  inputs,
   ...
 }: {
-  home-manager.users.santi = {
-    config,
-    pkgs,
-    ...
-  }: {
-    imports = [ ./common.nix ];
-    home.file = {
-      ".config/nvim" = {
-        source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/configs/nvim";
-      };
-    };
+    home.stateVersion = "24.05";
+    imports = [ ../shared/home ];
     programs.zsh = {
       enable = true;
       initExtra = ''
@@ -41,5 +30,4 @@ bindkey "^[[B" down-line-or-beginning-search # Down
 bindkey '^R' history-incremental-search-backward
       '';
     };
-  };
 }

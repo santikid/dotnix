@@ -1,4 +1,8 @@
 _: [
+  "chatgpt"
+  "spotify"
+  "tailscale"
+  "ghostty"
   "rectangle"
   "hyperkey"
   # xcode version manager

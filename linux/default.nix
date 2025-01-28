@@ -31,14 +31,15 @@
     nodejs
     hyprpaper
     chromium
-  ] ++ (import ../packages/system.nix {inherit pkgs;}) ++ (import ./scripts.nix {inherit pkgs;});
+  ] ++ (import ../shared/packages/global.nix {inherit pkgs;}) ++ (import ../shared/packages/vscode.nix {inherit pkgs;}) ++ (import ../shared/scripts.nix {inherit pkgs;});
+
 
   environment.interactiveShellInit = ''
     alias rebuild='sudo nixos-rebuild switch --flake $HOME/.nix#santisasahi --impure'
   '';
 
   fonts.fontDir.enable = true;
-  fonts.packages = with pkgs; [] ++ (import ../packages/fonts.nix {inherit pkgs;});
+  fonts.packages = with pkgs; [] ++ (import ../shared/packages/fonts.nix {inherit pkgs;});
 
   users.users.santi = {
     isNormalUser = true;

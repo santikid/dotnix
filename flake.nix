@@ -57,8 +57,7 @@
                 };
               };
             }
-            ./common/darwin.nix
-            ./home/darwin.nix
+            ./darwin
           ]
           ++ extraModules;
       };
@@ -77,8 +76,7 @@
               home-manager.extraSpecialArgs = {inherit inputs;};
               system.stateVersion = "24.05";
             }
-            ./common/linux.nix
-            ./home/linux.nix
+            #./linux
           ]
           ++ extraModules;
       };
@@ -87,7 +85,7 @@
       santibook = makeDarwin "aarch64-darwin" [] "santibook";
     };
     nixosConfigurations = {
-      santisasahi = makeAsahi "aarch64-linux" [ ./machines/santisasahi ] "santisasahi";
+      santisasahi = makeAsahi "aarch64-linux" [ ./hosts/santisasahi ] "santisasahi";
     };
   };
 }

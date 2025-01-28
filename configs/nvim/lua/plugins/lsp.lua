@@ -2,8 +2,6 @@ return {
   {
     "neovim/nvim-lspconfig",
     dependencies = {
-      "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim",
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
@@ -13,6 +11,8 @@ return {
       "saadparwaiz1/cmp_luasnip",
     },
 
+    
+
     config = function()
       local cmp_lsp = require("cmp_nvim_lsp")
       local capabilities = vim.tbl_deep_extend(
@@ -21,25 +21,13 @@ return {
         vim.lsp.protocol.make_client_capabilities(),
         cmp_lsp.default_capabilities()
       )
+      local servers = { 'lua_ls', 'ts_ls', 'astro', 'tailwindcss', 'rust_analyzer', 'svelte', 'nixd' }
+      for _, lsp in pairs(servers) do
+        require('lspconfig')[lsp].setup {
+          capabilities = capabilities
+        }
+      end
 
-      require("mason").setup()
-      require("mason-lspconfig").setup({
-        ensure_installed = {
-          "lua_ls",
-          "rust_analyzer",
-          "ts_ls",
-          "astro",
-          "tailwindcss",
-          "svelte",
-        },
-        handlers = {
-          function(server_name)
-            require("lspconfig")[server_name].setup({
-              capabilities = capabilities,
-            })
-          end,
-        },
-      })
       local cmp = require("cmp")
       cmp.setup({
         snippet = {

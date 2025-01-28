@@ -4,20 +4,21 @@
   inputs,
   ...
 }: {
+  home-manager.users.santi = import ./home.nix;
+
   programs.zsh.enable = true;
 
   environment.shells = [pkgs.zsh];
 
   environment.systemPackages = with pkgs; [
-  ] ++ (import ../packages/system.nix {inherit pkgs;}) ++ (import ./scripts.nix {inherit pkgs;});
+  ] ++ (import ../shared/packages/global.nix {inherit pkgs;}) ++ (import ../shared/packages/vscode.nix {inherit pkgs;}) ++ (import ../shared/scripts.nix {inherit pkgs;});
 
   environment.interactiveShellInit = ''
     alias rebuild='darwin-rebuild switch --flake ~/.nix#santibook'
     alias update='nix flake update ~/.nix && rebuild'
   '';
 
-  fonts.fontDir.enable = true;
-  fonts.fonts = with pkgs; [] ++ (import ../packages/fonts.nix {inherit pkgs;});
+  fonts.packages = with pkgs; [] ++ (import ../shared/packages/fonts.nix {inherit pkgs;});
 
   users.users.santi = {
     description = "Lukas Santner";
@@ -33,8 +34,8 @@
 
   homebrew = {
     enable = true;
-    casks = pkgs.callPackage ../packages/brew/casks.nix {};
-    brews = pkgs.callPackage ../packages/brew/formulae.nix {};
+    casks = pkgs.callPackage ./packages/casks.nix {};
+    brews = pkgs.callPackage ./packages/formulae.nix {};
   };
 
   system.stateVersion = 4;

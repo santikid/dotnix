@@ -1,5 +1,4 @@
 {pkgs, ...}:
-# called from both common/darwin.nix and common/linux.nix
 with pkgs; [
   curl
   openssh
@@ -9,9 +8,6 @@ with pkgs; [
   wget
   watch
   zip
-
-  gnupg
-  libfido2
 
   ffmpeg
 
@@ -27,4 +23,9 @@ with pkgs; [
   neovim
 
   imagemagick
+
+  # js
+  nodejs_22
+  pnpm
+  bun
 ]

@@ -9,7 +9,7 @@
     pkgs,
     ...
   }: {
-    imports = [ ./common.nix ];
+    imports = [ ../shared/home ];
 
     wayland.windowManager.hyprland.enable = true;
     wayland.windowManager.hyprland.settings = {
