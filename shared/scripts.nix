@@ -2,6 +2,34 @@
 with pkgs; [
   (
     pkgs.writeShellApplication {
+      name = "llmexport";
+      runtimeInputs = with pkgs; [];
+      text = ''
+#!/bin/bash
+
+# Check if directory and file pattern are provided
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo "Usage: $0 <directory> <file-pattern>"
+    echo "Example: $0 /path/to/folder \"*.nix\""
+    exit 1
+fi
+
+DIRECTORY="$1"
+PATTERN="$2"
+
+# Find and iterate over all matching files
+find "$DIRECTORY" -type f -name "$PATTERN" | while read -r file; do
+    echo "### FILE: $file"
+    echo '```' 
+    cat "$file"
+    echo '```'
+    echo ""
+done
+      '';
+    }
+  )
+  (
+    pkgs.writeShellApplication {
       name = "ts";
       runtimeInputs = with pkgs; [tmux fzf];
       text = ''

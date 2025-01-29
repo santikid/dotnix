@@ -1,4 +1,10 @@
 _: [
+  "winbox"
+  "lm-studio"
+  "firefox"
+  "parallels"
+  "transmission"
+  "utm"
   "chatgpt"
   "spotify"
   "tailscale"

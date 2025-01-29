@@ -61,7 +61,7 @@
           ]
           ++ extraModules;
       };
-    makeAsahi = system: extraModules: hostName:
+    makeLinux = system: extraModules: hostName:
       nixpkgs.lib.nixosSystem {
         system = system;
         specialArgs = {inherit inputs self;};
@@ -76,7 +76,7 @@
               home-manager.extraSpecialArgs = {inherit inputs;};
               system.stateVersion = "24.05";
             }
-            #./linux
+            ./linux
           ]
           ++ extraModules;
       };
@@ -85,7 +85,8 @@
       santibook = makeDarwin "aarch64-darwin" [] "santibook";
     };
     nixosConfigurations = {
-      santisasahi = makeAsahi "aarch64-linux" [ ./hosts/santisasahi ] "santisasahi";
+      santisasahi = makeLinux "aarch64-linux" [ ./hosts/santisasahi ] "santisasahi";
+      santisvm = makeLinux "aarch64-linux" [ ./hosts/santisvm ] "santisvm";
     };
   };
 }

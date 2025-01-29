@@ -1,31 +1,37 @@
 {pkgs, ...}:
 with pkgs; [
+    # Networking & Download Tools
   curl
+  wget
   openssh
 
-  pandoc
-
-  wget
-  watch
+  # Archiving & File Management
   zip
+  watch
 
-  ffmpeg
-
-  fzf
-
-  gh
-
-  htop
+  # Development Tools
+  gcc
+  clang
   jq
   ripgrep
-  tmux
-
-  neovim
-
-  imagemagick
-
-  # js
+  fzf
+  gh
   nodejs_22
   pnpm
   bun
+
+  # Text & Document Processing
+  pandoc
+
+  # Terminal Utilities
+  tmux
+  htop
+  btop  # Added for system monitoring
+
+  # Media Processing
+  ffmpeg
+  imagemagick
+
+  # Editors
+  neovim
 ]

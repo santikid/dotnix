@@ -13,6 +13,7 @@
 4. Clone to ~/.nix and install
 
 `git clone https://github.com/santikid/dotnix.git ~/.nix`
+
 `nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake ~/.nix#<host>`
 
 # Rectangle and Hyperkey
