@@ -10,6 +10,8 @@
     imports = [./home.nix];
   };
 
+  networking.nameservers = [ "1.1.1.1" "9.9.9.9" ];
+
   programs.zsh.enable = true;
 
   security.polkit.enable = true;
