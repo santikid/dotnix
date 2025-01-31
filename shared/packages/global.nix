@@ -1,13 +1,20 @@
 {pkgs, ...}:
 with pkgs; [
-    # Networking & Download Tools
+  coreutils
+  gnupg
+  age
+
+  # Networking & Download Tools
   curl
   wget
-  openssh
 
   # Archiving & File Management
   zip
   watch
+
+  # Shell
+  zsh
+  starship
 
   # Development Tools
   gcc

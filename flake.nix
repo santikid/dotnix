@@ -19,6 +19,8 @@
 
     nixos-apple-silicon.url = "github:tpwrules/nixos-apple-silicon";
     nixos-apple-silicon.inputs.nixpkgs.follows = "nixpkgs";
+
+    sops-nix.url = "github:Mic92/sops-nix";
   };
   outputs = inputs @ {
     self,
@@ -29,6 +31,7 @@
     homebrew-cask,
     homebrew-cask-versions,
     nixos-apple-silicon,
+    sops-nix,
     ...
   }: let
     makeDarwin = system: extraModules: hostName: let
@@ -41,6 +44,7 @@
           [
             home-manager.darwinModules.default
             nix-homebrew.darwinModules.nix-homebrew
+            sops-nix.darwinModules.sops
             {
               networking.hostName = hostName;
               home-manager.useUserPackages = true;
@@ -57,6 +61,7 @@
                 };
               };
             }
+            ./shared
             ./darwin
           ]
           ++ extraModules;
@@ -67,7 +72,7 @@
         specialArgs = {inherit inputs self;};
         modules =
           [
-
+            sops-nix.nixosModules.sops
             home-manager.nixosModules.default
             {
               networking.hostName = hostName;
@@ -76,6 +81,7 @@
               home-manager.extraSpecialArgs = {inherit inputs;};
               system.stateVersion = "24.05";
             }
+            ./shared
             ./linux
           ]
           ++ extraModules;

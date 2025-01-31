@@ -4,14 +4,18 @@
   inputs,
   ...
 }: {
-  home-manager.users.santi = import ./home.nix;
+  home-manager.users.santi = {
+    imports = [ ./home.nix ];
+  };
 
   programs.zsh.enable = true;
 
   environment.shells = [pkgs.zsh];
 
+  environment.variables.EDITOR = "nvim";
+
   environment.systemPackages = with pkgs; [
-  ] ++ (import ../shared/packages/global.nix {inherit pkgs;}) ++ (import ../shared/packages/vscode.nix {inherit pkgs;}) ++ (import ../shared/scripts.nix {inherit pkgs;});
+  ] ++ (import ../shared/packages/global.nix {inherit pkgs;}) ++ (import ../shared/packages/vscode.nix {inherit pkgs;}) ++ (import ../shared/packages/scripts.nix {inherit pkgs;});
 
   environment.interactiveShellInit = ''
     alias rebuild='darwin-rebuild switch --flake ~/.nix#santibook'
@@ -25,6 +29,7 @@
     home = "/Users/santi";
     shell = pkgs.zsh;
   };
+  
 
   services.nix-daemon.enable = true;
 
@@ -40,34 +45,49 @@
 
   system.stateVersion = 4;
 
-  system.defaults.NSGlobalDomain = {
-    NSAutomaticCapitalizationEnabled = false;
-    NSAutomaticPeriodSubstitutionEnabled = false;
-    NSAutomaticSpellingCorrectionEnabled = false;
+  system.defaults = {
+    controlcenter = {
+      BatteryShowPercentage = true;
+      Sound = false;
+      Bluetooth = false;
+      AirDrop = false;
+      Display = false;
+      FocusModes = false;
+      NowPlaying = false;
+    };
+    WindowManager = {
+      GloballyEnabled = true;
+      AppWindowGroupingBehavior = false; # one at a time
+    };
+    NSGlobalDomain = {
+      NSAutomaticCapitalizationEnabled = false;
+      NSAutomaticPeriodSubstitutionEnabled = false;
+      NSAutomaticSpellingCorrectionEnabled = false;
+      NSAutomaticDashSubstitutionEnabled = false;
+      NSAutomaticQuoteSubstitutionEnabled = false;
 
-    InitialKeyRepeat = 15;
-    KeyRepeat = 2;
+      InitialKeyRepeat = 15;
+      KeyRepeat = 2;
 
-    "com.apple.keyboard.fnState" = true;
-  };
+      "com.apple.keyboard.fnState" = true;
+    };
+    dock = {
+      autohide = true;
+      autohide-delay = 0.0;
+      autohide-time-modifier = 0.0;
+      show-recents = false;
+      orientation = "left";
+      tilesize = 32;
 
-  system.defaults.dock = {
-    autohide = true;
-    autohide-delay = 0.0;
-    autohide-time-modifier = 0.0;
-    show-recents = false;
-    orientation = "left";
-    tilesize = 32;
-
-    persistent-apps = [
-      "/System/Applications/Mail.app"
-      "/System/Cryptexes/App/System/Applications/Safari.app"
-    ];
-  };
-
-  system.defaults.finder = {
-    ShowPathbar = true;
-    FXPreferredViewStyle = "clmv";
+      persistent-apps = [
+        "/System/Applications/Mail.app"
+        "/System/Cryptexes/App/System/Applications/Safari.app"
+      ];
+    };
+    finder = {
+      ShowPathbar = true;
+      FXPreferredViewStyle = "clmv";
+    };
   };
 
   security.pam.enableSudoTouchIdAuth = true;

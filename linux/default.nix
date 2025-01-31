@@ -31,7 +31,7 @@
     nodejs
     hyprpaper
     chromium
-  ] ++ (import ../shared/packages/global.nix {inherit pkgs;}) ++ (import ../shared/packages/vscode.nix {inherit pkgs;}) ++ (import ../shared/scripts.nix {inherit pkgs;});
+  ] ++ (import ../shared/packages/global.nix {inherit pkgs;}) ++ (import ../shared/packages/vscode.nix {inherit pkgs;}) ++ (import ../shared/packages/scripts.nix {inherit pkgs;});
 
 
   environment.interactiveShellInit = ''
