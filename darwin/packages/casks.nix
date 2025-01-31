@@ -1,5 +1,7 @@
 _: [
+  # MikroTik Winbox
   "winbox"
+  # LM Studio - local llms
   "lm-studio"
   "firefox"
   "parallels"
@@ -8,6 +10,7 @@ _: [
   "chatgpt"
   "spotify"
   "tailscale"
+  # no cfg for ghostty since the defaults are amazing
   "ghostty"
   "rectangle"
   "hyperkey"
