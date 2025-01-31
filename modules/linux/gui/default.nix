@@ -5,6 +5,7 @@
   ...
 }: {
   environment.systemPackages = with pkgs; [
+    firefox
     ghostty
   ];
   services.displayManager.sddm.enable = true;
