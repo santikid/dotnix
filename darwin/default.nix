@@ -27,7 +27,7 @@
     ++ (import ../shared/packages/scripts.nix {inherit pkgs;});
 
   environment.interactiveShellInit = ''
-    alias rebuild='darwin-rebuild switch --flake ~/.nix#santibook'
+    alias rebuild='darwin-rebuild switch --flake ~/.nix#${config.networking.hostName}'
     alias update='nix flake update --flake ~/.nix && rebuild'
   '';
 
