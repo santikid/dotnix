@@ -92,7 +92,7 @@
     };
     nixosConfigurations = {
       paranix = makeLinux "aarch64-linux" [./hosts/paranix ./modules/linux/gui] "paranix";
-      asahimac = makeLinux "aarch64-linux" [ ./hosts/asahimac ] "santisasahi";
+      asahimac = makeLinux "aarch64-linux" [ ./hosts/asahimac ./modules/linux/gui ] "santisasahi";
     };
   };
 }

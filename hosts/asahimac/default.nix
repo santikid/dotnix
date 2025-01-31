@@ -19,7 +19,7 @@
   networking.networkmanager.enable = true;
   hardware.asahi = {
     useExperimentalGPUDriver = true;
-    peripheralFirmwareDirectory = /boot/asahi;
+    peripheralFirmwareDirectory = ./firmware;
     setupAsahiSound = true;
   };
   hardware.bluetooth = {
