@@ -17,9 +17,6 @@
     homebrew-cask-versions.url = "github:homebrew/homebrew-cask-versions";
     homebrew-cask-versions.flake = false;
 
-    nixos-apple-silicon.url = "github:tpwrules/nixos-apple-silicon";
-    nixos-apple-silicon.inputs.nixpkgs.follows = "nixpkgs";
-
     sops-nix.url = "github:Mic92/sops-nix";
   };
   outputs = inputs @ {
@@ -91,7 +88,6 @@
       santibook = makeDarwin "aarch64-darwin" [] "santibook";
     };
     nixosConfigurations = {
-      santisasahi = makeLinux "aarch64-linux" [ ./hosts/santisasahi ] "santisasahi";
       santisvm = makeLinux "aarch64-linux" [ ./hosts/santisvm ] "santisvm";
     };
   };
