@@ -1,4 +1,4 @@
-{ inputs, ... }: {
+{ inputs, pkgs, ... }: {
   imports = [
     ./hardware-configuration.nix
      inputs.nixos-apple-silicon.nixosModules.apple-silicon-support
