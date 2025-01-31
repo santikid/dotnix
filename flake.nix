@@ -87,7 +87,7 @@
       santibook = makeDarwin "aarch64-darwin" [] "santibook";
     };
     nixosConfigurations = {
-      santisvm = makeLinux "aarch64-linux" [ ./hosts/santisvm ] "santisvm";
+      prlvm = makeLinux "aarch64-linux" [ ./hosts/prlvm ./modules/linux/gui ] "prlvm";
     };
   };
 }

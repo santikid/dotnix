@@ -3,6 +3,7 @@ with pkgs; [
   coreutils
   gnupg
   age
+  git
 
   # Networking & Download Tools
   curl
