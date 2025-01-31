@@ -7,13 +7,6 @@
   programs.zsh.enable = true;
 
   security.polkit.enable = true;
-  services.xserver = {
-    enable = true;
-    xkb.layout = "de";
-    xkb.variant = "mac";
-    autorun = true;
-    displayManager.lightdm.enable = true;
-  };
 
   environment.shells = [pkgs.zsh];
 
