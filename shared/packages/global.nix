@@ -34,7 +34,7 @@ with pkgs; [
   # Terminal Utilities
   tmux
   htop
-  btop  # Added for system monitoring
+  btop # Added for system monitoring
 
   # Media Processing
   ffmpeg

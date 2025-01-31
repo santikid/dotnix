@@ -5,7 +5,7 @@
   ...
 }: {
   home-manager.users.santi = {
-    imports = [ ./home.nix ];
+    imports = [./home.nix];
   };
 
   programs.zsh.enable = true;
@@ -14,8 +14,12 @@
 
   environment.variables.EDITOR = "nvim";
 
-  environment.systemPackages = with pkgs; [
-  ] ++ (import ../shared/packages/global.nix {inherit pkgs;}) ++ (import ../shared/packages/vscode.nix {inherit pkgs;}) ++ (import ../shared/packages/scripts.nix {inherit pkgs;});
+  environment.systemPackages = with pkgs;
+    [
+    ]
+    ++ (import ../shared/packages/global.nix {inherit pkgs;})
+    ++ (import ../shared/packages/vscode.nix {inherit pkgs;})
+    ++ (import ../shared/packages/scripts.nix {inherit pkgs;});
 
   environment.interactiveShellInit = ''
     alias rebuild='darwin-rebuild switch --flake ~/.nix#santibook'
@@ -29,7 +33,6 @@
     home = "/Users/santi";
     shell = pkgs.zsh;
   };
-  
 
   services.nix-daemon.enable = true;
 

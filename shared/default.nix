@@ -4,6 +4,6 @@
   inputs,
   ...
 }: {
-    imports = [ 
-    ];
+  imports = [
+  ];
 }
