@@ -17,6 +17,9 @@
     homebrew-cask-versions.url = "github:homebrew/homebrew-cask-versions";
     homebrew-cask-versions.flake = false;
 
+    nixos-apple-silicon.url = "github:tpwrules/nixos-apple-silicon";
+    nixos-apple-silicon.inputs.nixpkgs.follows = "nixpkgs";
+
     sops-nix.url = "github:Mic92/sops-nix";
   };
   outputs = inputs @ {
@@ -89,6 +92,7 @@
     };
     nixosConfigurations = {
       paranix = makeLinux "aarch64-linux" [./hosts/paranix ./modules/linux/gui] "paranix";
+      asahimac = makeLinux "aarch64-linux" [ ./hosts/asahimac ] "santisasahi";
     };
   };
 }
