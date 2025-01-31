@@ -6,6 +6,10 @@
 }: {
   imports = [./secrets.nix];
 
+  home-manager.users.santi = {
+    imports = [./home.nix];
+  };
+
   programs.zsh.enable = true;
 
   security.polkit.enable = true;
