@@ -5,7 +5,6 @@
   ...
 }: {
   programs.zsh.enable = true;
-  programs.hyprland.enable = true;
 
   security.polkit.enable = true;
   services.xserver = {
@@ -19,18 +18,7 @@
   environment.shells = [pkgs.zsh];
 
   environment.systemPackages = with pkgs; [
-    gcc
-    killall
-    clang
-    docker
-    waybar
-    alacritty
-    dolphin
-    firefox
-    wofi
-    nodejs
-    hyprpaper
-    chromium
+    ghostty
   ] ++ (import ../shared/packages/global.nix {inherit pkgs;}) ++ (import ../shared/packages/vscode.nix {inherit pkgs;}) ++ (import ../shared/packages/scripts.nix {inherit pkgs;});
 
 
