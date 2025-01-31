@@ -4,7 +4,7 @@
   ];
 
   networking.useDHCP = true;
-  networking.hostName = "vm-aarch64";
+  networking.hostName = "santisvm";
 
   nix.extraOptions = ''
     experimental-features = nix-command flakes

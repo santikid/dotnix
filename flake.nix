@@ -27,7 +27,6 @@
     nix-homebrew,
     homebrew-cask,
     homebrew-cask-versions,
-    nixos-apple-silicon,
     sops-nix,
     ...
   }: let

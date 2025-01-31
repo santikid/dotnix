@@ -1,4 +1,5 @@
 _: [
+  "whatsapp"
   # MikroTik Winbox
   "winbox"
   # LM Studio - local llms
