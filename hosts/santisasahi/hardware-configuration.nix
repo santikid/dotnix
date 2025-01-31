@@ -14,12 +14,12 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-label/nixos-root";
+    { device = "/dev/disk/by-label/asahiroot";
       fsType = "ext4";
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-label/EFI";
+    { device = "/dev/disk/by-label/ASAHIEFI";
       fsType = "vfat";
       options = [ "fmask=0022" "dmask=0022" ];
     };

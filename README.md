@@ -84,4 +84,6 @@ The EFI partition can be renamed with `fatlabel /dev/nvme0n1pX EFI` so it can be
 fatlabel /dev/disk/by-partuuid/`cat /proc/device-tree/chosen/asahi,efi-system-partition` EFI
 ```
 
-The files `all_firmware.tar.gz` and `kernelcache*` from `(/mnt/)/boot/asahi` have to be copied to hosts/(machine)/firmware before running `nixos-install`.
+Both `nixos-install` and `nixos-rebuild` have to be ran with the `--impure` flag since vendor firmware from /boot/asahi has to be accessed. Using a folder inside the repo is not possible without git-adding the firmware so impure builds seem to be the most elegant solution.
+
+When installing, setting TMPDIR to a subdirectory in /mnt is recommended to not run out of disk space.
