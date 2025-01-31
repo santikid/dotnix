@@ -85,6 +85,7 @@
   in {
     darwinConfigurations = {
       santibook = makeDarwin "aarch64-darwin" [] "santibook";
+      santimac = makeDarwin "aarch64-darwin" [] "santimac";
     };
     nixosConfigurations = {
       paranix = makeLinux "aarch64-linux" [./hosts/paranix ./modules/linux/gui] "paranix";
