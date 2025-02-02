@@ -26,11 +26,6 @@
     ++ (import ../shared/packages/vscode.nix {inherit pkgs;})
     ++ (import ../shared/packages/scripts.nix {inherit pkgs;});
 
-  environment.interactiveShellInit = ''
-    alias rebuild='darwin-rebuild switch --flake ~/.nix#${config.networking.hostName}'
-    alias update='nix flake update --flake ~/.nix && rebuild'
-  '';
-
   fonts.packages = with pkgs; [] ++ (import ../shared/packages/fonts.nix {inherit pkgs;});
 
   users.users.santi = {

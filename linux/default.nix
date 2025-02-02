@@ -10,7 +10,8 @@
     imports = [./home.nix];
   };
 
-  networking.nameservers = ["1.1.1.1" "9.9.9.9"];
+  networking.nameservers = ["1.1.1.1" "1.0.0.1"];
+  networking.networkmanager.dns = "none";
 
   programs.zsh.enable = true;
 
