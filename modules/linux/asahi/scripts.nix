@@ -14,7 +14,7 @@ with pkgs; [
         fi
         case $1 in
           nix)
-            sudo asahi-bless --next --set-boot "MacOS" --yes
+            sudo asahi-bless --next --set-boot "NixOS" --yes
           ;;
           mac)
             sudo asahi-bless --next --set-boot "Macintosh HD" --yes
