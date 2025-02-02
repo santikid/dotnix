@@ -1,6 +1,7 @@
 {pkgs, ...}:
 with pkgs; [
   coreutils
+  gnumake
   gnupg
   age
   git
