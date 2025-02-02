@@ -9,6 +9,14 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     initExtra = ''
+      # command matching with up/downarrow
+      autoload -U up-line-or-beginning-search
+      autoload -U down-line-or-beginning-search
+      zle -N up-line-or-beginning-search
+      zle -N down-line-or-beginning-search
+      bindkey "^[[A" up-line-or-beginning-search # Up
+      bindkey "^[[B" down-line-or-beginning-search # Down
+
       setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT
       alias d='dirs -v'
       for index ({1..9}) alias "$index"="cd +''${index}"; unset index
