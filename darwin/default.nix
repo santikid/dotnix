@@ -9,8 +9,8 @@
   };
 
   networking = {
-    dns = [ "1.1.1.1" "9.9.9.9" ];
-    knownNetworkServices = [ "Wi-Fi" ];
+    dns = ["1.1.1.1" "9.9.9.9"];
+    knownNetworkServices = ["Wi-Fi"];
   };
 
   programs.zsh.enable = true;

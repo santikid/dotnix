@@ -1,9 +1,13 @@
-{ inputs, pkgs, ... }: {
+{
+  inputs,
+  pkgs,
+  ...
+}: {
   imports = [
     ./hardware-configuration.nix
-     inputs.nixos-apple-silicon.nixosModules.apple-silicon-support
+    inputs.nixos-apple-silicon.nixosModules.apple-silicon-support
   ];
-  
+
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = false;
 
@@ -32,5 +36,5 @@
   ];
   nixpkgs.overlays = [
     inputs.nixos-apple-silicon.overlays.apple-silicon-overlay
-  ]; 
+  ];
 }
