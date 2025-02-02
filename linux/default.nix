@@ -24,7 +24,7 @@
     ]
     ++ (import ../shared/packages/global.nix {inherit pkgs;})
     ++ (import ../shared/packages/scripts.nix {inherit pkgs;})
-    ++ (import ./linux.nix {inherit pkgs;});
+    ++ (import ./packages.nix {inherit pkgs;});
 
   fonts.fontDir.enable = true;
   fonts.packages = with pkgs; [] ++ (import ../shared/packages/fonts.nix {inherit pkgs;});

@@ -15,15 +15,11 @@
     enable = true;
     settings.General.EnableNetworkConfiguration = true;
   };
-  networking.nameservers = [
-    "1.1.1.1"
-    "1.0.0.1"
-  ];
   networking.networkmanager.wifi.backend = "iwd";
   networking.networkmanager.enable = true;
   hardware.asahi = {
     useExperimentalGPUDriver = true;
-    setupAsahiSound = true;
+    setupAsahiSound = false; # for now
   };
   hardware.bluetooth = {
     enable = true;
