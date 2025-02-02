@@ -7,6 +7,9 @@ SYS_TYPE := $(shell uname -s)
 
 IS_ASAHI := $(findstring $(shell uname -r),asahi)
 
+regenerate-keys:
+	nix-shell -p sops --run "sops updatekeys secrets/*.yaml"
+
 format:
 	nix-shell -p alejandra --run 'alejandra *'
 
