@@ -24,7 +24,7 @@
       ];
     };
   };
-  home-manager.users.${user} = {
+  home-manager.users.${user.name} = {
     xsession.windowManager.i3 = {
       enable = true;
       config = let

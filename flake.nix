@@ -84,7 +84,7 @@
     in
       makeFn {
         inherit system;
-        specialArgs = {inherit pkgs inputs self user;};
+        specialArgs = {inherit inputs self user;};
         modules =
           [
             homeManager
