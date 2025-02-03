@@ -87,11 +87,11 @@
       };
   in {
     darwinConfigurations = {
-      santibook = makeDarwin "aarch64-darwin" [ ./modules/darwin/asahi ] "santibook";
+      santibook = makeDarwin "aarch64-darwin" [./modules/darwin/asahi] "santibook";
       santimac = makeDarwin "aarch64-darwin" [] "santimac";
     };
     nixosConfigurations = {
-      paranix = makeLinux "aarch64-linux" [./hosts/paranix ./modules/linux/kde] "paranix";
+      paranix = makeLinux "aarch64-linux" [./hosts/paranix ./modules/linux/kde ./modules/linux/i3] "paranix";
       santisasahi = makeLinux "aarch64-linux" [./hosts/santisasahi ./modules/linux/kde ./modules/linux/asahi] "santisasahi";
     };
   };
