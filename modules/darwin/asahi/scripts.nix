@@ -23,7 +23,7 @@
           exit 1
         ;;
         esac
-        reboot
+        sudo reboot
       '';
     }
   )
