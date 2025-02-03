@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  user,
   ...
 }: {
   environment.systemPackages = with pkgs; [
@@ -23,7 +24,7 @@
       ];
     };
   };
-  home-manager.users.santi = {
+  home-manager.users.${user} = {
     xsession.windowManager.i3 = {
       enable = true;
       config = let

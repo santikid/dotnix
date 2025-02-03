@@ -2,11 +2,12 @@
   config,
   pkgs,
   inputs,
+  user,
   ...
 }: {
   imports = [./secrets.nix];
 
-  home-manager.users.santi = {
+  home-manager.users.${user.name} = {
     imports = [./home.nix];
   };
 
@@ -30,13 +31,13 @@
   fonts.fontDir.enable = true;
   fonts.packages = with pkgs; [] ++ (import ../shared/packages/fonts.nix {inherit pkgs;});
 
-  users.users.santi = {
+  users.users.${user.name} = {
     isNormalUser = true;
-    home = "/home/santi";
-    description = "Lukas Santner";
+    home = "/home/${user.name}";
+    description = user.description;
     shell = pkgs.zsh;
     extraGroups = ["wheel" "video" "audio"];
-    hashedPasswordFile = config.sops.secrets.pw_santi.path;
+    hashedPasswordFile = config.sops.secrets.user_pw.path;
   };
 
   nix.extraOptions = ''

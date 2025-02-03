@@ -33,66 +33,112 @@
     sops-nix,
     ...
   }: let
-    makeDarwin = system: extraModules: hostName: let
-      pkgs = import nixpkgs {inherit system;};
-    in
-      darwin.lib.darwinSystem {
-        system = system;
-        specialArgs = {inherit pkgs inputs self darwin;};
-        modules =
-          [
-            home-manager.darwinModules.default
-            nix-homebrew.darwinModules.nix-homebrew
-            sops-nix.darwinModules.sops
-            {
-              networking.hostName = hostName;
-              home-manager.useUserPackages = true;
-              home-manager.useGlobalPkgs = true;
-              home-manager.extraSpecialArgs = {inherit inputs pkgs;};
-            }
-            {
-              nix-homebrew = {
-                enable = true;
-                user = "santi";
-                taps = {
-                  "homebrew/homebrew-cask" = homebrew-cask;
-                  "homebrew/homebrew-cask-versions" = homebrew-cask-versions;
-                };
-              };
-            }
-            ./shared
-            ./darwin
-          ]
-          ++ extraModules;
+    user = {
+      name = "santi";
+      description = "Lukas Santner"; 
+      email = "lukas@santi.gg";
+    };
+    darwinHosts = {
+      santibook = {
+        inherit user;
+        hostName = "santibook";
+        system = "aarch64-darwin";
+        extraModules = [./modules/darwin/asahi];
       };
-    makeLinux = system: extraModules: hostName:
-      nixpkgs.lib.nixosSystem {
-        system = system;
-        specialArgs = {inherit inputs self;};
+      santimac = {
+        inherit user;
+        hostName = "santimac";
+        system = "aarch64-darwin";
+        extraModules = [];
+      };
+    };
+    nixosHosts = {
+      paranix = {
+        inherit user;
+        hostName = "paranix";
+        system = "aarch64-linux";
+        extraModules = [./hosts/paranix ./modules/linux/kde ./modules/linux/i3];
+      };
+      santisasahi = {
+        inherit user;
+        hostName = "santisasahi";
+        system = "aarch64-linux";
+        extraModules = [./hosts/santisasahi ./modules/linux/kde ./modules/linux/asahi];
+      };
+    };
+
+    makeSystem = hostName: user: isDarwin: system: extraModules: let
+      pkgs = import nixpkgs {inherit system;};
+      makeFn =
+        if isDarwin
+        then darwin.lib.darwinSystem
+        else nixpkgs.lib.nixosSystem;
+      homeManager =
+        if isDarwin
+        then home-manager.darwinModules.default
+        else home-manager.nixosModules.default;
+      sopsNix =
+        if isDarwin
+        then sops-nix.darwinModules.sops
+        else sops-nix.nixosModules.sops;
+    in
+      makeFn {
+        inherit system;
+        specialArgs = {inherit pkgs inputs self user;};
         modules =
           [
-            sops-nix.nixosModules.sops
-            home-manager.nixosModules.default
+            homeManager
+            sopsNix
+            ./shared
+
             {
               networking.hostName = hostName;
               home-manager.useUserPackages = true;
               home-manager.useGlobalPkgs = true;
-              home-manager.extraSpecialArgs = {inherit inputs;};
-              system.stateVersion = "24.05";
+              home-manager.extraSpecialArgs = {inherit inputs pkgs user;};
             }
-            ./shared
-            ./linux
+            (
+              if isDarwin
+              then ./darwin
+              else ./linux
+            )
+            (
+              if isDarwin
+              then nix-homebrew.darwinModules.nix-homebrew
+              else {}
+            )
+            (
+              if isDarwin
+              then {
+                nix-homebrew = {
+                  enable = true;
+                  user = user.name;
+                  taps = {
+                    "homebrew/homebrew-cask" = homebrew-cask;
+                    "homebrew/homebrew-cask-versions" = homebrew-cask-versions;
+                  };
+                };
+              }
+              else {}
+            )
           ]
           ++ extraModules;
       };
   in {
-    darwinConfigurations = {
-      santibook = makeDarwin "aarch64-darwin" [./modules/darwin/asahi] "santibook";
-      santimac = makeDarwin "aarch64-darwin" [] "santimac";
-    };
-    nixosConfigurations = {
-      paranix = makeLinux "aarch64-linux" [./hosts/paranix ./modules/linux/kde ./modules/linux/i3] "paranix";
-      santisasahi = makeLinux "aarch64-linux" [./hosts/santisasahi ./modules/linux/kde ./modules/linux/asahi] "santisasahi";
-    };
+    # Generate darwinConfigurations from darwinHosts
+    darwinConfigurations =
+      builtins.mapAttrs (
+        name: host:
+          makeSystem host.hostName host.user true host.system host.extraModules
+      )
+      darwinHosts;
+
+    # Generate nixosConfigurations from nixosHosts
+    nixosConfigurations =
+      builtins.mapAttrs (
+        name: host:
+          makeSystem host.hostName host.user false host.system host.extraModules
+      )
+      nixosHosts;
   };
 }

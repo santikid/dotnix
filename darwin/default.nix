@@ -2,10 +2,11 @@
   config,
   pkgs,
   inputs,
+  user,
   ...
 }: {
-  home-manager.users.santi = {
-    imports = [./home.nix];
+  home-manager.users.${user.name} = {
+    imports = [ ./home.nix ]; 
   };
 
   networking = {
@@ -28,9 +29,9 @@
 
   fonts.packages = with pkgs; [] ++ (import ../shared/packages/fonts.nix {inherit pkgs;});
 
-  users.users.santi = {
-    description = "Lukas Santner";
-    home = "/Users/santi";
+  users.users.${user.name} = {
+    description = user.description;
+    home = "/Users/${user.name}";
     shell = pkgs.zsh;
   };
 
