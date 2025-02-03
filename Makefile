@@ -1,4 +1,4 @@
-.PHONY: all format rebuild update regenerate-keys
+.PHONY: all format rebuild update regenerate-keys upgrade
 
 HOSTNAME := $(shell hostname)
 
@@ -8,7 +8,7 @@ SYS_TYPE := $(shell uname -s)
 IS_ASAHI := $(findstring $(shell uname -r),asahi)
 
 all:
-	@echo "no command supplied (all/format/rebuild/update/regenerate-keys)"
+	@echo "no command supplied (all/format/rebuild/update/regenerate-keys/upgrade)"
 
 regenerate-keys:
 	nix-shell -p sops --run "sops updatekeys secrets/*.yaml"
@@ -27,3 +27,5 @@ endif
 
 update:
 	nix flake update
+
+upgrade: update rebuild
