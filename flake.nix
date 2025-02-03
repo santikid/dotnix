@@ -91,8 +91,8 @@
       santimac = makeDarwin "aarch64-darwin" [] "santimac";
     };
     nixosConfigurations = {
-      paranix = makeLinux "aarch64-linux" [./hosts/paranix ./modules/linux/gui] "paranix";
-      santisasahi = makeLinux "aarch64-linux" [./hosts/santisasahi ./modules/linux/gui ./modules/linux/asahi] "santisasahi";
+      paranix = makeLinux "aarch64-linux" [./hosts/paranix ./modules/linux/kde] "paranix";
+      santisasahi = makeLinux "aarch64-linux" [./hosts/santisasahi ./modules/linux/kde ./modules/linux/asahi] "santisasahi";
     };
   };
 }
