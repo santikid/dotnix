@@ -87,7 +87,7 @@
       };
   in {
     darwinConfigurations = {
-      santibook = makeDarwin "aarch64-darwin" [] "santibook";
+      santibook = makeDarwin "aarch64-darwin" [ ./modules/darwin/asahi ] "santibook";
       santimac = makeDarwin "aarch64-darwin" [] "santimac";
     };
     nixosConfigurations = {
