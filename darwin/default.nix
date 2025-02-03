@@ -6,7 +6,7 @@
   ...
 }: {
   home-manager.users.${user.name} = {
-    imports = [ ./home.nix ]; 
+    imports = [./home.nix];
   };
 
   networking = {

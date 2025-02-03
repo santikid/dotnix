@@ -35,7 +35,7 @@
   }: let
     user = {
       name = "santi";
-      description = "Lukas Santner"; 
+      description = "Lukas Santner";
       email = "lukas@santi.gg";
     };
     darwinHosts = {
