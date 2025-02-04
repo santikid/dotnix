@@ -57,7 +57,7 @@
         inherit user;
         hostName = "paranix";
         system = "aarch64-linux";
-        extraModules = [./hosts/paranix ./modules/linux/i3];
+        extraModules = [./hosts/paranix ./modules/linux/i3 ./modules/all/ssh-server];
       };
       santisasahi = {
         inherit user;
