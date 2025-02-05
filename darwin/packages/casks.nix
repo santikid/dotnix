@@ -14,8 +14,6 @@ _: [
   "tailscale"
   # no cfg for ghostty since the defaults are amazing
   "ghostty"
-  "rectangle"
-  "hyperkey"
   # xcode version manager
   "xcodes"
   # store ssh keys in secure enclave

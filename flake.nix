@@ -43,7 +43,7 @@
         inherit user;
         hostName = "santibook";
         system = "aarch64-darwin";
-        extraModules = [./modules/darwin/asahi];
+        extraModules = [./modules/darwin/asahi ./modules/darwin/aerospace];
       };
       santimac = {
         inherit user;
