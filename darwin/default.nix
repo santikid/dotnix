@@ -70,6 +70,8 @@
       NSAutomaticDashSubstitutionEnabled = false;
       NSAutomaticQuoteSubstitutionEnabled = false;
 
+      NSWindowShouldDragOnGesture = true;
+
       InitialKeyRepeat = 15;
       KeyRepeat = 2;
 
