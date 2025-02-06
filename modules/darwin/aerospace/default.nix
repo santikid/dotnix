@@ -22,11 +22,9 @@
         "1" = "main";
         "2" = "main";
         "3" = "main";
-        "4" = "main";
-        "a" = "secondary";
-        "b" = "secondary";
-        "c" = "secondary";
-        "d" = "secondary";
+        "4" = "secondary";
+        "5" = "secondary";
+        "6" = "secondary";
       };
       mode.main.binding = {
         cmd-h = "focus left";
@@ -34,10 +32,8 @@
         cmd-k = "focus up";
         cmd-l = "focus right";
 
-        cmd-m = "layout tiles horizontal vertical";
-        cmd-n = "layout accordion horizontal vertical";
-
-        #cmd-shift-m = "move-workspace-to-monitor --wrap-around next";
+        cmd-alt-m = "layout tiles horizontal vertical";
+        cmd-alt-n = "layout accordion horizontal vertical";
 
         cmd-1 = "workspace 1";
         cmd-2 = "workspace 2";
@@ -51,15 +47,6 @@
         cmd-shift-4 = "move-node-to-workspace 4";
         cmd-shift-5 = "move-node-to-workspace 5";
         cmd-shift-6 = "move-node-to-workspace 6";
-
-        alt-1 = "workspace a";
-        alt-2 = "workspace b";
-        alt-3 = "workspace c";
-        alt-4 = "workspace d";
-        alt-shift-1 = "move-node-to-workspace a";
-        alt-shift-2 = "move-node-to-workspace b";
-        alt-shift-3 = "move-node-to-workspace c";
-        alt-shift-4 = "move-node-to-workspace d";
       };
     };
   };
