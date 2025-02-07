@@ -32,6 +32,9 @@
         cmd-k = "focus up";
         cmd-l = "focus right";
 
+        cmd-period = "macos-native-fullscreen";
+        cmd-semicolon = "fullscreen";
+
         cmd-alt-m = "layout tiles horizontal vertical";
         cmd-alt-n = "layout accordion horizontal vertical";
 
