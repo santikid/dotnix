@@ -1,4 +1,5 @@
 _: [
+  "iina"
   "obsidian" # obsidian in nixpkgs is only available for aarch64-linux and x86_64-linux
   "whatsapp"
   # MikroTik Winbox
