@@ -5,6 +5,7 @@ with pkgs; [
   gnupg
   age
   git
+  ncdu
 
   # Networking & Download Tools
   curl
