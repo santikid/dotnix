@@ -32,6 +32,11 @@
         cmd-k = "focus up";
         cmd-l = "focus right";
 
+        cmd-shift-h = "move left";
+        cmd-shift-j = "move down";
+        cmd-shift-k = "move up";
+        cmd-shift-l = "move right";
+
         cmd-period = "macos-native-fullscreen";
         cmd-semicolon = "fullscreen";
 
