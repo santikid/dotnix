@@ -41,7 +41,4 @@ with pkgs; [
   # Media Processing
   ffmpeg
   imagemagick
-
-  # Editors
-  neovim
 ]
