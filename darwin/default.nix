@@ -35,8 +35,6 @@
     shell = pkgs.zsh;
   };
 
-  services.nix-daemon.enable = true;
-
   nix.extraOptions = ''
     experimental-features = nix-command flakes
   '';
@@ -47,7 +45,7 @@
     brews = pkgs.callPackage ./packages/formulae.nix {};
   };
 
-  system.stateVersion = 4;
+  system.stateVersion = 5;
 
   system = {
     keyboard = {
