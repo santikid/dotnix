@@ -16,10 +16,10 @@ return {
 		opts = {
 			formatters_by_ft = {
 				lua = { "stylua" },
-				javascript = { "prettierd" },
-				typescript = { "prettierd" },
-				svelte = { "prettierd" },
-				astro = { "prettierd" },
+				javascript = { "prettier" },
+				typescript = { "prettier" },
+				svelte = { "prettier" },
+				astro = { "prettier" },
 				rust = { "rustfmt" },
 			},
 			format_on_save = { timeout_ms = 500, lsp_fallback = true },
