@@ -43,6 +43,16 @@ return {
 				desc = "Switch up",
 			},
 			{
+				"<leader>sv",
+				"<C-w>v",
+				desc = "Split vertical",
+			},
+			{
+				"<leader>sh",
+				"<C-w>s",
+				desc = "Split horizontal",
+			},
+			{
 				"<leader>fa",
 				function()
 					Snacks.picker.smart()
