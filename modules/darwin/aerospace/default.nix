@@ -19,12 +19,12 @@
         outer.right = 5;
       };
       workspace-to-monitor-force-assignment = {
-        "1" = "main";
-        "2" = "main";
-        "3" = "main";
-        "4" = "secondary";
-        "5" = "secondary";
-        "6" = "secondary";
+        "1" = "secondary";
+        "2" = "secondary";
+        "3" = "secondary";
+        "4" = "main";
+        "5" = "main";
+        "6" = "main";
       };
       mode.main.binding = {
         cmd-h = "focus left";
