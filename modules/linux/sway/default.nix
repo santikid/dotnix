@@ -14,7 +14,7 @@
     swaybg
     grim
     slurp
-    dolphin
+    kdePackages.dolphin
     firefox
   ];
 

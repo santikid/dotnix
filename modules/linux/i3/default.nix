@@ -8,7 +8,7 @@
     i3
     feh
     rofi
-    dolphin
+    kdePackages.dolphin
     firefox
     ghostty
   ];
