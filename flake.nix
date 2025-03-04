@@ -45,13 +45,19 @@
         inherit user;
         hostName = "santibook";
         system = "aarch64-darwin";
-        extraModules = [./modules/darwin/asahi ./modules/darwin/aerospace];
+        extraModules = [./modules/darwin/asahi ./modules/darwin/aerospace ./modules/darwin/desktop];
       };
       santimac = {
         inherit user;
         hostName = "santimac";
         system = "aarch64-darwin";
-        extraModules = [];
+        extraModules = [./modules/darwin/desktop];
+      };
+      santiserver = {
+        inherit user;
+        hostName = "santiserver";
+        system = "aarch64-darwin";
+        extraModules = [./modules/darwin/aerospace ./modules/darwin/server];
       };
     };
     nixosHosts = {
@@ -59,7 +65,7 @@
         inherit user;
         hostName = "paranix";
         system = "aarch64-linux";
-        extraModules = [./hosts/paranix ./modules/linux/i3 ./modules/all/ssh-server];
+        extraModules = [./hosts/paranix ./modules/linux/i3 ./modules/linux/ssh-server];
       };
       santisasahi = {
         inherit user;
@@ -91,8 +97,8 @@
           [
             homeManager
             sopsNix
-            ./shared
-
+            ./modules/all
+            ./modules/home
             {
               networking.hostName = hostName;
               home-manager.useUserPackages = true;
@@ -101,8 +107,8 @@
             }
             (
               if isDarwin
-              then ./darwin
-              else ./linux
+              then ./modules/darwin
+              else ./modules/linux
             )
             (
               if isDarwin

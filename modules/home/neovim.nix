@@ -2,12 +2,25 @@
   config,
   pkgs,
   inputs,
+  user,
+  lib,
   ...
 }: {
+  home.file = {
+    ".config/nvim" =
+      if pkgs.stdenv.isDarwin
+      then {
+        source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/configs/nvim";
+      }
+      else {
+        source = config.lib.file.mkOutOfStoreSymlink "/.nix/configs/nvim";
+      };
+  };
   programs.neovim = {
     enable = true;
     package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
     extraPackages = with pkgs; [
+      ripgrep
       nixd
       prettierd
       stylua

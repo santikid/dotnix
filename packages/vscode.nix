@@ -1,5 +1,4 @@
 {pkgs, ...}:
-# called from both common/darwin.nix and common/linux.nix
 with pkgs; [
   (vscode-with-extensions.override {
     vscode = vscodium;
