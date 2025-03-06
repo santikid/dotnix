@@ -45,7 +45,7 @@
         inherit user;
         hostName = "santibook";
         system = "aarch64-darwin";
-        extraModules = [./modules/darwin/asahi ./modules/darwin/aerospace ./modules/darwin/desktop];
+        extraModules = [./modules/darwin/asahi ./modules/darwin/aerospace ./modules/darwin/desktop ./modules/home/secrets];
       };
       santimac = {
         inherit user;
@@ -65,7 +65,7 @@
         inherit user;
         hostName = "devbox";
         system = "x86_64-linux";
-        extraModules = [./hosts/devbox ./modules/linux/ssh-server ];
+        extraModules = [./hosts/devbox ./modules/linux/ssh-server];
       };
       paranix = {
         inherit user;

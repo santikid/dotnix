@@ -3,14 +3,14 @@
   pkgs,
   inputs,
   user,
+  environment,
   ...
 }: {
   home-manager.users.${user.name} = {
-    home.stateVersion = "24.05";
     imports = [
-      ./shell
-      ./neovim.nix
-      ./gpg.nix
+      inputs.sops-nix.homeManagerModules.sops
+      ./env.nix
+      ./config.nix
     ];
   };
 }
