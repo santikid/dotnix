@@ -61,6 +61,12 @@
       };
     };
     nixosHosts = {
+      devbox = {
+        inherit user;
+        hostName = "devbox";
+        system = "x86_64-linux";
+        extraModules = [./hosts/devbox ./modules/linux/ssh-server ];
+      };
       paranix = {
         inherit user;
         hostName = "paranix";

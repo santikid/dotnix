@@ -21,5 +21,8 @@
     shell = pkgs.zsh;
     extraGroups = ["wheel" "video" "audio"];
     hashedPasswordFile = config.sops.secrets.user_pw.path;
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILds3nmPYniDOxaeLUY6B7Om/nQF04wXpIqWaHwrkriA santi"
+    ];
   };
 }
