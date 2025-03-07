@@ -17,9 +17,6 @@
     homebrew-cask-versions.url = "github:homebrew/homebrew-cask-versions";
     homebrew-cask-versions.flake = false;
 
-    nixos-apple-silicon.url = "github:tpwrules/nixos-apple-silicon";
-    nixos-apple-silicon.inputs.nixpkgs.follows = "nixpkgs";
-
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
     sops-nix.url = "github:Mic92/sops-nix";
@@ -45,7 +42,7 @@
         inherit user;
         hostName = "santibook";
         system = "aarch64-darwin";
-        extraModules = [./modules/darwin/asahi ./modules/darwin/aerospace ./modules/darwin/desktop ./modules/home/secrets];
+        extraModules = [./modules/darwin/aerospace ./modules/darwin/desktop ./modules/home/secrets];
       };
       santimac = {
         inherit user;
@@ -72,12 +69,6 @@
         hostName = "paranix";
         system = "aarch64-linux";
         extraModules = [./hosts/paranix ./modules/linux/i3 ./modules/linux/ssh-server];
-      };
-      santisasahi = {
-        inherit user;
-        hostName = "santisasahi";
-        system = "aarch64-linux";
-        extraModules = [./hosts/santisasahi ./modules/linux/kde ./modules/linux/asahi];
       };
     };
 
