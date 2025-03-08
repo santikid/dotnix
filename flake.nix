@@ -96,6 +96,7 @@
             sopsNix
             ./modules/all
             ./modules/home
+            ./packages
             {
               networking.hostName = hostName;
               home-manager.useUserPackages = true;
