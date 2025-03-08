@@ -37,9 +37,6 @@
       pnpm
       bun
 
-      # ghostty terminal
-      ghostty
-
       # Text & Document Processing
       pandoc
 
