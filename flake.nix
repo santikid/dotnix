@@ -62,13 +62,13 @@
         inherit user;
         hostName = "devbox";
         system = "x86_64-linux";
-        extraModules = [./hosts/devbox ./modules/linux/ssh-server];
+        extraModules = [./hosts/devbox ./modules/linux/server];
       };
       paranix = {
         inherit user;
         hostName = "paranix";
         system = "aarch64-linux";
-        extraModules = [./hosts/paranix ./modules/linux/i3 ./modules/linux/ssh-server];
+        extraModules = [./hosts/paranix ./modules/linux/i3 ./modules/linux/server];
       };
     };
 
