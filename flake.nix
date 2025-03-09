@@ -62,7 +62,7 @@
         inherit user;
         hostName = "devbox";
         system = "x86_64-linux";
-        extraModules = [./hosts/devbox ./modules/linux/server];
+        extraModules = [./modules/linux/secrets ./hosts/devbox ./modules/linux/server];
       };
       paranix = {
         inherit user;
