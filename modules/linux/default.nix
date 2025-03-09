@@ -12,6 +12,8 @@
 
   fonts.fontDir.enable = true;
 
+  environment.systemPackages = import ./packages.nix { inherit pkgs; };
+
   users.users.${user.name} = {
     isNormalUser = true;
     home = "/home/${user.name}";
