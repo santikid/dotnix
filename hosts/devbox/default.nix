@@ -1,4 +1,4 @@
-{config, inputs, ...}: {
+{config, pkgs, inputs, ...}: {
   imports = [
     ./hardware-configuration.nix
   ];
@@ -12,16 +12,8 @@
       enable = true;
       url = "https://github.com/santikid/roller";
       tokenFile = config.sops.secrets.github-runner-token.path;
-    };
-    work-1 = {
-      enable = true;
-      url = "https://github.com/arollalda";
-      tokenFile = config.sops.secrets.github-runner-token.path;
-    };
-    work-2 = {
-      enable = true;
-      url = "https://github.com/arollalda";
-      tokenFile = config.sops.secrets.github-runner-token.path;
+      extraEnvironment = { TMPDIR = "/tmp"; };
+      extraPackages = with pkgs; [ curl ];
     };
   };
 
