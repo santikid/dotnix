@@ -5,5 +5,8 @@
       generateKey = false;
     };
     defaultSopsFile = ../../../secrets/secrets.yaml;
+    secrets = {
+      gh_token = {};
+    };
   };
 }
