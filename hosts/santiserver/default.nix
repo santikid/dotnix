@@ -88,21 +88,21 @@
         sonarr = {
           loadBalancer = {
             servers = [
-              { url = "http://localhost:8989"; }
+              {url = "http://localhost:8989";}
             ];
           };
         };
         radarr = {
           loadBalancer = {
             servers = [
-              { url = "http://localhost:7979"; }
+              {url = "http://localhost:7979";}
             ];
           };
         };
         jellyfin = {
           loadBalancer = {
             servers = [
-              { url = "http://localhost:8096"; }
+              {url = "http://localhost:8096";}
             ];
           };
         };
