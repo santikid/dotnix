@@ -42,7 +42,7 @@
         inherit user;
         hostName = "santibook";
         system = "aarch64-darwin";
-        extraModules = [./modules/darwin/aerospace ./modules/darwin/desktop ./modules/home/secrets];
+        extraModules = [./modules/darwin/aerospace ./modules/darwin/desktop];
       };
       santimac = {
         inherit user;
@@ -54,7 +54,7 @@
         inherit user;
         hostName = "santiserver";
         system = "aarch64-darwin";
-        extraModules = [./modules/all/secrets ./hosts/santiserver ./modules/darwin/server ./modules/home/secrets];
+        extraModules = [./modules/all/secrets ./hosts/santiserver ./modules/darwin/server];
       };
     };
     nixosHosts = {
