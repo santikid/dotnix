@@ -1,4 +1,9 @@
-{config, pkgs, inputs, ...}: {
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}: {
   imports = [
     ./hardware-configuration.nix
   ];
@@ -12,8 +17,8 @@
       enable = true;
       url = "https://github.com/santikid/roller";
       tokenFile = config.sops.secrets.github-runner-token.path;
-      extraEnvironment = { TMPDIR = "/tmp"; };
-      extraPackages = with pkgs; [ curl ];
+      extraEnvironment = {TMPDIR = "/tmp";};
+      extraPackages = with pkgs; [curl];
     };
   };
 

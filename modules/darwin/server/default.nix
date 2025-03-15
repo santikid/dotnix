@@ -9,4 +9,5 @@
 
   power.restartAfterPowerFailure = true;
   power.restartAfterFreeze = true;
+  power.sleep.computer = "never";
 }

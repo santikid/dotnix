@@ -54,7 +54,7 @@
         inherit user;
         hostName = "santiserver";
         system = "aarch64-darwin";
-        extraModules = [./modules/darwin/aerospace ./modules/darwin/server];
+        extraModules = [./hosts/santiserver ./modules/darwin/server ./modules/home/secrets];
       };
     };
     nixosHosts = {
@@ -97,6 +97,15 @@
             ./modules/all
             ./modules/home
             ./packages
+            (
+              if isDarwin
+              then {
+                networking.computerName = hostName;
+                networking.localHostName = hostName;
+                nix.linux-builder.enable = true;
+              }
+              else {}
+            )
             {
               networking.hostName = hostName;
               home-manager.useUserPackages = true;
