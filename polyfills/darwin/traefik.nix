@@ -59,12 +59,14 @@ in {
   };
 
   config = mkIf cfg.enable {
-    launchd.daemons.tailscaled = {
+    launchd.daemons.traefik = {
       serviceConfig = {
         Label = "io.traefik.traefik";
         RunAtLoad = true;
       };
       script = ''
+        export CF_API_EMAIL=`cat /run/secrets/cf_email`
+        export CF_DNS_API_TOKEN=`cat /run/secrets/cf_token`
         ${cfg.package}/bin/traefik --configfile=${staticConfigFile}
       '';
     };

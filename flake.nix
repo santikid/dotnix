@@ -54,7 +54,7 @@
         inherit user;
         hostName = "santiserver";
         system = "aarch64-darwin";
-        extraModules = [./hosts/santiserver ./modules/darwin/server ./modules/home/secrets];
+        extraModules = [./modules/all/secrets ./hosts/santiserver ./modules/darwin/server ./modules/home/secrets];
       };
     };
     nixosHosts = {
@@ -62,7 +62,7 @@
         inherit user;
         hostName = "devbox";
         system = "x86_64-linux";
-        extraModules = [./modules/linux/secrets ./hosts/devbox ./modules/linux/server];
+        extraModules = [./modules/all/secrets ./hosts/devbox ./modules/linux/server];
       };
       paranix = {
         inherit user;

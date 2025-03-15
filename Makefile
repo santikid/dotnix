@@ -8,7 +8,8 @@ SYS_TYPE := $(shell uname -s)
 all:
 	@echo "no command supplied (all/format/rebuild/update/regenerate-keys/upgrade)"
 
-regenerate-keys:
+rekey:
+	gpg --recv-keys 644EFF248A9CA2D269C30A7A6AA809E3B3CCCA64
 	nix-shell -p sops --run "sops updatekeys secrets/*.yaml"
 
 format:

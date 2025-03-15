@@ -1,4 +1,5 @@
 _: [
+"ghostty"
   "handbrake"
   "iina"
   "transmission"
@@ -7,5 +8,4 @@ _: [
   "xcodes"
   # store ssh keys in secure enclave
   "secretive"
-  "orbstack"
 ]
