@@ -85,7 +85,7 @@
           service = "sabnzbd";
         };
         traefik = {
-          entryPoints = ["web"];
+          entryPoints = ["websecure"];
           rule = "Host(`traefik.home.santi.cloud`)";
           service = "api@internal";
         };
@@ -115,7 +115,7 @@
         sabnzbd = {
           loadBalancer = {
             servers = [
-              {url = "http://localhost:8585";}
+              {url = "http://localhost:8085";}
             ];
           };
         };

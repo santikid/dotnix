@@ -1,8 +1,10 @@
-{ config, lib, pkgs, ... }:
-
-with lib;
-
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+with lib; let
   cfg = config.services.traefik;
 
   format = pkgs.formats.toml {};
@@ -10,8 +12,8 @@ let
   dynamicConfigFile = format.generate "config.toml" cfg.dynamicConfigOptions;
 
   staticConfigFile = format.generate "config.toml" (recursiveUpdate cfg.staticConfigOptions {
-      providers.file.filename = "${dynamicConfigFile}";
-    });
+    providers.file.filename = "${dynamicConfigFile}";
+  });
 in {
   options.services.traefik = {
     enable = mkEnableOption "Traefik web server";
@@ -21,12 +23,12 @@ in {
         Static configuration for Traefik.
       '';
       type = format.type;
-      default = { entryPoints.http.address = ":80"; };
+      default = {entryPoints.http.address = ":80";};
       example = {
         entryPoints.web.address = ":8080";
         entryPoints.http.address = ":80";
 
-        api = { };
+        api = {};
       };
     };
 
@@ -35,15 +37,14 @@ in {
         Dynamic configuration for Traefik.
       '';
       type = format.type;
-      default = { };
+      default = {};
       example = {
         http.routers.router1 = {
           rule = "Host(`localhost`)";
           service = "service1";
         };
 
-        http.services.service1.loadBalancer.servers =
-          [{ url = "http://localhost:8080"; }];
+        http.services.service1.loadBalancer.servers = [{url = "http://localhost:8080";}];
       };
     };
 
@@ -55,7 +56,7 @@ in {
       '';
     };
 
-    package = mkPackageOption pkgs "traefik" { };
+    package = mkPackageOption pkgs "traefik" {};
   };
 
   config = mkIf cfg.enable {

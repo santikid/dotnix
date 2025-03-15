@@ -1,5 +1,5 @@
 _: [
-"ghostty"
+  "ghostty"
   "handbrake"
   "iina"
   "transmission"
