@@ -1,7 +1,7 @@
 keys:
   - &santi_pgp 644EFF248A9CA2D269C30A7A6AA809E3B3CCCA64
   - &santi_age age1lmhxry5p45qz2m3lstvvhepdcjrf884kculesvgy7phvm4pnnsqqs63vfz
-  - &machine_paranix age1rtaw7ym3j9h4wreh0r5k4rwwfk04mq0k8uml02el4xzc6u9gzyxsmdxf4n
+  - &machine_paranix age1n3gmcr3tms56uzcj0472s3d4v0pu0aygc3lw25vmav8qpvutl3kstx0m2l
   - &machine_devbox age10a09nmn9rs2afktn5k902sjqujnp0ufnt06m7csk4krv4qdp5gpsfyxlfe
   - &machine_santiserver age1wmscunfntut4fzem9zj0dxx4wpd2farrsj6qheuwg3mzlmep5ewq4fmejw
 creation_rules:
