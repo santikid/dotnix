@@ -14,6 +14,8 @@
     ];
   };
 
+  system.defaults.dock.autohide = false;
+
   homebrew.casks = ["jellyfin" "podman-desktop"];
   networking = {
     dns = ["1.1.1.1" "9.9.9.9"];

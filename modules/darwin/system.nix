@@ -40,7 +40,6 @@
         "com.apple.keyboard.fnState" = true;
       };
       dock = {
-        autohide = true;
         autohide-delay = 0.0;
         autohide-time-modifier = 0.0;
         show-recents = false;
