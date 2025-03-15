@@ -4,22 +4,13 @@
   inputs,
   ...
 }: {
+  include = [
+    ../../polyfills/darwin/traefik.nix
+  ];
   networking = {
     dns = ["1.1.1.1" "9.9.9.9"];
     knownNetworkServices = ["Wi-Fi" "Ethernet"];
   };
-  services.sonarr.enable = true;
-  services.sonarr.settings.server.port = 8989;
-  services.radarr.enable = true;
-  services.radarr.settings.server.port = 7979;
-
-  services.jellyfin.enable = true;
-  environment.systemPackages = with pkgs; [
-    jellyfin
-    jellyfin-web
-    jellyfin-ffmpeg
-  ];
-
   services.traefik = {
     enable = true;
     staticConfigOptions = {

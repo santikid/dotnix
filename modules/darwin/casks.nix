@@ -7,4 +7,5 @@ _: [
   "xcodes"
   # store ssh keys in secure enclave
   "secretive"
+  "orbstack"
 ]
