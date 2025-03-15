@@ -99,7 +99,7 @@
 
         startup = [
           {
-            command = "feh --bg-color black";
+            command = "feh --bg-fill /.nix/wallpaper.png";
             always = true;
             notification = false;
           }
