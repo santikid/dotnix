@@ -37,7 +37,6 @@
         cmd-shift-k = "move up";
         cmd-shift-l = "move right";
 
-        cmd-period = "macos-native-fullscreen";
         cmd-semicolon = "fullscreen";
 
         cmd-alt-m = "layout tiles horizontal vertical";
