@@ -6,10 +6,6 @@
   ...
 }: {
   system = {
-    keyboard = {
-      enableKeyMapping = true;
-      remapCapsLockToControl = true;
-    };
     defaults = {
       controlcenter = {
         BatteryShowPercentage = true;
