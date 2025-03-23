@@ -4,5 +4,5 @@
   inputs,
   ...
 }: {
-  imports = [./tmux.nix ./git.nix ./zsh.nix];
+  imports = [./zsh.nix ./tools.nix];
 }

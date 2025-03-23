@@ -13,7 +13,6 @@
       age
       git
       ncdu
-      eza
 
       # Networking & Download Tools
       curl
