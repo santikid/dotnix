@@ -13,6 +13,7 @@
       age
       git
       ncdu
+      eza
 
       # Networking & Download Tools
       curl
@@ -52,5 +53,7 @@
     ++ (import ./vscode.nix {inherit pkgs;})
     ++ (import ./scripts.nix {inherit pkgs;});
 
-  fonts.packages = with pkgs; [] ++ (import ./fonts.nix {inherit pkgs;});
+  fonts.packages = with pkgs; [
+    iosevka
+  ];
 }
