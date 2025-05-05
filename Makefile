@@ -14,6 +14,7 @@ rekey:
 
 format:
 	nix-shell -p alejandra --run 'alejandra *'
+	nix-shell -p stylua --run 'stylua -g "*.lua" -- .'
 
 rebuild:
 ifeq ($(SYS_TYPE),Linux)

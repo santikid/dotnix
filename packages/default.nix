@@ -13,6 +13,13 @@
       age
       git
       ncdu
+      fd
+
+      tectonic
+      ghostscript
+      mermaid-cli
+
+      lazygit
 
       # Networking & Download Tools
       curl

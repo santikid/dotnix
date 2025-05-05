@@ -28,6 +28,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		bufmap("n", "<space>D", vim.lsp.buf.type_definition)
 		bufmap("n", "<space>rn", vim.lsp.buf.rename)
 		bufmap("n", "<space>ca", vim.lsp.buf.code_action)
-		bufmap("n", "<space>f", vim.lsp.buf.format)
+		-- replaced by format-lint/space j
+		--bufmap("n", "<space>f", vim.lsp.buf.format)
 	end,
 })

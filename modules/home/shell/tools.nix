@@ -1,4 +1,3 @@
-
 {
   config,
   pkgs,
@@ -17,6 +16,8 @@
   programs.tmux = {
     enable = true;
     prefix = "C-a";
+    # not sure how good this is
+    terminal = "xterm-ghostty";
     baseIndex = 1;
     clock24 = true;
     mouse = true;

@@ -9,6 +9,8 @@ return {
 			explorer = { enabled = true },
 			indent = { enabled = true },
 			input = { enabled = true },
+			image = { enabled = true },
+			lazygit = { enabled = true },
 			notifier = {
 				enabled = true,
 				timeout = 3000,
@@ -51,6 +53,13 @@ return {
 				"<leader>sh",
 				"<C-w>s",
 				desc = "Split horizontal",
+			},
+			{
+				"<leader>gg",
+				function()
+					Snacks.lazygit()
+				end,
+				desc = "Commands",
 			},
 			{
 				"<leader>fa",
@@ -127,9 +136,24 @@ return {
 		opts = {},
 		keys = {
 			{
-				"<leader>t",
+				"<leader>xx",
 				"<cmd>Trouble diagnostics toggle<cr>",
 				desc = "Diagnostics (Trouble)",
+			},
+			{
+				"<leader>xX",
+				"<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
+				desc = "Diagnostics (Trouble) in current buffer",
+			},
+			{
+				"<leader>cs",
+				"<cmd>Trouble symbols toggle<cr>",
+				desc = " (Trouble)",
+			},
+			{
+				"<leader>xq",
+				"<cmd>Trouble qflist toggle<cr>",
+				desc = "QF-list (Trouble)",
 			},
 		},
 	},
