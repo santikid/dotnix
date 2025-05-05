@@ -17,8 +17,6 @@
     homebrew-cask-versions.url = "github:homebrew/homebrew-cask-versions";
     homebrew-cask-versions.flake = false;
 
-    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
-
     sops-nix.url = "github:Mic92/sops-nix";
   };
   outputs = inputs @ {
