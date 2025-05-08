@@ -42,7 +42,8 @@ return {
 				ts_ls = {},
 				astro = {},
 				tailwindcss = {},
-				rust_analyzer = {},
+				-- replaced by rust.lua
+				--rust_analyzer = {},
 				svelte = {},
 				nixd = {},
 			},
