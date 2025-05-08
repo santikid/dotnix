@@ -5,7 +5,7 @@
   user,
   ...
 }: {
-  imports = [./system.nix];
+  imports = [./system.nix ./linux-builder.nix];
   networking = {
     dns = ["1.1.1.1" "9.9.9.9"];
     knownNetworkServices = ["Wi-Fi"];

@@ -100,7 +100,6 @@
               then {
                 networking.computerName = hostName;
                 networking.localHostName = hostName;
-                nix.linux-builder.enable = true;
               }
               else {}
             )
