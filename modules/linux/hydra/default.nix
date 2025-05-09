@@ -1,7 +1,7 @@
 {user, ...}: {
   services.hydra = {
     enable = true;
-    hydraURL = "http://localhost:10001";
+    hydraURL = "http://0.0.0.0:3000";
     notificationSender = "hydra@localhost";
   };
 }
