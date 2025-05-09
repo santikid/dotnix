@@ -62,6 +62,12 @@
         system = "x86_64-linux";
         extraModules = [./modules/all/secrets ./hosts/devbox ./modules/linux/server];
       };
+      santiserver-vm = {
+        inherit user;
+        hostName = "santiserver-vm";
+        system = "aarch64-linux";
+        extraModules = [./hosts/santiserver-vm ./modules/linux/server ./modules/linux/hydra];
+      };
       paranix = {
         inherit user;
         hostName = "paranix";
