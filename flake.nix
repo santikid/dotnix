@@ -66,7 +66,7 @@
         inherit user;
         hostName = "santiserver-vm";
         system = "aarch64-linux";
-        extraModules = [./hosts/santiserver-vm ./modules/linux/server ./modules/linux/hydra];
+        extraModules = [./hosts/santiserver-vm ./modules/linux/server ];
       };
       paranix = {
         inherit user;
