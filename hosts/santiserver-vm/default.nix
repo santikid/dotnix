@@ -1,4 +1,4 @@
-{inputs, ...}: {
+{inputs, user, ...}: {
   imports = [
     ./hardware-configuration.nix
   ];
@@ -39,6 +39,9 @@
       prefixLength = 24;
     }
   ];
+
+  virtualisation.docker.enable = true;
+  users.users.${user.name}.extraGroups = ["docker"];
 
   system.stateVersion = "24.05";
 }
