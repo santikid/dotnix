@@ -1,8 +1,12 @@
 return { -- colorscheme
 	{
-		"rebelot/kanagawa.nvim",
+		"navarasu/onedark.nvim",
+		priority = 1000,
 		config = function()
-			vim.cmd.colorscheme("kanagawa")
+			require("onedark").setup({
+				style = "darker",
+			})
+			require("onedark").load()
 		end,
 	},
 	-- neovim dev
@@ -42,7 +46,7 @@ return { -- colorscheme
 			require("lualine").setup({
 				options = {
 					icons_enabled = true,
-					theme = "kanagawa",
+					theme = "onedark",
 					component_separators = { left = "", right = "" },
 					section_separators = { left = "", right = "" },
 					disabled_filetypes = {},

@@ -11,6 +11,8 @@
     knownNetworkServices = ["Wi-Fi"];
   };
 
+  system.primaryUser = user.name;
+
   users.users.${user.name} = {
     description = user.description;
     home = "/Users/${user.name}";

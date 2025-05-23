@@ -40,13 +40,7 @@
         inherit user;
         hostName = "santibook";
         system = "aarch64-darwin";
-        extraModules = [./modules/darwin/aerospace ./modules/darwin/desktop];
-      };
-      santimac = {
-        inherit user;
-        hostName = "santimac";
-        system = "aarch64-darwin";
-        extraModules = [./modules/darwin/desktop];
+        extraModules = [./modules/darwin/aerospace ./modules/darwin/desktop ./packages/workstation];
       };
       santiserver = {
         inherit user;
@@ -60,19 +54,19 @@
         inherit user;
         hostName = "devbox";
         system = "x86_64-linux";
-        extraModules = [./modules/all/secrets ./hosts/devbox ./modules/linux/server];
+        extraModules = [./modules/all/secrets ./hosts/devbox ./modules/linux/server ./packages/workstation];
       };
       santiserver-vm = {
         inherit user;
         hostName = "santiserver-vm";
         system = "aarch64-linux";
-        extraModules = [./hosts/santiserver-vm ./modules/linux/server ];
+        extraModules = [./hosts/santiserver-vm ./modules/linux/server];
       };
       paranix = {
         inherit user;
         hostName = "paranix";
         system = "aarch64-linux";
-        extraModules = [./hosts/paranix ./modules/linux/i3 ./modules/linux/server];
+        extraModules = [./hosts/paranix ./modules/linux/i3 ./modules/linux/server ./packages/workstation];
       };
     };
 

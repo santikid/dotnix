@@ -43,6 +43,7 @@
       nodejs_22
       pnpm
       bun
+      postgresql_16
 
       # Text & Document Processing
       pandoc
@@ -56,7 +57,6 @@
       ffmpeg
       imagemagick
     ]
-    ++ (import ./vscode.nix {inherit pkgs;})
     ++ (import ./scripts.nix {inherit pkgs;});
 
   fonts.packages = with pkgs; [

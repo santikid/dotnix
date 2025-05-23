@@ -1,4 +1,5 @@
 _: [
+  "beekeeper-studio"
   "ghostty"
   "handbrake"
   "iina"

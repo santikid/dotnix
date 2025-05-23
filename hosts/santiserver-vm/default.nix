@@ -1,4 +1,8 @@
-{inputs, user, ...}: {
+{
+  inputs,
+  user,
+  ...
+}: {
   imports = [
     ./hardware-configuration.nix
   ];
@@ -17,15 +21,15 @@
   nix.distributedBuilds = true;
   nix.settings.trusted-users = ["@admin" "hydra" "hydra-queue-runner"];
   nix.buildMachines = [
-  {
-    hostName = "devbox";
-    system = "x86_64-linux";
-    protocol = "ssh";
-    sshUser = "hydra-builder";
-    sshKey = "/etc/hydra-builder-key";
-    supportedFeatures = ["big-parallel" "kvm" "nixos-test" "benchmark"];
-    maxJobs = 8;
-  }
+    {
+      hostName = "devbox";
+      system = "x86_64-linux";
+      protocol = "ssh";
+      sshUser = "hydra-builder";
+      sshKey = "/etc/hydra-builder-key";
+      supportedFeatures = ["big-parallel" "kvm" "nixos-test" "benchmark"];
+      maxJobs = 8;
+    }
   ];
   nix.extraOptions = ''
     experimental-features = nix-command flakes
