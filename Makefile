@@ -23,7 +23,7 @@ ifeq ($(SYS_TYPE),Linux)
 endif
 ifeq ($(SYS_TYPE),Darwin)
 	@echo "Rebuilding Darwin configuration..."
-	darwin-rebuild switch --flake .#$(HOSTNAME)
+	sudo darwin-rebuild switch --flake .#$(HOSTNAME)
 endif
 
 update:
