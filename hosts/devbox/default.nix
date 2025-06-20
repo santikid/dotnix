@@ -2,6 +2,7 @@
   config,
   pkgs,
   inputs,
+  user,
   ...
 }: {
   imports = [
@@ -24,6 +25,8 @@
   nix.settings.trusted-users = ["root" "hydra-builder"];
   services.openssh.settings.AllowUsers = ["hydra-builder"];
 
+  programs.mosh.enable = true;
+
   sops.secrets.github-runner-token = {sopsFile = ../../secrets/devbox.yaml;};
   services.github-runners = {
     roller = {
@@ -36,6 +39,9 @@
   };
 
   networking.useDHCP = true;
+
+  virtualisation.docker.enable = true;
+  users.users.${user.name}.extraGroups = ["docker"];
 
   nix.extraOptions = ''
     experimental-features = nix-command flakes
