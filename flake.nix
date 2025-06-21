@@ -14,9 +14,6 @@
     homebrew-cask.url = "github:homebrew/homebrew-cask";
     homebrew-cask.flake = false;
 
-    homebrew-cask-versions.url = "github:homebrew/homebrew-cask-versions";
-    homebrew-cask-versions.flake = false;
-
     sops-nix.url = "github:Mic92/sops-nix";
   };
   outputs = inputs @ {
@@ -26,7 +23,6 @@
     darwin,
     nix-homebrew,
     homebrew-cask,
-    homebrew-cask-versions,
     sops-nix,
     ...
   }: let
@@ -127,7 +123,6 @@
                   user = user.name;
                   taps = {
                     "homebrew/homebrew-cask" = homebrew-cask;
-                    "homebrew/homebrew-cask-versions" = homebrew-cask-versions;
                   };
                 };
               }
