@@ -36,7 +36,7 @@
         inherit user;
         hostName = "santibook";
         system = "aarch64-darwin";
-        extraModules = [./modules/darwin/aerospace ./modules/darwin/desktop ./packages/workstation];
+        extraModules = [./modules/darwin/desktop ./packages/workstation];
       };
       santiserver = {
         inherit user;
