@@ -36,14 +36,6 @@
     builders-use-substitutes = true
   '';
 
-  networking.defaultGateway = "192.168.1.254";
-  networking.interfaces.enp0s1.ipv4.addresses = [
-    {
-      address = "192.168.1.3";
-      prefixLength = 24;
-    }
-  ];
-
   virtualisation.docker.enable = true;
   users.users.${user.name}.extraGroups = ["docker"];
 
