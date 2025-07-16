@@ -64,6 +64,11 @@
 
     dynamicConfigOptions = {
       http.routers = {
+        calibre = {
+          entryPoints = ["websecure"];
+          rule = "Host(`calibre.home.santi.cloud`)";
+          service = "calibre";
+        };
         sonarr = {
           entryPoints = ["websecure"];
           rule = "Host(`shows.home.santi.cloud`)";
@@ -91,6 +96,13 @@
         };
       };
       http.services = {
+        calibre = {
+          loadBalancer = {
+            servers = [
+              {url = "http://localhost:8083";}
+            ];
+          };
+        };
         sonarr = {
           loadBalancer = {
             servers = [
