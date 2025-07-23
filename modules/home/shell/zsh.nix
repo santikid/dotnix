@@ -38,4 +38,7 @@
   programs.starship = {
     enable = true;
   };
+  programs.direnv = {
+    enable = true;
+  };
 }
