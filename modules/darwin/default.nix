@@ -26,4 +26,9 @@
 
   system.stateVersion = 5;
   security.pam.services.sudo_local.touchIdAuth = true;
+
+  # Allow passwordless sudo for darwin-rebuild
+  environment.etc."sudoers.d/darwin-rebuild".text = ''
+    ${user.name} ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/darwin-rebuild
+  '';
 }

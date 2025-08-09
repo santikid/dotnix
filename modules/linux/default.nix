@@ -24,4 +24,17 @@
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILds3nmPYniDOxaeLUY6B7Om/nQF04wXpIqWaHwrkriA santi"
     ];
   };
+
+  # Allow passwordless sudo for nixos-rebuild
+  security.sudo.extraRules = [
+    {
+      users = [user.name];
+      commands = [
+        {
+          command = "${config.system.build.nixos-rebuild}/bin/nixos-rebuild";
+          options = ["NOPASSWD"];
+        }
+      ];
+    }
+  ];
 }

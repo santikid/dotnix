@@ -1,6 +1,4 @@
 _: [
-  # on server, tailscale should probably be set up with services.tailscale
-  "tailscale"
   "whatsapp"
   # MikroTik Winbox
   "winbox"
