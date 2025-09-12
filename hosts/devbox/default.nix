@@ -12,6 +12,8 @@
   boot.loader.grub.enable = true;
   boot.loader.grub.device = "/dev/sda";
 
+  environment.systemPackages = [pkgs.zulu8];
+
   users.users.hydra-builder = {
     description = "Hydra Builder User";
     home = "/home/hydra-builder";
