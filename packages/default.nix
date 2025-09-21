@@ -43,7 +43,7 @@
       nodejs_22
       pnpm
       bun
-      postgresql_16
+      #postgresql_16
 
       # Text & Document Processing
       pandoc
