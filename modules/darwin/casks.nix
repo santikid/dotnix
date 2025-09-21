@@ -1,4 +1,5 @@
 _: [
+  "linearmouse"
   "beekeeper-studio"
   "ghostty"
   "iina"
