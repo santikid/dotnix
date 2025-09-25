@@ -1,15 +1,15 @@
 _: [
-  "whatsapp"
-  # MikroTik Winbox
-  "winbox"
-  # LM Studio - local llms
-  "lm-studio"
-  "firefox"
-  "parallels"
-  "chatgpt"
-  "spotify"
-  # creativity
-  "affinity-photo"
-  "affinity-designer"
-  "affinity-publisher"
+  # General
+  "linearmouse"
+
+  # Devtools
+  "secretive"
+
+  # Media
+  "iina"
+
+  # Browsers
+  "zen-browser"
+  "google-chrome"
+  "ungoogled-chromium"
 ]

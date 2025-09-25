@@ -7,51 +7,41 @@
 }: {
   environment.systemPackages = with pkgs;
     [
-      coreutils
-      gnumake
       gnupg
       age
-      git
       ncdu
-      fd
 
-      tectonic
-      ghostscript
-      mermaid-cli
-
-      lazygit
-
-      # Networking & Download Tools
-      curl
-      wget
-
-      # Archiving & File Management
-      zip
-      watch
+      neovim
 
       # Shell
       zsh
       starship
 
       # Development Tools
-      gcc
-      clang
       jq
       ripgrep
       fzf
       gh
-      nodejs_22
-      pnpm
-      bun
-      #postgresql_16
 
       # Text & Document Processing
       pandoc
 
+      # Js
+      nodejs_24
+      pnpm
+      bun
+
+      # Rust
+      rustc
+      cargo
+      rustfmt
+      clippy
+      pkg-config
+
       # Terminal Utilities
       tmux
       htop
-      btop # Added for system monitoring
+      btop
 
       # Media Processing
       ffmpeg

@@ -6,9 +6,9 @@
 
 `xcode-select --install`
 
-2. Install Nix using the Determinate Systems installer
+2. Install Nix using the Lix installer
 
-`curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install`
+`curl -sSf -L https://install.lix.systems/lix | sh -s -- install`
 
 4. Clone to ~/.nix and install
 

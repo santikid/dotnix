@@ -2,10 +2,12 @@
   config,
   pkgs,
   inputs,
-  user,
-  lib,
   ...
 }: {
+  programs.neovim.enable = true;
+  home.sessionPath = [
+    "$HOME/.local/bin"
+  ];
   home.file = {
     ".config/nvim" =
       if pkgs.stdenv.isDarwin
@@ -15,22 +17,5 @@
       else {
         source = config.lib.file.mkOutOfStoreSymlink "/.nix/configs/nvim";
       };
-  };
-  programs.neovim = {
-    enable = true;
-    extraPackages = with pkgs; [
-      tree-sitter
-      ripgrep
-      nixd
-      prettierd
-      stylua
-      rustfmt
-      lua-language-server
-      tailwindcss-language-server
-      typescript-language-server
-      astro-language-server
-      svelte-language-server
-      rust-analyzer
-    ];
   };
 }

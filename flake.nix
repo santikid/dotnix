@@ -36,7 +36,7 @@
         inherit user;
         hostName = "santibook";
         system = "aarch64-darwin";
-        extraModules = [./modules/darwin/desktop ./packages/workstation];
+        extraModules = [./modules/darwin/desktop];
       };
       santiserver = {
         inherit user;
@@ -57,12 +57,6 @@
         hostName = "santiserver-vm";
         system = "aarch64-linux";
         extraModules = [./hosts/santiserver-vm ./modules/linux/server];
-      };
-      paranix = {
-        inherit user;
-        hostName = "paranix";
-        system = "aarch64-linux";
-        extraModules = [./hosts/paranix ./modules/linux/i3 ./modules/linux/server ./packages/workstation];
       };
     };
 
@@ -121,6 +115,7 @@
                 nix-homebrew = {
                   enable = true;
                   user = user.name;
+                  autoMigrate = true;
                   taps = {
                     "homebrew/homebrew-cask" = homebrew-cask;
                   };
