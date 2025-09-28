@@ -46,11 +46,11 @@
       };
     };
     nixosHosts = {
-      devbox = {
+      santi-gg = {
         inherit user;
-        hostName = "devbox";
+        hostName = "santi-gg";
         system = "x86_64-linux";
-        extraModules = [./modules/all/secrets ./hosts/devbox ./modules/linux/server ./packages/workstation];
+        extraModules = [./modules/all/secrets ./hosts/santi-gg ./modules/linux/server ./packages/workstation];
       };
       santiserver-vm = {
         inherit user;
