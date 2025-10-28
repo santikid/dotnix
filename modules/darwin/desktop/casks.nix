@@ -9,7 +9,7 @@ _: [
   "iina"
 
   # Browsers
-  "zen-browser"
+  "zen"
   "google-chrome"
   "ungoogled-chromium"
 ]
