@@ -12,6 +12,7 @@
       ncdu
 
       neovim
+      lazygit
 
       # Shell
       zsh
