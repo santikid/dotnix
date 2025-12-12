@@ -1,1 +1,24 @@
 firmware/
+
+# Emacs generated files
+configs/emacs/config.el
+configs/emacs/custom.el
+configs/emacs/straight/
+configs/emacs/eln-cache/
+configs/emacs/auto-save-list/
+configs/emacs/etc/
+configs/emacs/var/
+configs/emacs/transient/
+configs/emacs/.cache/
+configs/emacs/recentf
+configs/emacs/places
+configs/emacs/history
+configs/emacs/url/
+configs/emacs/eshell/
+configs/emacs/elpa/
+configs/emacs/tree-sitter/
+configs/emacs/bookmarks
+configs/emacs/*.elc
+configs/emacs/.lsp-session-*
+configs/emacs/forge-database.sqlite
+configs/emacs/org-roam.db

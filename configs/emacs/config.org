@@ -1,0 +1,955 @@
+#+TITLE: Emacs Configuration
+#+AUTHOR: Santi
+#+PROPERTY: header-args :tangle yes
+
+* Core Settings
+
+** Basic Options
+
+#+begin_src emacs-lisp
+(setq-default
+ indent-tabs-mode nil
+ tab-width 2
+ evil-shift-width 2
+ standard-indent 2
+ fill-column 80)
+
+(setq
+ ring-bell-visible-function nil
+ visible-bell nil
+ use-short-answers t
+ confirm-kill-emacs 'y-or-n-p
+ create-lockfiles nil
+ make-backup-files nil
+ auto-save-default nil
+ custom-file (expand-file-name "custom.el" user-emacs-directory))
+
+(global-auto-revert-mode 1)
+(delete-selection-mode 1)
+(show-paren-mode 1)
+(electric-pair-mode 1)
+(save-place-mode 1)
+(savehist-mode 1)
+#+end_src
+
+** Line Numbers & Display
+
+#+begin_src emacs-lisp
+(setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode 1)
+
+(setq-default line-spacing nil)
+(setq-default cursor-in-non-selected-windows nil)
+
+(dolist (mode '(org-mode-hook
+                term-mode-hook
+                eat-mode-hook
+                shell-mode-hook
+                eshell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+end_src
+
+** Clipboard Integration
+
+#+begin_src emacs-lisp
+(setq select-enable-clipboard t)
+(setq select-enable-primary t)
+#+end_src
+
+** No Littering
+
+#+begin_src emacs-lisp
+(use-package no-littering
+  :config
+  (setq auto-save-file-name-transforms
+        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
+#+end_src
+
+** Super Save
+
+#+begin_src emacs-lisp
+(use-package super-save
+  :config
+  (super-save-mode +1))
+#+end_src
+
+* Evil Mode & Keybindings
+
+** Evil Core
+
+#+begin_src emacs-lisp
+(use-package evil
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-i-jump nil)
+  (setq evil-undo-system 'undo-tree)
+  (setq evil-respect-visual-line-mode nil)
+  :config
+  (evil-mode 1)
+  (evil-set-initial-state 'messages-buffer-mode 'normal)
+  (evil-set-initial-state 'dashboard-mode 'normal))
+#+end_src
+
+** Evil Collection
+
+#+begin_src emacs-lisp
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init))
+#+end_src
+
+** Evil Surround
+
+#+begin_src emacs-lisp
+(use-package evil-surround
+  :config
+  (global-evil-surround-mode 1))
+#+end_src
+
+** Evil Commentary
+
+#+begin_src emacs-lisp
+(use-package evil-commentary
+  :config
+  (evil-commentary-mode))
+#+end_src
+
+** Evil Multiedit
+
+#+begin_src emacs-lisp
+(use-package evil-multiedit
+  :after (evil general)
+  :config
+  (evil-multiedit-default-keybinds)
+  (general-define-key
+   :states '(normal visual)
+   "M-d" 'evil-multiedit-match-and-next
+   "M-D" 'evil-multiedit-match-and-prev
+   "C-M-d" 'evil-multiedit-match-all))
+#+end_src
+
+** Undo Tree
+
+#+begin_src emacs-lisp
+(use-package undo-tree
+  :config
+  (global-undo-tree-mode)
+  (setq undo-tree-auto-save-history nil))
+#+end_src
+
+** General (Leader Keys)
+
+#+begin_src emacs-lisp
+(use-package general
+  :config
+  (general-evil-setup t)
+
+  (general-create-definer leader-def
+    :states '(normal visual)
+    :keymaps 'override
+    :prefix "SPC"
+    :global-prefix "C-SPC")
+
+  (general-create-definer local-leader-def
+    :states '(normal visual)
+    :keymaps 'override
+    :prefix ","
+    :global-prefix "C-,"))
+#+end_src
+
+** Window Navigation
+
+#+begin_src emacs-lisp
+(general-define-key
+ :states '(normal visual)
+ "C-h" 'evil-window-left
+ "C-j" 'evil-window-down
+ "C-k" 'evil-window-up
+ "C-l" 'evil-window-right)
+#+end_src
+
+** Leader Keybindings
+
+#+begin_src emacs-lisp
+(leader-def
+  "SPC" '(execute-extended-command :which-key "M-x")
+
+  ;; Files
+  "f" '(:ignore t :which-key "files")
+  "ff" '(find-file :which-key "find file")
+  "fs" '(save-buffer :which-key "save file")
+  "fS" '(write-file :which-key "save as")
+  "fr" '(consult-recent-file :which-key "recent files")
+
+  ;; Buffers
+  "b" '(consult-buffer :which-key "switch buffer")
+  "k" '(kill-current-buffer :which-key "kill buffer")
+
+  ;; Windows
+  "w" '(:ignore t :which-key "windows")
+  "ww" '(ace-window :which-key "select window")
+  "wd" '(delete-window :which-key "delete window")
+  "wo" '(delete-other-windows :which-key "delete other windows")
+  "sv" '(split-window-right :which-key "split vertical")
+  "sh" '(split-window-below :which-key "split horizontal")
+
+  ;; Help
+  "h" '(:ignore t :which-key "help")
+  "hf" '(helpful-callable :which-key "describe function")
+  "hv" '(helpful-variable :which-key "describe variable")
+  "hk" '(helpful-key :which-key "describe key")
+  "hm" '(describe-mode :which-key "describe mode")
+
+  ;; Quit
+  "q" '(:ignore t :which-key "quit")
+  "qq" '(save-buffers-kill-terminal :which-key "quit emacs")
+  "qr" '(restart-emacs :which-key "restart emacs")
+
+  ;; Undo
+  "u" '(undo-tree-visualize :which-key "undo tree"))
+#+end_src
+
+* UI & Appearance
+
+** Theme
+
+#+begin_src emacs-lisp
+(use-package catppuccin-theme
+  :config
+  (setq catppuccin-flavor 'mocha)
+  (setq catppuccin-highlight-matches t)
+  (load-theme 'catppuccin t))
+#+end_src
+
+** Modeline
+
+#+begin_src emacs-lisp
+(use-package doom-modeline
+  :init
+  (doom-modeline-mode 1)
+  :config
+  (setq doom-modeline-height 30)
+  (setq doom-modeline-bar-width 4)
+  (setq doom-modeline-icon t)
+  (setq doom-modeline-major-mode-icon t)
+  (setq doom-modeline-major-mode-color-icon t)
+  (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
+  (setq doom-modeline-buffer-state-icon t)
+  (setq doom-modeline-buffer-modification-icon t)
+  (setq doom-modeline-minor-modes nil)
+  (setq doom-modeline-enable-word-count nil)
+  (setq doom-modeline-buffer-encoding nil)
+  (setq doom-modeline-indent-info nil)
+  (setq doom-modeline-checker-simple-format t)
+  (setq doom-modeline-vcs-max-length 12)
+  (setq doom-modeline-env-version nil)
+  (setq doom-modeline-position-line-format '("L%l"))
+  (setq doom-modeline-position-column-format '("C%c"))
+
+  ;; Fix icon rendering issues
+  (setq doom-modeline-modal t)
+  (setq doom-modeline-modal-icon nil)
+  (setq all-the-icons-scale-factor 1.0))
+#+end_src
+
+** Icons
+
+#+begin_src emacs-lisp
+(use-package all-the-icons
+  :if (display-graphic-p))
+
+(use-package all-the-icons-dired
+  :hook (dired-mode . all-the-icons-dired-mode))
+#+end_src
+
+** Which-Key
+
+#+begin_src emacs-lisp
+(use-package which-key
+  :config
+  (which-key-mode)
+  (setq which-key-idle-delay 0.3)
+  (setq which-key-sort-order 'which-key-key-order-alpha)
+  (setq which-key-separator " → ")
+  (setq which-key-prefix-prefix "+")
+  (setq which-key-max-description-length 50)
+
+  (which-key-add-key-based-replacements
+    "SPC f"   "files"
+    "SPC b"   "buffers"
+    "SPC w"   "windows"
+    "SPC h"   "help"
+    "SPC q"   "quit"
+    "SPC g"   "git"
+    "SPC p"   "project"
+    "SPC t"   "terminal"
+    "SPC x"   "diagnostics"
+    "SPC c"   "code"
+    "SPC j"   "jump"
+    "SPC a"   "ai"
+    "SPC o"   "org"
+    "SPC n"   "notes"
+    "SPC ="   "format"
+    "SPC s"   "split"
+    "SPC TAB" "workspace"))
+#+end_src
+
+** Rainbow Delimiters
+
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+#+end_src
+
+** Whitespace Cleanup
+
+#+begin_src emacs-lisp
+(use-package ws-butler
+  :hook (prog-mode . ws-butler-mode))
+#+end_src
+
+** Font Configuration
+
+#+begin_src emacs-lisp
+(set-face-attribute 'default nil
+                    :family "Iosevka"
+                    :height 140
+                    :weight 'regular)
+
+(setq mac-allow-anti-aliasing t)
+(setq frame-inhibit-implied-resize t)
+(setq default-frame-alist
+      '((font . "Iosevka-14")
+        (ns-transparent-titlebar . t)
+        (ns-appearance . dark)))
+#+end_src
+
+* Completion & Search
+
+** Vertico
+
+#+begin_src emacs-lisp
+(use-package vertico
+  :init
+  (vertico-mode)
+  :config
+  (setq vertico-cycle t))
+#+end_src
+
+** Vertico Posframe
+
+#+begin_src emacs-lisp
+(use-package vertico-posframe
+  :after vertico
+  :config
+  (vertico-posframe-mode 1)
+  (setq vertico-posframe-parameters
+        '((left-fringe . 8)
+          (right-fringe . 8)))
+  (setq vertico-posframe-border-width 2)
+  (setq vertico-posframe-width 100)
+  (setq vertico-posframe-height 20)
+  (setq vertico-posframe-poshandler #'posframe-poshandler-frame-center))
+#+end_src
+
+** Orderless
+
+#+begin_src emacs-lisp
+(use-package orderless
+  :config
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+#+end_src
+
+** Marginalia
+
+#+begin_src emacs-lisp
+(use-package marginalia
+  :init
+  (marginalia-mode))
+#+end_src
+
+** Consult
+
+#+begin_src emacs-lisp
+(use-package consult
+  :general
+  (leader-def
+    "fa" 'consult-find
+    "fg" 'consult-git-grep
+    "fs" 'consult-ripgrep
+    "fl" 'consult-line
+    ":" 'consult-complex-command))
+#+end_src
+
+** Embark
+
+#+begin_src emacs-lisp
+(use-package embark
+  :bind
+  (("C-." . embark-act)
+   ("C-;" . embark-dwim)))
+
+(use-package embark-consult
+  :after (embark consult))
+#+end_src
+
+** Corfu
+
+#+begin_src emacs-lisp
+(use-package corfu
+  :init
+  (global-corfu-mode)
+  :config
+  (setq corfu-auto t
+        corfu-auto-delay 0.1
+        corfu-auto-prefix 2
+        corfu-cycle t
+        corfu-quit-no-match 'separator))
+#+end_src
+
+** Cape
+
+#+begin_src emacs-lisp
+(use-package cape
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file))
+#+end_src
+
+** Avy
+
+#+begin_src emacs-lisp
+(use-package avy
+  :general
+  (leader-def
+    "j" '(:ignore t :which-key "jump")
+    "jj" 'avy-goto-char-2
+    "jl" 'avy-goto-line
+    "jw" 'avy-goto-word-1))
+#+end_src
+
+** Ace-Window
+
+#+begin_src emacs-lisp
+(use-package ace-window
+  :config
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
+#+end_src
+
+** Wgrep
+
+#+begin_src emacs-lisp
+(use-package wgrep
+  :config
+  (setq wgrep-auto-save-buffer t))
+#+end_src
+
+* LSP & Development
+
+** Eglot
+
+#+begin_src emacs-lisp
+(use-package eglot
+  :hook ((rust-mode . eglot-ensure)
+         (typescript-mode . eglot-ensure)
+         (js-mode . eglot-ensure)
+         (svelte-mode . eglot-ensure))
+  :config
+  (setq eglot-autoshutdown t)
+  (setq eglot-sync-connect nil)
+  (setq eglot-send-changes-idle-time 0.1)
+  (setq eglot-events-buffer-size 0)
+  (setq eglot-extend-to-xref t)
+
+  (add-to-list 'eglot-server-programs
+               '(svelte-mode . ("svelteserver" "--stdio")))
+
+  (add-hook 'eglot-managed-mode-hook
+            (lambda ()
+              (evil-define-key 'normal 'local (kbd "K") 'eldoc-box-help-at-point)
+              (evil-define-key 'normal 'local (kbd "g d") 'xref-find-definitions)
+              (evil-define-key 'normal 'local (kbd "g r") 'xref-find-references)
+              (evil-define-key 'normal 'local (kbd "g i") 'eglot-find-implementation)))
+
+  :general
+  (leader-def
+    :keymaps 'eglot-mode-map
+    "c" '(:ignore t :which-key "code")
+    "ca" 'eglot-code-actions
+    "cr" 'eglot-rename
+    "cf" 'eglot-format-buffer
+    "cF" 'eglot-format
+    "D" 'xref-find-definitions-other-window))
+#+end_src
+
+** Eldoc
+
+#+begin_src emacs-lisp
+(setq eldoc-echo-area-use-multiline-p nil)
+(setq eldoc-idle-delay 0.2)
+#+end_src
+
+** Eldoc Box
+
+#+begin_src emacs-lisp
+(use-package eldoc-box
+  :config
+  (setq eldoc-box-clear-with-C-g t))
+#+end_src
+
+** Flymake
+
+#+begin_src emacs-lisp
+(use-package flymake
+  :straight nil
+  :config
+  (setq flymake-no-changes-timeout 0.3)
+  :general
+  (leader-def
+    "x" '(:ignore t :which-key "diagnostics")
+    "xx" 'consult-flymake
+    "xn" 'flymake-goto-next-error
+    "xp" 'flymake-goto-prev-error
+    "xl" 'flymake-show-buffer-diagnostics))
+#+end_src
+
+** Sideline
+
+#+begin_src emacs-lisp
+(use-package sideline
+  :hook ((flymake-mode . sideline-mode)
+         (flycheck-mode . sideline-mode))
+  :config
+  (setq sideline-flymake-display-mode 'line)
+  (setq sideline-backends-right '(sideline-flymake)))
+
+(use-package sideline-flymake
+  :after sideline)
+#+end_src
+
+** Consult-Flymake
+
+#+begin_src emacs-lisp
+(use-package consult-flymake
+  :straight nil
+  :after consult)
+#+end_src
+
+** Apheleia
+
+#+begin_src emacs-lisp
+(use-package apheleia
+  :config
+  (apheleia-global-mode +1)
+  (setf (alist-get 'prettier apheleia-formatters)
+        '("prettier" "--stdin-filepath" filepath))
+  (setf (alist-get 'rustfmt apheleia-formatters)
+        '("rustfmt" "--emit" "stdout"))
+
+  :general
+  (leader-def
+    "=" '(:ignore t :which-key "format")
+    "==" 'apheleia-format-buffer
+    "=r" 'apheleia-region))
+#+end_src
+
+** Yasnippet
+
+#+begin_src emacs-lisp
+(use-package yasnippet
+  :config
+  (yas-global-mode 1))
+
+(use-package yasnippet-snippets
+  :after yasnippet)
+#+end_src
+
+** Smartparens
+
+#+begin_src emacs-lisp
+(use-package smartparens
+  :hook (prog-mode . smartparens-mode)
+  :config
+  (require 'smartparens-config))
+#+end_src
+
+* Git
+
+** Magit
+
+#+begin_src emacs-lisp
+(use-package magit
+  :general
+  (leader-def
+    "g" '(:ignore t :which-key "git")
+    "gg" 'magit-status
+    "gd" 'magit-diff-buffer-file
+    "gb" 'magit-blame
+    "gl" 'magit-log-current
+    "gL" 'magit-log-buffer-file))
+#+end_src
+
+** Forge
+
+#+begin_src emacs-lisp
+(use-package forge
+  :after magit
+  :config
+  (setq forge-add-default-bindings nil))
+#+end_src
+
+** Git Timemachine
+
+#+begin_src emacs-lisp
+(use-package git-timemachine
+  :general
+  (leader-def
+    "gt" 'git-timemachine-toggle))
+#+end_src
+
+** Diff-hl
+
+#+begin_src emacs-lisp
+(use-package diff-hl
+  :config
+  (global-diff-hl-mode)
+  (diff-hl-flydiff-mode)
+  :hook
+  (magit-pre-refresh . diff-hl-magit-pre-refresh)
+  (magit-post-refresh . diff-hl-magit-post-refresh))
+#+end_src
+
+* Terminal & Projects
+
+** Eat
+
+#+begin_src emacs-lisp
+(use-package eat
+  :straight (:type built-in)
+  :config
+  (setq eat-term-scrollback-size 10000)
+  (setq eat-enable-yank-to-terminal t)
+
+  (defun my/eat-project ()
+    "Open or switch to project-specific eat terminal."
+    (interactive)
+    (let* ((project (project-current))
+           (project-name (if project
+                            (file-name-nondirectory
+                             (directory-file-name (project-root project)))
+                          "default"))
+           (buffer-name (format "*eat-%s*" project-name)))
+      (if (get-buffer buffer-name)
+          (switch-to-buffer buffer-name)
+        (let ((eat-buffer-name buffer-name))
+          (eat)))))
+
+  (defun my/eat-list ()
+    "List and switch to eat terminals."
+    (interactive)
+    (let ((eat-buffers (seq-filter
+                        (lambda (buf)
+                          (with-current-buffer buf
+                            (derived-mode-p 'eat-mode)))
+                        (buffer-list))))
+      (if eat-buffers
+          (switch-to-buffer
+           (completing-read "Terminal: " eat-buffers))
+        (message "No eat terminals open"))))
+
+  :general
+  (leader-def
+    "t" '(:ignore t :which-key "terminal")
+    "tt" 'eat
+    "tT" 'eat-other-window
+    "tp" 'my/eat-project
+    "tl" 'my/eat-list))
+#+end_src
+
+** Popper
+
+#+begin_src emacs-lisp
+(use-package popper
+  :bind (("C-`"   . popper-toggle)
+         ("M-`"   . popper-cycle)
+         ("C-M-`" . popper-toggle-type))
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          "\\*Compile-Log\\*"
+          help-mode
+          compilation-mode
+          eat-mode))
+  (popper-mode +1)
+  (popper-echo-mode +1))
+#+end_src
+
+** Projectile
+
+#+begin_src emacs-lisp
+(use-package projectile
+  :config
+  (projectile-mode +1)
+  :general
+  (leader-def
+    "p" '(:ignore t :which-key "project")
+    "pp" 'projectile-switch-project
+    "pf" 'projectile-find-file
+    "ps" 'projectile-ripgrep
+    "pb" 'projectile-switch-to-buffer
+    "pc" 'projectile-compile-project
+    "pk" 'projectile-kill-buffers))
+#+end_src
+
+** Perspective
+
+#+begin_src emacs-lisp
+(use-package perspective
+  :init
+  (setq persp-mode-prefix-key (kbd "C-c M-p"))
+  (persp-mode)
+  :general
+  (leader-def
+    "TAB" '(:ignore t :which-key "workspace")
+    "TAB TAB" 'persp-switch
+    "TAB n" 'persp-next
+    "TAB p" 'persp-prev
+    "TAB d" 'persp-kill))
+#+end_src
+
+** Treemacs
+
+#+begin_src emacs-lisp
+(use-package treemacs
+  :config
+  (setq treemacs-width 35)
+  (setq treemacs-follow-mode t)
+  (setq treemacs-filewatch-mode t)
+  (setq treemacs-fringe-indicator-mode 'always)
+  (setq treemacs-git-mode 'deferred)
+  (setq treemacs-show-hidden-files t)
+  :general
+  (leader-def
+    "e" 'treemacs
+    "0" 'treemacs-select-window))
+
+(use-package treemacs-evil
+  :after (treemacs evil))
+
+(use-package treemacs-projectile
+  :after (treemacs projectile))
+
+(use-package treemacs-magit
+  :after (treemacs magit))
+
+(use-package treemacs-all-the-icons
+  :after (treemacs all-the-icons)
+  :config
+  (treemacs-load-theme "all-the-icons"))
+#+end_src
+
+** Dired
+
+#+begin_src emacs-lisp
+(use-package dired
+  :straight nil
+  :commands (dired dired-jump)
+  :config
+  (setq dired-listing-switches "-agho --group-directories-first")
+  (setq dired-kill-when-opening-new-dired-buffer t)
+  :general
+  (leader-def
+    "d" 'dired-jump))
+
+(use-package dired-subtree
+  :after dired
+  :general
+  (:states 'normal :keymaps 'dired-mode-map
+   "TAB" 'dired-subtree-toggle))
+#+end_src
+
+* Org-mode
+
+** Org Setup
+
+#+begin_src emacs-lisp
+(use-package org
+  :config
+  (setq org-ellipsis " ▾"
+        org-hide-emphasis-markers t
+        org-src-fontify-natively t
+        org-src-tab-acts-natively t
+        org-edit-src-content-indentation 2
+        org-hide-block-startup nil
+        org-src-preserve-indentation nil
+        org-startup-folded 'content
+        org-cycle-separator-lines 2)
+
+  (setq org-agenda-files '("~/org/"))
+
+  :general
+  (leader-def
+    "o" '(:ignore t :which-key "org")
+    "oa" 'org-agenda
+    "oc" 'org-capture
+    "ol" 'org-store-link))
+#+end_src
+
+** Org Modern
+
+#+begin_src emacs-lisp
+(use-package org-modern
+  :hook (org-mode . org-modern-mode)
+  :config
+  (setq org-modern-star 'replace
+        org-modern-table-vertical 1
+        org-modern-table-horizontal 0.2))
+#+end_src
+
+** Org Appear
+
+#+begin_src emacs-lisp
+(use-package org-appear
+  :hook (org-mode . org-appear-mode)
+  :config
+  (setq org-appear-autoemphasis t
+        org-appear-autosubmarkers t
+        org-appear-autolinks t))
+#+end_src
+
+** Org Roam
+
+#+begin_src emacs-lisp
+(use-package org-roam
+  :config
+  (setq org-roam-directory (file-truename "~/org/roam/"))
+  (org-roam-db-autosync-mode)
+
+  :general
+  (leader-def
+    "n" '(:ignore t :which-key "notes")
+    "nf" 'org-roam-node-find
+    "ni" 'org-roam-node-insert
+    "nc" 'org-roam-capture
+    "nb" 'org-roam-buffer-toggle
+    "ng" 'org-roam-graph))
+#+end_src
+
+** Toc-org
+
+#+begin_src emacs-lisp
+(use-package toc-org
+  :hook (org-mode . toc-org-mode))
+#+end_src
+
+* AI Tools
+
+** GPTel
+
+#+begin_src emacs-lisp
+(use-package gptel
+  :config
+  (setq gptel-model "claude-sonnet-4-5"
+        gptel-backend
+        (gptel-make-anthropic "Claude"
+          :stream t
+          :key (lambda ()
+                 (auth-source-pick-first-password
+                  :host "api.anthropic.com"))))
+
+  :general
+  (leader-def
+    "a" '(:ignore t :which-key "ai")
+    "ac" 'gptel
+    "as" 'gptel-send
+    "am" 'gptel-menu))
+#+end_src
+
+* Language-Specific
+
+** Rust
+
+#+begin_src emacs-lisp
+(use-package rust-mode
+  :mode "\\.rs\\'"
+  :config
+  (setq rust-format-on-save nil))
+#+end_src
+
+** TypeScript
+
+#+begin_src emacs-lisp
+(use-package typescript-mode
+  :mode "\\.ts\\'"
+  :config
+  (setq typescript-indent-level 2))
+#+end_src
+
+** Web Development
+
+#+begin_src emacs-lisp
+(use-package web-mode
+  :mode (("\\.html\\'" . web-mode)
+         ("\\.css\\'" . web-mode)
+         ("\\.jsx\\'" . web-mode)
+         ("\\.tsx\\'" . web-mode))
+  :config
+  (setq web-mode-markup-indent-offset 2
+        web-mode-css-indent-offset 2
+        web-mode-code-indent-offset 2))
+
+(use-package svelte-mode
+  :mode "\\.svelte\\'")
+#+end_src
+
+** JSON
+
+#+begin_src emacs-lisp
+(use-package json-mode
+  :mode "\\.json\\'")
+#+end_src
+
+** Markdown
+
+#+begin_src emacs-lisp
+(use-package markdown-mode
+  :mode ("\\.md\\'" . markdown-mode))
+#+end_src
+
+* Utilities
+
+** Helpful
+
+#+begin_src emacs-lisp
+(use-package helpful
+  :bind
+  ([remap describe-function] . helpful-callable)
+  ([remap describe-variable] . helpful-variable)
+  ([remap describe-key] . helpful-key))
+#+end_src
+
+** RestClient
+
+#+begin_src emacs-lisp
+(use-package restclient
+  :mode ("\\.http\\'" . restclient-mode))
+#+end_src
+
+** Tree-sitter
+
+#+begin_src emacs-lisp
+(use-package tree-sitter
+  :config
+  (global-tree-sitter-mode)
+  :hook (tree-sitter-after-on . tree-sitter-hl-mode))
+
+(use-package tree-sitter-langs
+  :after tree-sitter)
+#+end_src

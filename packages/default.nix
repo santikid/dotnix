@@ -14,6 +14,10 @@
       neovim
       lazygit
 
+      stripe-cli
+
+      cmake
+
       # Shell
       zsh
       starship
@@ -31,6 +35,12 @@
       nodejs_24
       pnpm
       bun
+      
+      # LSP
+      svelte-language-server
+      typescript-language-server
+      typescript
+      rust-analyzer
 
       # Rust
       rustc
