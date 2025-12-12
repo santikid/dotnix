@@ -56,6 +56,16 @@
 (setq select-enable-primary t)
 #+end_src
 
+** Unique Buffer Names
+
+#+begin_src emacs-lisp
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'forward)
+(setq uniquify-separator "/")
+(setq uniquify-after-kill-buffer-p t)
+(setq uniquify-ignore-buffers-re "^\\*")
+#+end_src
+
 ** No Littering
 
 #+begin_src emacs-lisp
