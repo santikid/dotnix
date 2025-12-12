@@ -24,6 +24,8 @@
       gcc
       clang
 
+      libvterm
+
       # Text & Document Processing
       pandoc
     ]

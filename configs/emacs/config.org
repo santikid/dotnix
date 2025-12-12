@@ -43,7 +43,7 @@
 
 (dolist (mode '(org-mode-hook
                 term-mode-hook
-                eat-mode-hook
+                vterm-mode-hook
                 shell-mode-hook
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
@@ -636,49 +636,48 @@
 
 * Terminal & Projects
 
-** Eat
+** Vterm
 
 #+begin_src emacs-lisp
-(use-package eat
-  :straight (:type built-in)
+(use-package vterm
   :config
-  (setq eat-term-scrollback-size 10000)
-  (setq eat-enable-yank-to-terminal t)
+  (setq vterm-max-scrollback 10000)
+  (setq vterm-kill-buffer-on-exit t)
 
-  (defun my/eat-project ()
-    "Open or switch to project-specific eat terminal."
+  (defun my/vterm-project ()
+    "Open or switch to project-specific vterm terminal."
     (interactive)
     (let* ((project (project-current))
            (project-name (if project
                             (file-name-nondirectory
                              (directory-file-name (project-root project)))
                           "default"))
-           (buffer-name (format "*eat-%s*" project-name)))
+           (buffer-name (format "*vterm-%s*" project-name)))
       (if (get-buffer buffer-name)
           (switch-to-buffer buffer-name)
-        (let ((eat-buffer-name buffer-name))
-          (eat)))))
+        (let ((vterm-buffer-name buffer-name))
+          (vterm)))))
 
-  (defun my/eat-list ()
-    "List and switch to eat terminals."
+  (defun my/vterm-list ()
+    "List and switch to vterm terminals."
     (interactive)
-    (let ((eat-buffers (seq-filter
-                        (lambda (buf)
-                          (with-current-buffer buf
-                            (derived-mode-p 'eat-mode)))
-                        (buffer-list))))
-      (if eat-buffers
+    (let ((vterm-buffers (seq-filter
+                          (lambda (buf)
+                            (with-current-buffer buf
+                              (derived-mode-p 'vterm-mode)))
+                          (buffer-list))))
+      (if vterm-buffers
           (switch-to-buffer
-           (completing-read "Terminal: " eat-buffers))
-        (message "No eat terminals open"))))
+           (completing-read "Terminal: " vterm-buffers))
+        (message "No vterm terminals open"))))
 
   :general
   (leader-def
     "t" '(:ignore t :which-key "terminal")
-    "tt" 'eat
-    "tT" 'eat-other-window
-    "tp" 'my/eat-project
-    "tl" 'my/eat-list))
+    "tt" 'vterm
+    "tT" 'vterm-other-window
+    "tp" 'my/vterm-project
+    "tl" 'my/vterm-list))
 #+end_src
 
 ** Popper
@@ -696,7 +695,7 @@
           "\\*Compile-Log\\*"
           help-mode
           compilation-mode
-          eat-mode))
+          vterm-mode))
   (popper-mode +1)
   (popper-echo-mode +1))
 #+end_src
