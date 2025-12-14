@@ -801,14 +801,38 @@
         org-startup-folded 'content
         org-cycle-separator-lines 2)
 
-  (setq org-agenda-files '("~/org/"))
+  ;; Agenda files
+  (setq org-agenda-files '("~/org/tasks.org" "~/org/projects.org"))
+  (setq org-agenda-start-on-weekday 1)
+
+  ;; TODO keywords
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "IN-PROGRESS(p)" "|" "DONE(d)" "CANCELLED(c)")))
+
+  ;; Capture templates
+  (setq org-capture-templates
+        '(("t" "Task" entry (file "~/org/tasks.org")
+           "* TODO %?\n  %U\n  %a")
+          ("n" "Note" entry (file "~/org/inbox.org")
+           "* %?\n  %U")
+          ("j" "Journal" entry (file+datetree "~/org/journal.org")
+           "* %?\n  Entered on %U\n  %i")))
+
+  ;; Refile targets
+  (setq org-refile-targets
+        '(("~/org/tasks.org" :maxlevel . 3)
+          ("~/org/projects.org" :maxlevel . 3)
+          ("~/org/archive.org" :maxlevel . 1)))
+  (setq org-refile-use-outline-path 'file)
+  (setq org-outline-path-complete-in-steps nil)
 
   :general
   (leader-def
     "o" '(:ignore t :which-key "org")
     "oa" 'org-agenda
     "oc" 'org-capture
-    "ol" 'org-store-link))
+    "ol" 'org-store-link
+    "or" 'org-refile))
 #+end_src
 
 ** Org Modern
@@ -838,7 +862,15 @@
 #+begin_src emacs-lisp
 (use-package org-roam
   :config
-  (setq org-roam-directory (file-truename "~/org/roam/"))
+  (setq org-roam-directory (file-truename "~/org/notes/"))
+  (setq org-roam-dailies-directory "journal/")
+
+  (setq org-roam-dailies-capture-templates
+        '(("d" "default" entry
+           "* %?"
+           :target (file+head "%<%Y-%m-%d>.org"
+                             "#+title: %<%Y-%m-%d %A>\n\n"))))
+
   (org-roam-db-autosync-mode)
 
   :general
@@ -848,7 +880,11 @@
     "ni" 'org-roam-node-insert
     "nc" 'org-roam-capture
     "nb" 'org-roam-buffer-toggle
-    "ng" 'org-roam-graph))
+    "ng" 'org-roam-graph
+    "nd" 'org-roam-dailies-goto-today
+    "nD" 'org-roam-dailies-goto-date
+    "ny" 'org-roam-dailies-goto-yesterday
+    "nt" 'org-roam-dailies-goto-tomorrow))
 #+end_src
 
 ** Toc-org
