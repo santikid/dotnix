@@ -55,6 +55,12 @@
         system = "x86_64-linux";
         extraModules = [./modules/all/secrets ./hosts/santi-gg ./modules/linux/server ./packages/workstation];
       };
+      shv = {
+        inherit user;
+        hostName = "shv";
+        system = "x86_64-linux";
+        extraModules = [./hosts/shv ./modules/linux/kde ./modules/linux/sway];
+      };
       santisasahi = {
         inherit user;
         hostName = "santisasahi";
