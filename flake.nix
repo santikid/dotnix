@@ -53,7 +53,7 @@
         inherit user;
         hostName = "santi-gg";
         system = "x86_64-linux";
-        extraModules = [./modules/all/secrets ./hosts/santi-gg ./modules/linux/server ./packages/workstation];
+        extraModules = [./modules/all/secrets ./hosts/santi-gg ./modules/linux/server];
       };
       shv = {
         inherit user;
@@ -123,6 +123,11 @@
               if isDarwin
               then nix-homebrew.darwinModules.nix-homebrew
               else {}
+            )
+            (
+              if isDarwin
+                then {}
+                else ./packages/linux.nix
             )
             (
               if isDarwin

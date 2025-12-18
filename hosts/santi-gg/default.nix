@@ -15,7 +15,17 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   virtualisation.docker.enable = true;
-  users.users.${user.name}.extraGroups = ["docker"];
+
+  virtualisation.incus.enable = true;
+  networking.nftables.enable = true;
+
+  users.users.${user.name}.extraGroups = ["docker" "incus-admin"];
+
+  networking.firewall = {
+    enable = true;
+    trustedInterfaces = [ "tailscale0" "incusbr0" ];
+    allowedTCPPorts = [ 25565 25566 25567 ];
+  };
 
   nix.extraOptions = ''
     experimental-features = nix-command flakes

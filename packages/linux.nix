@@ -28,6 +28,9 @@
 
       # Text & Document Processing
       pandoc
+
+      # Ghostty for Terminfo
+      ghostty
     ]
     ++ (import ./scripts.nix {inherit pkgs;});
 }
