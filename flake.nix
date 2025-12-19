@@ -45,7 +45,7 @@
         inherit user;
         hostName = "santiserver";
         system = "aarch64-darwin";
-        extraModules = [./modules/all/secrets ./hosts/santiserver ./modules/darwin/server ./modules/darwin/linux-builder];
+        extraModules = [./modules/all/secrets ./hosts/santiserver ./modules/darwin/server];
       };
     };
     nixosHosts = {
