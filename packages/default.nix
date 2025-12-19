@@ -57,6 +57,8 @@
       # Media Processing
       ffmpeg
       imagemagick
+
+      borgbackup
     ]
     ++ (import ./scripts.nix {inherit pkgs;});
 
