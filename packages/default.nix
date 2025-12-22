@@ -33,7 +33,7 @@
       nodejs_24
       pnpm
       bun
-      
+
       # LSP
       svelte-language-server
       typescript-language-server

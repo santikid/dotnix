@@ -126,8 +126,8 @@
             )
             (
               if isDarwin
-                then {}
-                else ./packages/linux.nix
+              then {}
+              else ./packages/linux.nix
             )
             (
               if isDarwin

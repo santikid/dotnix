@@ -23,8 +23,8 @@
 
   networking.firewall = {
     enable = true;
-    trustedInterfaces = [ "tailscale0" "incusbr0" ];
-    allowedTCPPorts = [ 80 443 25565 25566 25567 ];
+    trustedInterfaces = ["tailscale0" "incusbr0"];
+    allowedTCPPorts = [80 443 25565 25566 25567];
   };
 
   nix.extraOptions = ''
