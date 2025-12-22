@@ -18,6 +18,11 @@
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
+;; Fix dired on macOS (use GNU ls from coreutils)
+(when (eq system-type 'darwin)
+  (setq insert-directory-program "gls"
+        dired-use-ls-dired t))
+
 ;; Install and load org-mode before tangling
 (straight-use-package 'org)
 
