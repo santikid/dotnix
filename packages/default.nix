@@ -14,8 +14,6 @@
       neovim
       lazygit
 
-      stripe-cli
-
       cmake
 
       # Shell
