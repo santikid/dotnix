@@ -797,6 +797,12 @@
 ** Org Setup
 
 #+begin_src emacs-lisp
+(defun my/find-org-file ()
+  "Find file in ~/org directory."
+  (interactive)
+  (let ((default-directory "~/org/"))
+    (call-interactively 'find-file)))
+
 (use-package org
   :config
   (setq org-ellipsis " ▾"
@@ -839,6 +845,7 @@
     "o" '(:ignore t :which-key "org")
     "oa" 'org-agenda
     "oc" 'org-capture
+    "of" '(my/find-org-file :which-key "find org file")
     "ol" 'org-store-link
     "or" 'org-refile))
 #+end_src
