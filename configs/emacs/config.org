@@ -745,6 +745,13 @@
   (setq treemacs-fringe-indicator-mode 'always)
   (setq treemacs-git-mode 'deferred)
   (setq treemacs-show-hidden-files t)
+
+  ;; Allow C-h/j/k/l window navigation in treemacs
+  (define-key treemacs-mode-map (kbd "C-h") 'evil-window-left)
+  (define-key treemacs-mode-map (kbd "C-l") 'evil-window-right)
+  (define-key treemacs-mode-map (kbd "C-j") 'evil-window-down)
+  (define-key treemacs-mode-map (kbd "C-k") 'evil-window-up)
+
   :general
   (leader-def
     "e" 'treemacs
