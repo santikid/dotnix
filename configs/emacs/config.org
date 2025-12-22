@@ -299,7 +299,8 @@
     "SPC x"   "diagnostics"
     "SPC c"   "code"
     "SPC j"   "jump"
-    "SPC a"   "ai"
+    "SPC i"   "gptel"
+    "SPC a"   "claude"
     "SPC o"   "org"
     "SPC n"   "notes"
     "SPC ="   "format"
@@ -911,10 +912,54 @@
 
   :general
   (leader-def
-    "a" '(:ignore t :which-key "ai")
-    "ac" 'gptel
-    "as" 'gptel-send
-    "am" 'gptel-menu))
+    "i" '(:ignore t :which-key "gptel")
+    "ic" 'gptel
+    "is" 'gptel-send
+    "im" 'gptel-menu))
+#+end_src
+
+** Claude Code
+
+#+begin_src emacs-lisp
+(use-package claude-code
+  :straight (:host github :repo "stevemolitor/claude-code.el")
+  :config
+  (setq claude-code-terminal-backend 'vterm)
+  (setq claude-code-newline-keybinding-style 'shift-return)
+
+  ;; macOS notifications
+  (defun my/claude-notify (title message)
+    (call-process "osascript" nil nil nil
+      "-e" (format "display notification \"%s\" with title \"%s\" sound name \"Glass\"" message title)))
+  (setq claude-code-notification-function #'my/claude-notify)
+
+  :general
+  (leader-def
+    "a" '(:ignore t :which-key "claude")
+    "aa" '(claude-code :which-key "start")
+    "ad" '(claude-code-start-in-directory :which-key "start in dir")
+    "aC" '(claude-code-continue :which-key "continue")
+    "aR" '(claude-code-resume :which-key "resume")
+    "ak" '(claude-code-kill :which-key "kill")
+    "aK" '(claude-code-kill-all :which-key "kill all")
+    "as" '(claude-code-send-command :which-key "send command")
+    "ax" '(claude-code-send-command-with-context :which-key "send with context")
+    "ar" '(claude-code-send-region :which-key "send region")
+    "ao" '(claude-code-send-buffer-file :which-key "send file")
+    "ae" '(claude-code-fix-error-at-point :which-key "fix error")
+    "at" '(claude-code-toggle :which-key "toggle window")
+    "ab" '(claude-code-switch-to-buffer :which-key "switch buffer")
+    "aB" '(claude-code-select-buffer :which-key "select buffer")
+    "az" '(claude-code-toggle-read-only-mode :which-key "read-only")
+    "ay" '(claude-code-send-return :which-key "yes")
+    "an" '(claude-code-send-escape :which-key "no")
+    "a1" '(claude-code-send-1 :which-key "send 1")
+    "a2" '(claude-code-send-2 :which-key "send 2")
+    "a3" '(claude-code-send-3 :which-key "send 3")
+    "am" '(claude-code-transient :which-key "menu")
+    "af" '(claude-code-fork :which-key "fork")
+    "a/" '(claude-code-slash-commands :which-key "slash cmds")
+    "aM" '(claude-code-cycle-mode :which-key "cycle mode")))
 #+end_src
 
 * Language-Specific
