@@ -31,5 +31,7 @@
     experimental-features = nix-command flakes
   '';
 
+  services.borgmatic.enable = true;
+
   system.stateVersion = "24.05";
 }
