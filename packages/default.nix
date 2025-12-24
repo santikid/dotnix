@@ -39,6 +39,7 @@
       typescript-language-server
       typescript
       rust-analyzer
+      vscode-langservers-extracted
 
       # Rust
       rustc

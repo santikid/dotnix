@@ -804,6 +804,7 @@
     (call-interactively 'find-file)))
 
 (use-package org
+  :hook (org-mode . visual-line-mode)
   :config
   (setq org-ellipsis " ▾"
         org-hide-emphasis-markers t
