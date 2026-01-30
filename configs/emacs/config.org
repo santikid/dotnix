@@ -27,7 +27,6 @@
 (global-auto-revert-mode 1)
 (delete-selection-mode 1)
 (show-paren-mode 1)
-(electric-pair-mode 1)
 (save-place-mode 1)
 (savehist-mode 1)
 #+end_src
@@ -81,6 +80,12 @@
 (use-package super-save
   :config
   (super-save-mode +1))
+#+end_src
+
+** Restart Emacs
+
+#+begin_src emacs-lisp
+(use-package restart-emacs)
 #+end_src
 
 * Evil Mode & Keybindings
@@ -190,7 +195,7 @@
   ;; Files
   "f" '(:ignore t :which-key "files")
   "ff" '(find-file :which-key "find file")
-  "fs" '(save-buffer :which-key "save file")
+  "fw" '(save-buffer :which-key "write file")
   "fS" '(write-file :which-key "save as")
   "fr" '(consult-recent-file :which-key "recent files")
 
@@ -294,6 +299,7 @@
     "SPC h"   "help"
     "SPC q"   "quit"
     "SPC g"   "git"
+    "SPC g f" "forge"
     "SPC p"   "project"
     "SPC t"   "terminal"
     "SPC x"   "diagnostics"
@@ -543,13 +549,6 @@
   :after sideline)
 #+end_src
 
-** Consult-Flymake
-
-#+begin_src emacs-lisp
-(use-package consult-flymake
-  :straight nil
-  :after consult)
-#+end_src
 
 ** Apheleia
 
@@ -611,7 +610,19 @@
 (use-package forge
   :after magit
   :config
-  (setq forge-add-default-bindings nil))
+  (setq forge-add-default-bindings nil)
+
+  :general
+  (leader-def
+    "gf" '(:ignore t :which-key "forge")
+    "gff" '(forge-dispatch :which-key "forge menu")
+    "gfp" '(forge-list-pullreqs :which-key "list PRs")
+    "gfi" '(forge-list-issues :which-key "list issues")
+    "gfc" '(forge-create-pullreq :which-key "create PR")
+    "gfC" '(forge-create-issue :which-key "create issue")
+    "gfF" '(forge-pull :which-key "fetch forge data")
+    "gfb" '(forge-browse-remote :which-key "browse remote")
+    "gfB" '(forge-browse-topic :which-key "browse PR/issue")))
 #+end_src
 
 ** Git Timemachine
@@ -800,7 +811,7 @@
 (defun my/find-org-file ()
   "Find file in ~/org directory."
   (interactive)
-  (let ((default-directory "~/org/"))
+  (let ((default-directory (file-truename "~/org/")))
     (call-interactively 'find-file)))
 
 (use-package org
