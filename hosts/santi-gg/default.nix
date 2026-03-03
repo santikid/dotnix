@@ -11,10 +11,6 @@
 
   networking.useDHCP = true;
 
-  environment.systemPackages = with pkgs; [
-    cloudflared
-  ];
-
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
@@ -24,6 +20,16 @@
   networking.nftables.enable = true;
 
   users.users.${user.name}.extraGroups = ["docker" "incus-admin"];
+
+  services.cloudflared = {
+    enable = true;
+    tunnels = {
+      "0fe3d5d3-b10e-41d0-9b95-6520a5ca3ea4" = {
+        credentialsFile = "${config.sops.secrets.cf_tunnel_santi_gg.path}";
+        default = "http_status:404";
+      };
+    };
+  };
 
   networking.firewall = {
     enable = true;

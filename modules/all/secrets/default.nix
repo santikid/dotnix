@@ -13,6 +13,7 @@
     secrets = {
       cf_token = {};
       cf_email = {};
+      cf_tunnel_santi_gg = {};
     };
   };
 }
