@@ -15,6 +15,7 @@
     homebrew-cask.flake = false;
 
     sops-nix.url = "github:Mic92/sops-nix";
+    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = inputs @ {
     self,
@@ -31,114 +32,93 @@
       description = "Lukas Santner";
       email = "lukas@santi.gg";
     };
+
     darwinHosts = {
       santibook = {
-        inherit user;
         hostName = "santibook";
         system = "aarch64-darwin";
         extraModules = [./modules/darwin/desktop ./packages/modules/devxtra.nix];
       };
       santiserver = {
-        inherit user;
         hostName = "santiserver";
         system = "aarch64-darwin";
         extraModules = [./modules/all/secrets ./hosts/santiserver ./modules/darwin/server];
       };
     };
+
     nixosHosts = {
       santi-gg = {
-        inherit user;
         hostName = "santi-gg";
         system = "x86_64-linux";
         extraModules = [./modules/all/secrets ./hosts/santi-gg ./modules/linux/server];
       };
     };
 
-    makeSystem = hostName: user: isDarwin: system: extraModules: let
-      pkgs = import nixpkgs {inherit system;};
-      makeFn =
-        if isDarwin
-        then darwin.lib.darwinSystem
-        else nixpkgs.lib.nixosSystem;
-      homeManager =
-        if isDarwin
-        then home-manager.darwinModules.default
-        else home-manager.nixosModules.default;
-      sopsNix =
-        if isDarwin
-        then sops-nix.darwinModules.sops
-        else sops-nix.nixosModules.sops;
-    in
-      makeFn {
+    commonModules = hostName: [
+      ./modules/all
+      ./modules/home
+      ./packages
+      {
+        networking.hostName = hostName;
+        home-manager.useUserPackages = true;
+        home-manager.useGlobalPkgs = true;
+        home-manager.extraSpecialArgs = {inherit inputs user;};
+      }
+    ];
+
+    makeDarwin = hostName: system: extraModules:
+      darwin.lib.darwinSystem {
         inherit system;
         specialArgs = {inherit inputs self user;};
         modules =
           [
-            homeManager
-            sopsNix
-            ./modules/all
-            ./modules/home
-            ./packages
-            (
-              if isDarwin
-              then {
-                networking.computerName = hostName;
-                networking.localHostName = hostName;
-              }
-              else {}
-            )
+            home-manager.darwinModules.default
+            sops-nix.darwinModules.sops
+            nix-homebrew.darwinModules.nix-homebrew
+            ./modules/darwin
             {
-              networking.hostName = hostName;
-              home-manager.useUserPackages = true;
-              home-manager.useGlobalPkgs = true;
-              home-manager.extraSpecialArgs = {inherit inputs pkgs user;};
-            }
-            (
-              if isDarwin
-              then ./modules/darwin
-              else ./modules/linux
-            )
-            (
-              if isDarwin
-              then nix-homebrew.darwinModules.nix-homebrew
-              else {}
-            )
-            (
-              if isDarwin
-              then {}
-              else ./packages/linux.nix
-            )
-            (
-              if isDarwin
-              then {
-                nix-homebrew = {
-                  enable = true;
-                  user = user.name;
-                  autoMigrate = true;
-                  taps = {
-                    "homebrew/homebrew-cask" = homebrew-cask;
-                  };
+              networking.computerName = hostName;
+              networking.localHostName = hostName;
+              nix-homebrew = {
+                enable = true;
+                user = user.name;
+                autoMigrate = true;
+                taps = {
+                  "homebrew/homebrew-cask" = homebrew-cask;
                 };
-              }
-              else {}
-            )
+              };
+            }
           ]
+          ++ commonModules hostName
+          ++ extraModules;
+      };
+
+    makeNixOS = hostName: system: extraModules:
+      nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = {inherit inputs self user;};
+        modules =
+          [
+            home-manager.nixosModules.default
+            sops-nix.nixosModules.sops
+            ./modules/linux
+            ./packages/linux.nix
+          ]
+          ++ commonModules hostName
           ++ extraModules;
       };
   in {
-    # Generate darwinConfigurations from darwinHosts
     darwinConfigurations =
       builtins.mapAttrs (
         name: host:
-          makeSystem host.hostName host.user true host.system host.extraModules
+          makeDarwin host.hostName host.system host.extraModules
       )
       darwinHosts;
 
-    # Generate nixosConfigurations from nixosHosts
     nixosConfigurations =
       builtins.mapAttrs (
         name: host:
-          makeSystem host.hostName host.user false host.system host.extraModules
+          makeNixOS host.hostName host.system host.extraModules
       )
       nixosHosts;
   };
