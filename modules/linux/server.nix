@@ -6,7 +6,7 @@
     settings = {
       PasswordAuthentication = false;
       AllowUsers = [user.name];
-      X11Forwarding = true;
+      X11Forwarding = false;
       PermitRootLogin = "no";
     };
   };

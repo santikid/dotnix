@@ -1,7 +1,5 @@
 {
-  config,
   pkgs,
-  inputs,
   user,
   ...
 }: {
@@ -16,63 +14,57 @@
 
   homebrew = {
     enable = true;
-    casks = pkgs.callPackage ./casks.nix {};
-    brews = pkgs.callPackage ./brews.nix {};
+    casks = ["ghostty"];
+    brews = [
+      "libvterm"
+      "coreutils" # for emacs "gls"
+    ];
   };
 
   networking = {
-    dns = ["1.1.1.1" "9.9.9.9"];
+    dns = ["1.1.1.1" "1.0.0.1"];
     knownNetworkServices = ["Wi-Fi"];
   };
 
-  # TouchID for sudo
   security.pam.services.sudo_local.touchIdAuth = true;
 
-  # Passwordless sudo for rebuilds
   environment.etc."sudoers.d/darwin-rebuild".text = ''
     ${user.name} ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/darwin-rebuild
   '';
 
-  system = {
-    defaults = {
-      controlcenter = {
-        BatteryShowPercentage = true;
-        Sound = false;
-        Bluetooth = false;
-        AirDrop = false;
-        Display = false;
-        FocusModes = false;
-        NowPlaying = false;
-      };
-      # Stage Manager - replaced with AeroSpace
-      #WindowManager = {
-      #  GloballyEnabled = true;
-      #  AppWindowGroupingBehavior = false; # one at a time
-      #};
-      NSGlobalDomain = {
-        NSAutomaticCapitalizationEnabled = false;
-        NSAutomaticPeriodSubstitutionEnabled = false;
-        NSAutomaticSpellingCorrectionEnabled = false;
-        NSAutomaticDashSubstitutionEnabled = false;
-        NSAutomaticQuoteSubstitutionEnabled = false;
+  system.defaults = {
+    controlcenter = {
+      BatteryShowPercentage = true;
+      Sound = false;
+      Bluetooth = false;
+      AirDrop = false;
+      Display = false;
+      FocusModes = false;
+      NowPlaying = false;
+    };
+    NSGlobalDomain = {
+      NSAutomaticCapitalizationEnabled = false;
+      NSAutomaticPeriodSubstitutionEnabled = false;
+      NSAutomaticSpellingCorrectionEnabled = false;
+      NSAutomaticDashSubstitutionEnabled = false;
+      NSAutomaticQuoteSubstitutionEnabled = false;
 
-        NSWindowShouldDragOnGesture = true;
+      NSWindowShouldDragOnGesture = true;
 
-        InitialKeyRepeat = 15;
-        KeyRepeat = 2;
+      InitialKeyRepeat = 15;
+      KeyRepeat = 2;
 
-        "com.apple.keyboard.fnState" = true;
-      };
-      dock = {
-        autohide-delay = 0.0;
-        autohide-time-modifier = 0.0;
-        show-recents = false;
-        orientation = "bottom";
-      };
-      finder = {
-        ShowPathbar = true;
-        FXPreferredViewStyle = "clmv";
-      };
+      "com.apple.keyboard.fnState" = true;
+    };
+    dock = {
+      autohide-delay = 0.0;
+      autohide-time-modifier = 0.0;
+      show-recents = false;
+      orientation = "bottom";
+    };
+    finder = {
+      ShowPathbar = true;
+      FXPreferredViewStyle = "clmv";
     };
   };
 }

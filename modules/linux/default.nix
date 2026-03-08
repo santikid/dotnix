@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  inputs,
   user,
   ...
 }: {
@@ -12,7 +11,23 @@
 
   fonts.fontDir.enable = true;
 
-  environment.systemPackages = import ./packages.nix {inherit pkgs;};
+  environment.systemPackages = with pkgs; [
+    coreutils
+    gnumake
+    fd
+
+    curl
+    wget
+
+    zip
+    watch
+
+    gcc
+    clang
+
+    libvterm
+    ghostty
+  ];
 
   users.users.${user.name} = {
     isNormalUser = true;
@@ -20,12 +35,9 @@
     description = user.description;
     shell = pkgs.zsh;
     extraGroups = ["wheel" "video" "audio"];
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILds3nmPYniDOxaeLUY6B7Om/nQF04wXpIqWaHwrkriA santi"
-    ];
+    openssh.authorizedKeys.keys = user.sshKeys;
   };
 
-  # Allow passwordless sudo for nixos-rebuild
   security.sudo.extraRules = [
     {
       users = [user.name];

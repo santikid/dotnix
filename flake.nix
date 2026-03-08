@@ -31,39 +31,42 @@
       name = "santi";
       description = "Lukas Santner";
       email = "lukas@santi.gg";
+      sshKeys = [
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILds3nmPYniDOxaeLUY6B7Om/nQF04wXpIqWaHwrkriA santi"
+      ];
     };
 
     darwinHosts = {
       santibook = {
-        hostName = "santibook";
         system = "aarch64-darwin";
-        extraModules = [./modules/darwin/desktop ./packages/modules/devxtra.nix];
+        extraModules = [./modules/darwin/desktop.nix];
       };
       santiserver = {
-        hostName = "santiserver";
         system = "aarch64-darwin";
-        extraModules = [./modules/all/secrets ./hosts/santiserver ./modules/darwin/server];
+        extraModules = [./modules/secrets.nix ./hosts/santiserver ./modules/darwin/server.nix];
       };
     };
 
     nixosHosts = {
       santi-gg = {
-        hostName = "santi-gg";
         system = "x86_64-linux";
-        extraModules = [./modules/all/secrets ./hosts/santi-gg ./modules/linux/server];
+        extraModules = [./modules/secrets.nix ./hosts/santi-gg ./modules/linux/server.nix];
       };
     };
 
     commonModules = hostName: [
-      ./modules/all
-      ./modules/home
-      ./packages
-      {
+      ./modules/home.nix
+      ./modules/packages.nix
+      ({pkgs, ...}: {
+        programs.zsh.enable = true;
+        environment.shells = [pkgs.zsh];
+        environment.variables.EDITOR = "nvim";
+        nix.settings.experimental-features = ["nix-command" "flakes"];
         networking.hostName = hostName;
         home-manager.useUserPackages = true;
         home-manager.useGlobalPkgs = true;
         home-manager.extraSpecialArgs = {inherit inputs user;};
-      }
+      })
     ];
 
     makeDarwin = hostName: system: extraModules:
@@ -102,7 +105,6 @@
             home-manager.nixosModules.default
             sops-nix.nixosModules.sops
             ./modules/linux
-            ./packages/linux.nix
           ]
           ++ commonModules hostName
           ++ extraModules;
@@ -111,14 +113,14 @@
     darwinConfigurations =
       builtins.mapAttrs (
         name: host:
-          makeDarwin host.hostName host.system host.extraModules
+          makeDarwin name host.system host.extraModules
       )
       darwinHosts;
 
     nixosConfigurations =
       builtins.mapAttrs (
         name: host:
-          makeNixOS host.hostName host.system host.extraModules
+          makeNixOS name host.system host.extraModules
       )
       nixosHosts;
   };

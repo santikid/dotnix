@@ -1,7 +1,5 @@
 {
   config,
-  pkgs,
-  inputs,
   user,
   ...
 }: {
@@ -34,12 +32,8 @@
   networking.firewall = {
     enable = true;
     trustedInterfaces = ["tailscale0" "incusbr0"];
-    allowedTCPPorts = [80 443 25565 25566 25567];
+    allowedTCPPorts = [80 443];
   };
-
-  nix.extraOptions = ''
-    experimental-features = nix-command flakes
-  '';
 
   services.borgmatic.enable = true;
 

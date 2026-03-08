@@ -1,10 +1,4 @@
-{
-  config,
-  pkgs,
-  inputs,
-  user,
-  ...
-}: {
+{user, ...}: {
   imports = [
     ../../polyfills/darwin/traefik.nix
     ./traefik.nix
@@ -17,8 +11,5 @@
 
   homebrew.casks = ["jellyfin" "podman-desktop"];
 
-  networking = {
-    dns = ["1.1.1.1" "9.9.9.9"];
-    knownNetworkServices = ["Wi-Fi" "Ethernet"];
-  };
+  networking.knownNetworkServices = ["Wi-Fi" "Ethernet"];
 }

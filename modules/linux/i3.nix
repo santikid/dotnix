@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   user,
   ...
@@ -54,21 +53,17 @@
             "${modifier}+d" = "exec ${menu}";
             "${modifier}+r" = "mode \"resize\"";
 
-            # Focus movement
             "${modifier}+h" = "focus left";
             "${modifier}+j" = "focus down";
             "${modifier}+k" = "focus up";
             "${modifier}+l" = "focus right";
 
-            # Window movement
             "${modifier}+Shift+h" = "move left";
             "${modifier}+Shift+j" = "move down";
             "${modifier}+Shift+k" = "move up";
             "${modifier}+Shift+l" = "move right";
 
             "${modifier}+Shift+r" = "reload; restart";
-
-            # Workspace management
             "${modifier}+Tab" = "workspace back_and_forth";
           }
           // (builtins.listToAttrs (map (n: {
