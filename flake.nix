@@ -14,9 +14,6 @@
     homebrew-cask.url = "github:homebrew/homebrew-cask";
     homebrew-cask.flake = false;
 
-    nixos-apple-silicon.url = "github:nix-community/nixos-apple-silicon";
-    nixos-apple-silicon.inputs.nixpkgs.follows = "nixpkgs";
-
     sops-nix.url = "github:Mic92/sops-nix";
   };
   outputs = inputs @ {
@@ -54,24 +51,6 @@
         hostName = "santi-gg";
         system = "x86_64-linux";
         extraModules = [./modules/all/secrets ./hosts/santi-gg ./modules/linux/server];
-      };
-      shv = {
-        inherit user;
-        hostName = "shv";
-        system = "x86_64-linux";
-        extraModules = [./hosts/shv ./modules/linux/kde ./modules/linux/sway];
-      };
-      santisasahi = {
-        inherit user;
-        hostName = "santisasahi";
-        system = "aarch64-linux";
-        extraModules = [./hosts/santisasahi ./modules/linux/sway ./modules/linux/kde];
-      };
-      santiserver-vm = {
-        inherit user;
-        hostName = "santiserver-vm";
-        system = "aarch64-linux";
-        extraModules = [./hosts/santiserver-vm ./modules/linux/server];
       };
     };
 
