@@ -29,6 +29,13 @@
     };
   };
 
+  services.cron = {
+    enable = true;
+    systemCronJobs = [
+      "0 * * * *  root  /srv/backup.sh >> /tmp/srvbck.log"
+    ];
+  };
+
   networking.firewall = {
     enable = true;
     trustedInterfaces = ["tailscale0" "incusbr0"];
