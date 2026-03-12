@@ -1,83 +1,72 @@
 return { -- colorscheme
 	{
-		"navarasu/onedark.nvim",
+		"loctvl842/monokai-pro.nvim",
 		priority = 1000,
+		lazy = false,
 		config = function()
-			require("onedark").setup({
-				style = "darker",
-			})
-			require("onedark").load()
+			require("monokai-pro").setup({ filter = "spectrum" })
+			vim.cmd.colorscheme("monokai-pro")
 		end,
 	},
-	-- neovim dev
-	"folke/neodev.nvim",
+	{
+		"folke/lazydev.nvim",
+		ft = "lua",
+		opts = {},
+	},
 	{
 		"folke/noice.nvim",
 		event = "VeryLazy",
 		dependencies = {
 			"MunifTanjim/nui.nvim",
-			"rcarriga/nvim-notify",
 		},
 		config = function()
 			require("noice").setup({
 				lsp = {
-					-- override markdown rendering so that **cmp** and other plugins use **Treesitter**
 					override = {
 						["vim.lsp.util.convert_input_to_markdown_lines"] = true,
 						["vim.lsp.util.stylize_markdown"] = true,
-						["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
+						["cmp.entry.get_documentation"] = true,
 					},
 				},
-				-- you can enable a preset for easier configuration
 				presets = {
-					bottom_search = false, -- use a classic bottom cmdline for search
-					command_palette = true, -- position the cmdline and popupmenu together
-					long_message_to_split = true, -- long messages will be sent to a split
-					inc_rename = false, -- enables an input dialog for inc-rename.nvim
-					lsp_doc_border = false, -- add a border to hover docs and signature help
+					bottom_search = false,
+					command_palette = true,
+					long_message_to_split = true,
+					inc_rename = false,
+					lsp_doc_border = false,
 				},
 			})
 		end,
 	},
 	{
-		"nvim-lualine/lualine.nvim",
-		dependencies = { "nvim-tree/nvim-web-devicons" },
+		"nvim-mini/mini.statusline",
+		version = false,
 		config = function()
-			require("lualine").setup({
-				options = {
-					icons_enabled = true,
-					theme = "onedark",
-					component_separators = { left = "", right = "" },
-					section_separators = { left = "", right = "" },
-					disabled_filetypes = {},
-					always_divide_middle = true,
+			local sl = require("mini.statusline")
+			sl.setup({
+				use_icons = true,
+				content = {
+					active = function()
+						local mode, mode_hl = sl.section_mode({ trunc_width = 120 })
+						local git = sl.section_git({ trunc_width = 40 })
+						local diff = sl.section_diff({ trunc_width = 75 })
+						local diag = sl.section_diagnostics({ trunc_width = 75 })
+						local filename = sl.section_filename({ trunc_width = 140 })
+						local filetype = sl.section_fileinfo({ trunc_width = 120 })
+						local location = sl.section_location({ trunc_width = 75 })
+						local search = sl.section_searchcount({ trunc_width = 75 })
+
+						return sl.combine_groups({
+							{ hl = mode_hl, strings = { mode } },
+							{ hl = "MiniStatuslineDevinfo", strings = { git, diff, diag } },
+							"%<",
+							{ hl = "MiniStatuslineFilename", strings = { filename } },
+							"%=",
+							{ hl = "MiniStatuslineFileinfo", strings = { filetype } },
+							{ hl = mode_hl, strings = { search, location } },
+						})
+					end,
 				},
-				sections = {
-					lualine_a = { "mode" },
-					lualine_b = { "branch", "diff", "diagnostics" },
-					lualine_c = { "filename" },
-					lualine_x = {
-						"encoding",
-						"fileformat",
-						"filetype",
-						{
-							require("noice").api.statusline.mode.get,
-							cond = require("noice").api.statusline.mode.has,
-							color = { fg = "#ff9e64" },
-						},
-					},
-					lualine_y = { "searchcount", "progress" },
-					lualine_z = { "location" },
-				},
-				inactive_sections = {
-					lualine_a = {},
-					lualine_b = {},
-					lualine_c = { "filename" },
-					lualine_x = { "location" },
-					lualine_y = {},
-					lualine_z = {},
-				},
-				tabline = {},
 			})
 		end,
 	},

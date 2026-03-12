@@ -1,5 +1,0 @@
-return {
-	{
-		"mfussenegger/nvim-dap",
-	},
-}

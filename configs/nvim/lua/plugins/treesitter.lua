@@ -29,7 +29,7 @@ return {
 				auto_install = true,
 
 				-- Install parsers synchronously (only applied to `ensure_installed`)
-				sync_install = true,
+				sync_install = false,
 
 				highlight = {
 					-- `false` will disable the whole extension
@@ -41,10 +41,10 @@ return {
 		end,
 	},
 	{
-		"windwp/nvim-autopairs",
-		config = function()
-			require("nvim-autopairs").setup()
-		end,
+		"nvim-mini/mini.pairs",
+		version = false,
+		event = "InsertEnter",
+		opts = {},
 	},
 	{
 		"windwp/nvim-ts-autotag",

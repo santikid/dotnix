@@ -5,6 +5,7 @@ return {
 		lazy = false,
 		opts = {
 			bigfile = { enabled = true },
+			bufdelete = { enabled = true },
 			dashboard = { enabled = false },
 			explorer = { enabled = true },
 			indent = { enabled = true },
@@ -19,8 +20,10 @@ return {
 			quickfile = { enabled = true },
 			scope = { enabled = true },
 			scroll = { enabled = true },
+			rename = { enabled = true },
 			statuscolumn = { enabled = true },
 			words = { enabled = true },
+			zen = { enabled = true },
 		},
 		keys = {
 			-- no idea where this would go otherwise, snacks probably makes some sense
@@ -124,6 +127,36 @@ return {
 				end,
 				desc = "Recent",
 			},
+			{
+				"<leader>z",
+				function()
+					Snacks.zen()
+				end,
+				desc = "Zen Mode",
+			},
+			{
+				"<leader>cr",
+				function()
+					Snacks.rename.rename_file()
+				end,
+				desc = "Rename File",
+			},
+			{ "<S-h>", "<cmd>bprevious<cr>", desc = "Prev Buffer" },
+			{ "<S-l>", "<cmd>bnext<cr>", desc = "Next Buffer" },
+			{
+				"<leader>bd",
+				function()
+					Snacks.bufdelete()
+				end,
+				desc = "Delete Buffer",
+			},
+			{
+				"<leader>bo",
+				function()
+					Snacks.bufdelete.other()
+				end,
+				desc = "Delete Other Buffers",
+			},
 		},
 	},
 	{
@@ -154,5 +187,117 @@ return {
 			},
 		},
 	},
-	"machakann/vim-sandwich",
+	{
+		"lewis6991/gitsigns.nvim",
+		event = "BufReadPre",
+		opts = {},
+		keys = {
+			{
+				"]c",
+				function()
+					require("gitsigns").nav_hunk("next")
+				end,
+				desc = "Next Hunk",
+			},
+			{
+				"[c",
+				function()
+					require("gitsigns").nav_hunk("prev")
+				end,
+				desc = "Prev Hunk",
+			},
+			{
+				"<leader>gp",
+				function()
+					require("gitsigns").preview_hunk()
+				end,
+				desc = "Preview Hunk",
+			},
+			{
+				"<leader>gr",
+				function()
+					require("gitsigns").reset_hunk()
+				end,
+				desc = "Reset Hunk",
+			},
+			{
+				"<leader>gb",
+				function()
+					require("gitsigns").blame_line()
+				end,
+				desc = "Blame Line",
+			},
+		},
+	},
+	{
+		"folke/todo-comments.nvim",
+		dependencies = "nvim-lua/plenary.nvim",
+		event = "BufReadPost",
+		opts = {},
+		keys = {
+			{
+				"]t",
+				function()
+					require("todo-comments").jump_next()
+				end,
+				desc = "Next TODO",
+			},
+			{
+				"[t",
+				function()
+					require("todo-comments").jump_prev()
+				end,
+				desc = "Prev TODO",
+			},
+			{ "<leader>xt", "<cmd>Trouble todo toggle<cr>", desc = "TODOs (Trouble)" },
+			{
+				"<leader>ft",
+				function()
+					Snacks.picker.todo_comments()
+				end,
+				desc = "Find TODOs",
+			},
+		},
+	},
+	{
+		"folke/flash.nvim",
+		event = "VeryLazy",
+		opts = {},
+		keys = {
+			{
+				"s",
+				mode = { "n", "x", "o" },
+				function()
+					require("flash").jump()
+				end,
+				desc = "Flash",
+			},
+			{
+				"S",
+				mode = { "n", "x", "o" },
+				function()
+					require("flash").treesitter()
+				end,
+				desc = "Flash Treesitter",
+			},
+		},
+	},
+	{
+		"nvim-mini/mini.surround",
+		version = false,
+		event = "VeryLazy",
+		opts = {},
+	},
+	{
+		"nvim-mini/mini.icons",
+		version = false,
+		lazy = true,
+		opts = {},
+		init = function()
+			package.preload["nvim-web-devicons"] = function()
+				require("mini.icons").mock_nvim_web_devicons()
+				return package.loaded["nvim-web-devicons"]
+			end
+		end,
+	},
 }

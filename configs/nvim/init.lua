@@ -25,8 +25,10 @@ vim.opt.relativenumber = true
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
 
+vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
 vim.opt.foldtext = "nvim_treesitter#foldtext()"
+vim.opt.foldlevelstart = 99
 
 require("lazy").setup({ spec = { { import = "plugins" } } })
 require("autocmds")
