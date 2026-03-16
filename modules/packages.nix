@@ -26,6 +26,7 @@
       rustfmt
       clippy
       pkg-config
+      bacon
 
       # Terminal Utilities
       htop
