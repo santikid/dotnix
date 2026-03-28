@@ -48,45 +48,33 @@
 
     dynamicConfigOptions = {
       http.routers = {
-        calibre = {
-          entryPoints = ["websecure"];
-          rule = "Host(`calibre.home.santi.cloud`)";
-          service = "calibre";
-        };
         sonarr = {
           entryPoints = ["websecure"];
-          rule = "Host(`shows.home.santi.cloud`)";
+          rule = "Host(`shows.lisbon.santi.cloud`)";
           service = "sonarr";
         };
         radarr = {
           entryPoints = ["websecure"];
-          rule = "Host(`movies.home.santi.cloud`)";
+          rule = "Host(`movies.lisbon.santi.cloud`)";
           service = "radarr";
         };
         jellyfin = {
           entryPoints = ["websecure"];
-          rule = "Host(`jellyfin.home.santi.cloud`)";
+          rule = "Host(`jellyfin.lisbon.santi.cloud`)";
           service = "jellyfin";
         };
         sabnzbd = {
           entryPoints = ["websecure"];
-          rule = "Host(`sabnzbd.home.santi.cloud`)";
+          rule = "Host(`sabnzbd.lisbon.santi.cloud`)";
           service = "sabnzbd";
         };
         traefik = {
           entryPoints = ["websecure"];
-          rule = "Host(`traefik.home.santi.cloud`)";
+          rule = "Host(`traefik.lisbon.santi.cloud`)";
           service = "api@internal";
         };
       };
       http.services = {
-        calibre = {
-          loadBalancer = {
-            servers = [
-              {url = "http://localhost:8083";}
-            ];
-          };
-        };
         sonarr = {
           loadBalancer = {
             servers = [
