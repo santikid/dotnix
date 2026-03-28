@@ -41,16 +41,16 @@
         system = "aarch64-darwin";
         extraModules = [./modules/darwin/desktop.nix];
       };
-      santiserver = {
+      lisbon = {
         system = "aarch64-darwin";
-        extraModules = [./modules/secrets.nix ./hosts/santiserver ./modules/darwin/server.nix];
+        extraModules = [./modules/secrets.nix ./hosts/lisbon ./modules/darwin/server.nix];
       };
     };
 
     nixosHosts = {
-      santi-gg = {
+      obsidian = {
         system = "x86_64-linux";
-        extraModules = [./modules/secrets.nix ./hosts/santi-gg ./modules/linux/server.nix];
+        extraModules = [./modules/secrets.nix ./hosts/obsidian ./modules/linux/server.nix];
       };
     };
 
