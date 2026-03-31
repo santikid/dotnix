@@ -34,6 +34,8 @@ return {
 				},
 			},
 
+			completion = { trigger = { prefetch_on_insert = false } },
+
 			fuzzy = { implementation = "prefer_rust_with_warning" },
 		},
 		opts_extend = { "sources.default" },

@@ -144,6 +144,13 @@ return {
 			{ "<S-h>", "<cmd>bprevious<cr>", desc = "Prev Buffer" },
 			{ "<S-l>", "<cmd>bnext<cr>", desc = "Next Buffer" },
 			{
+				"Q",
+				function()
+					Snacks.bufdelete()
+				end,
+				desc = "Delete Buffer",
+			},
+			{
 				"<leader>bd",
 				function()
 					Snacks.bufdelete()
@@ -184,6 +191,11 @@ return {
 				"<leader>xq",
 				"<cmd>Trouble qflist toggle<cr>",
 				desc = "QF-list (Trouble)",
+			},
+			{
+				"<leader>cl",
+				"<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
+				desc = "LSP Definitions / References (Trouble)",
 			},
 		},
 	},
@@ -284,6 +296,35 @@ return {
 	},
 	{
 		"nvim-mini/mini.surround",
+		version = false,
+		event = "VeryLazy",
+		opts = {},
+	},
+	{
+		"nvim-mini/mini.move",
+		version = false,
+		event = "VeryLazy",
+		opts = {
+			mappings = {
+				left = "<A-h>",
+				right = "<A-l>",
+				down = "<A-j>",
+				up = "<A-k>",
+				line_left = "<A-h>",
+				line_right = "<A-l>",
+				line_down = "<A-j>",
+				line_up = "<A-k>",
+			},
+		},
+	},
+	{
+		"mbbill/undotree",
+		keys = {
+			{ "<leader>u", "<cmd>UndotreeToggle<cr>", desc = "Undotree" },
+		},
+	},
+	{
+		"nvim-mini/mini.tabline",
 		version = false,
 		event = "VeryLazy",
 		opts = {},
