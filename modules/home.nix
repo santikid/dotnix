@@ -73,6 +73,8 @@
         zstyle ':completion:*' menu select
         zstyle ':completion:*' insert-unambiguous yes
         zstyle ':completion:*:descriptions' format '%F{green}-- %d --%f'
+
+        [[ -f ~/.secrets.env ]] && source ~/.secrets.env
       '';
     };
 
