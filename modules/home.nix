@@ -13,7 +13,7 @@
     home.file.".config/nvim".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/configs/nvim";
 
-    programs.neovim.enable = true;
+    home.packages = [pkgs.neovim];
 
     programs.gpg.enable = true;
     services.gpg-agent = {
