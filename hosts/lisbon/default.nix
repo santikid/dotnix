@@ -1,7 +1,4 @@
 {user, ...}: {
-  imports = [
-    ../../polyfills/darwin/traefik.nix
-  ];
   home-manager.users.${user.name} = {
     home.sessionPath = [
       "/opt/podman/bin"
