@@ -6,11 +6,11 @@
     extraConfig = ''
       PasswordAuthentication no
       PermitRootLogin no
+      KbdInteractiveAuthentication no
       AllowUsers ${user.name}
     '';
   };
   users.users.${user.name}.openssh.authorizedKeys.keys = user.sshKeys;
-  services.tailscale.enable = true;
 
   power.restartAfterPowerFailure = true;
   power.restartAfterFreeze = true;
