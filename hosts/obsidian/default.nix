@@ -1,6 +1,7 @@
 {
   config,
   user,
+  pkgs,
   ...
 }: {
   imports = [
@@ -15,7 +16,12 @@
   virtualisation.docker.enable = true;
 
   virtualisation.incus.enable = true;
+
   networking.nftables.enable = true;
+  systemd.services.docker.path = [ pkgs.nftables ];
+  virtualisation.docker.daemon.settings = {
+    "firewall-backend" = "nftables";
+  };
 
   users.users.${user.name}.extraGroups = ["docker" "incus-admin"];
 
