@@ -1,11 +1,8 @@
 {pkgs, ...}: {
   homebrew.casks = [
-    "linearmouse"
     "secretive"
     "iina"
     "zen"
-    "google-chrome"
-    "ungoogled-chromium"
   ];
 
   environment.systemPackages = with pkgs; [
