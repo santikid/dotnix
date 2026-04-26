@@ -20,14 +20,16 @@ vim.opt.softtabstop = 2
 vim.opt.shiftwidth = 2
 vim.opt.smartindent = true
 vim.opt.expandtab = true
+vim.opt.number = true
 vim.opt.relativenumber = true
+vim.opt.signcolumn = "yes"
+vim.opt.undofile = true
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
 
 vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
-vim.opt.foldtext = "nvim_treesitter#foldtext()"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldlevelstart = 99
 
 require("lazy").setup({ spec = { { import = "plugins" } } })

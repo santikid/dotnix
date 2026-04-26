@@ -7,7 +7,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		end
 
 		-- Enable completion triggered by <c-x><c-o>
-		vim.api.nvim_buf_set_option(event.buf, "omnifunc", "v:lua.vim.lsp.omnifunc")
+		vim.bo[event.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
 		bufmap("n", "gD", vim.lsp.buf.declaration)
 		bufmap("n", "gd", function()
 			require("trouble").toggle("lsp_definitions")
