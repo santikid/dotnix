@@ -35,13 +35,38 @@
     programs.tmux = {
       enable = true;
       prefix = "C-a";
-      # not sure how good this is
       terminal = "xterm-ghostty";
       baseIndex = 1;
       clock24 = true;
       mouse = true;
       keyMode = "vi";
       customPaneNavigationAndResize = true;
+      escapeTime = 0;
+      historyLimit = 50000;
+      extraConfig = ''
+        set -g focus-events on
+        set -g renumber-windows on
+
+        # status bar
+        set -g status-position bottom
+        set -g status-style "bg=default,fg=#f8f8f2"
+        set -g status-left " #[fg=#a9dc76,bold]#S #[default] "
+        set -g status-right "#[fg=#727072]%H:%M "
+        set -g status-left-length 30
+        set -g status-right-length 20
+
+        # windows
+        set -g window-status-format "#[fg=#727072] #I #W "
+        set -g window-status-current-format "#[fg=#f8f8f2,bold] #I #W "
+        set -g window-status-separator ""
+
+        # pane borders
+        set -g pane-border-style "fg=#444444"
+        set -g pane-active-border-style "fg=#a9dc76"
+
+        # messages
+        set -g message-style "bg=default,fg=#f8f8f2"
+      '';
     };
 
     programs.eza = {
