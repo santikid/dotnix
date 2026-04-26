@@ -16,6 +16,9 @@
 
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    paneru.url = "github:karinushka/paneru";
+    paneru.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = inputs @ {
     self,
@@ -39,7 +42,7 @@
     darwinHosts = {
       santibook = {
         system = "aarch64-darwin";
-        extraModules = [./modules/darwin/desktop.nix];
+        extraModules = [./modules/darwin/desktop.nix ./modules/darwin/paneru.nix];
       };
       lisbon = {
         system = "aarch64-darwin";
