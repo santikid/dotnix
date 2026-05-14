@@ -14,11 +14,13 @@
       settings = {
         options = {
           focus_follows_mouse = true;
-          mouse_follows_focus = true;
+          mouse_follows_focus = false;
+          auto_center = true;
+          animation_speed = 35;
         };
         swipe = {
           continuous = true;
-          gesture.fingers_count = 3;
+          sensitivity = 0.6;
         };
         bindings = {
           window_focus_west = "cmd - h";
