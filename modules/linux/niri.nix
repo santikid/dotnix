@@ -6,8 +6,8 @@
 }: {
   environment.systemPackages = with pkgs; [
     firefox
+    foot
     fuzzel
-    ghostty
     grim
     kdePackages.dolphin
     mako
@@ -49,6 +49,7 @@
     MOZ_ENABLE_WAYLAND = "1";
     NIXOS_OZONE_WL = "1";
     QT_QPA_PLATFORM = "wayland";
+    TERMINAL = "foot";
     XDG_CURRENT_DESKTOP = "niri";
   };
 
@@ -71,6 +72,10 @@
               tap
               natural-scroll
           }
+      }
+
+      output "Virtual-1" {
+          scale 1.75
       }
 
       layout {
@@ -111,7 +116,7 @@
       binds {
           Mod+Shift+Slash { show-hotkey-overlay; }
 
-          Mod+T { spawn "ghostty"; }
+          Mod+T { spawn "foot"; }
           Mod+D { spawn "fuzzel"; }
           Mod+C { spawn "firefox"; }
           Mod+F { spawn "dolphin"; }
