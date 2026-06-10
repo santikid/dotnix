@@ -51,13 +51,14 @@
     };
 
     nixosHosts = {
+      copper = {
+        system = "aarch64-linux";
+        extraModules = [./hosts/copper];
+      };
+
       obsidian = {
         system = "x86_64-linux";
         extraModules = [./modules/secrets.nix ./hosts/obsidian ./modules/linux/server.nix];
-      };
-      copper = {
-        system = "aarch64-linux";
-        extraModules = [./hosts/copper ./modules/linux/niri.nix];
       };
     };
 
