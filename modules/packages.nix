@@ -79,6 +79,6 @@
     ];
 
   fonts.packages = with pkgs; [
-    iosevka
+    iosevka-bin
   ];
 }
