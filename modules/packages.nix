@@ -31,6 +31,7 @@
       # Terminal Utilities
       htop
       btop
+      mosh
 
       # Media Processing
       ffmpeg
