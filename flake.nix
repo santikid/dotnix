@@ -60,6 +60,11 @@
         system = "x86_64-linux";
         extraModules = [./modules/secrets.nix ./hosts/obsidian ./modules/linux/server.nix];
       };
+
+      ruby = {
+        system = "x86_64-linux";
+        extraModules = [./hosts/ruby ./modules/linux/server.nix];
+      };
     };
 
     commonModules = hostName: [
