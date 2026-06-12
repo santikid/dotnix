@@ -35,6 +35,8 @@
           window_fullwidth = "alt - f";
           window_manage = "alt + shift - t";
 
+          window_nextdisplay = "alt - m";
+
           window_virtual_north = "alt - k";
           window_virtual_south = "alt - j";
           window_virtualmove_north = "alt + shift - k";

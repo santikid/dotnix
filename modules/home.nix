@@ -82,6 +82,11 @@
       autosuggestion.enable = true;
       syntaxHighlighting.enable = true;
       initContent = ''
+        if [[ -n "''${SSH_CONNECTION:-}''${MOSH_IP:-}''${MOSH_CONNECTION:-}" ]]; then
+          ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=0
+          ZSH_HIGHLIGHT_MAXLENGTH=0
+        fi
+
         # command matching with up/downarrow
         autoload -U up-line-or-beginning-search
         autoload -U down-line-or-beginning-search
