@@ -3,7 +3,12 @@
   user,
   ...
 }: {
-  home-manager.users.${user.name} = {config, ...}: {
+  home-manager.users.${user.name} = {config, ...}: let
+    emacsPackage =
+      if pkgs.stdenv.isDarwin
+      then pkgs.emacs
+      else pkgs.emacs-nox;
+  in {
     home.stateVersion = "24.05";
 
     home.sessionPath = [
@@ -13,7 +18,51 @@
     home.file.".config/nvim".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/configs/nvim";
 
-    home.packages = [pkgs.neovim];
+    home.file.".emacs.d/init.el".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/configs/emacs/init.el";
+    home.file.".emacs.d/early-init.el".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/configs/emacs/early-init.el";
+    home.file.".emacs.d/config.org".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/configs/emacs/config.org";
+
+    home.packages = [
+      pkgs.neovim
+      emacsPackage
+      (pkgs.writeShellApplication {
+        name = "e";
+        runtimeInputs = [emacsPackage pkgs.neovim];
+        text = ''
+          if emacsclient --eval t >/dev/null 2>&1; then
+            if [[ -n "''${DISPLAY:-}''${WAYLAND_DISPLAY:-}" || "$(uname -s)" = "Darwin" ]]; then
+              exec emacsclient -c -n "$@"
+            fi
+
+            exec emacsclient -t "$@"
+          fi
+
+          if command -v emacs >/dev/null 2>&1; then
+            exec emacs "$@"
+          fi
+
+          exec nvim "$@"
+        '';
+      })
+      (pkgs.writeShellApplication {
+        name = "et";
+        runtimeInputs = [emacsPackage pkgs.neovim];
+        text = ''
+          if emacsclient --eval t >/dev/null 2>&1; then
+            exec emacsclient -t "$@"
+          fi
+
+          if command -v emacs >/dev/null 2>&1; then
+            exec emacs -nw "$@"
+          fi
+
+          exec nvim "$@"
+        '';
+      })
+    ];
 
     programs.gpg.enable = true;
     services.gpg-agent = {

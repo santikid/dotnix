@@ -11,6 +11,7 @@
       ripgrep
       fzf
       gh
+      nixd
 
       # Text & Document Processing
       pandoc
@@ -19,12 +20,19 @@
       nodejs_24
       pnpm
       bun
+      oxlint
+      prettier
+      svelte-language-server
+      typescript
+      typescript-language-server
+      vscode-langservers-extracted
 
       # Rust
       rustc
       cargo
       rustfmt
       clippy
+      rust-analyzer
       pkg-config
       bacon
 

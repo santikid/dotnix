@@ -22,6 +22,8 @@
  create-lockfiles nil
  make-backup-files nil
  auto-save-default nil
+ auto-revert-remote-files nil
+ global-auto-revert-non-file-buffers t
  custom-file (expand-file-name "custom.el" user-emacs-directory))
 
 (global-auto-revert-mode 1)
@@ -65,6 +67,26 @@
 (setq uniquify-ignore-buffers-re "^\\*")
 #+end_src
 
+** Remote Editing
+
+#+begin_src emacs-lisp
+(setq tramp-default-method "ssh"
+      tramp-verbose 1
+      tramp-use-ssh-controlmaster-options t
+      tramp-completion-reread-directory-timeout 300
+      remote-file-name-inhibit-locks t
+      remote-file-name-inhibit-auto-save-visited t)
+
+(with-eval-after-load 'tramp
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+  (setq tramp-auto-save-directory
+        (expand-file-name "tramp-auto-save/" user-emacs-directory)))
+
+(defun my/remote-directory-p (&optional directory)
+  "Return non-nil when DIRECTORY is remote."
+  (file-remote-p (or directory default-directory)))
+#+end_src
+
 ** No Littering
 
 #+begin_src emacs-lisp
@@ -79,6 +101,7 @@
 #+begin_src emacs-lisp
 (use-package super-save
   :config
+  (setq super-save-remote-files nil)
   (super-save-mode +1))
 #+end_src
 
@@ -86,6 +109,16 @@
 
 #+begin_src emacs-lisp
 (use-package restart-emacs)
+#+end_src
+
+** Emacs Server
+
+#+begin_src emacs-lisp
+(use-package server
+  :straight nil
+  :config
+  (unless (server-running-p)
+    (server-start)))
 #+end_src
 
 * Evil Mode & Keybindings
@@ -183,25 +216,60 @@
  "C-h" 'evil-window-left
  "C-j" 'evil-window-down
  "C-k" 'evil-window-up
- "C-l" 'evil-window-right)
+ "C-l" 'evil-window-right
+ "S-h" 'previous-buffer
+ "S-l" 'next-buffer
+ "Q" 'kill-current-buffer)
 #+end_src
 
 ** Leader Keybindings
 
 #+begin_src emacs-lisp
+(defun my/kill-other-file-buffers ()
+  "Kill all other file-visiting buffers."
+  (interactive)
+  (dolist (buffer (buffer-list))
+    (when (and (not (eq buffer (current-buffer)))
+               (buffer-file-name buffer))
+      (kill-buffer buffer))))
+
+(defun my/rename-current-file ()
+  "Rename the current buffer and its visited file."
+  (interactive)
+  (let ((filename (buffer-file-name)))
+    (unless filename
+      (user-error "Current buffer is not visiting a file"))
+    (let ((new-name (read-file-name "Rename to: "
+                                    (file-name-directory filename)
+                                    filename
+                                    nil
+                                    (file-name-nondirectory filename))))
+      (rename-file filename new-name 1)
+      (set-visited-file-name new-name t t))))
+
 (leader-def
   "SPC" '(execute-extended-command :which-key "M-x")
 
-  ;; Files
-  "f" '(:ignore t :which-key "files")
+  ;; Find
+  "f" '(:ignore t :which-key "find")
   "ff" '(find-file :which-key "find file")
   "fw" '(save-buffer :which-key "write file")
   "fS" '(write-file :which-key "save as")
   "fr" '(consult-recent-file :which-key "recent files")
 
   ;; Buffers
-  "b" '(consult-buffer :which-key "switch buffer")
+  "b" '(:ignore t :which-key "buffers")
+  "bb" '(consult-buffer :which-key "switch buffer")
+  "bd" '(kill-current-buffer :which-key "delete buffer")
+  "bo" '(my/kill-other-file-buffers :which-key "delete other file buffers")
+  "bn" '(next-buffer :which-key "next buffer")
+  "bp" '(previous-buffer :which-key "previous buffer")
   "k" '(kill-current-buffer :which-key "kill buffer")
+
+  ;; Code
+  "c" '(:ignore t :which-key "code")
+  "cr" '(my/rename-current-file :which-key "rename file")
+  "cs" '(consult-imenu :which-key "symbols")
 
   ;; Windows
   "w" '(:ignore t :which-key "windows")
@@ -248,9 +316,9 @@
   :config
   (setq doom-modeline-height 30)
   (setq doom-modeline-bar-width 4)
-  (setq doom-modeline-icon t)
-  (setq doom-modeline-major-mode-icon t)
-  (setq doom-modeline-major-mode-color-icon t)
+  (setq doom-modeline-icon (display-graphic-p))
+  (setq doom-modeline-major-mode-icon (display-graphic-p))
+  (setq doom-modeline-major-mode-color-icon (display-graphic-p))
   (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
   (setq doom-modeline-buffer-state-icon t)
   (setq doom-modeline-buffer-modification-icon t)
@@ -277,6 +345,7 @@
   :if (display-graphic-p))
 
 (use-package all-the-icons-dired
+  :if (display-graphic-p)
   :hook (dired-mode . all-the-icons-dired-mode))
 #+end_src
 
@@ -293,7 +362,7 @@
   (setq which-key-max-description-length 50)
 
   (which-key-add-key-based-replacements
-    "SPC f"   "files"
+    "SPC f"   "find"
     "SPC b"   "buffers"
     "SPC w"   "windows"
     "SPC h"   "help"
@@ -304,9 +373,9 @@
     "SPC t"   "terminal"
     "SPC x"   "diagnostics"
     "SPC c"   "code"
-    "SPC j"   "jump"
+    "SPC j"   "format"
+    "SPC J"   "jump"
     "SPC i"   "gptel"
-    "SPC a"   "claude"
     "SPC o"   "org"
     "SPC n"   "notes"
     "SPC ="   "format"
@@ -360,6 +429,7 @@
 
 #+begin_src emacs-lisp
 (use-package vertico-posframe
+  :if (display-graphic-p)
   :after vertico
   :config
   (vertico-posframe-mode 1)
@@ -394,11 +464,18 @@
 
 #+begin_src emacs-lisp
 (use-package consult
+  :config
+  (defun my/consult-todos ()
+    "Search project TODO-like comments."
+    (interactive)
+    (consult-ripgrep nil "\\b\\(TODO\\|FIXME\\|HACK\\|NOTE\\):"))
+
   :general
   (leader-def
     "fa" 'consult-find
     "fg" 'consult-git-grep
     "fs" 'consult-ripgrep
+    "ft" 'my/consult-todos
     "fl" 'consult-line
     ":" 'consult-complex-command))
 #+end_src
@@ -443,11 +520,13 @@
 #+begin_src emacs-lisp
 (use-package avy
   :general
+  (:states '(normal visual)
+   "s" 'avy-goto-char-timer)
   (leader-def
-    "j" '(:ignore t :which-key "jump")
-    "jj" 'avy-goto-char-2
-    "jl" 'avy-goto-line
-    "jw" 'avy-goto-word-1))
+    "J" '(:ignore t :which-key "jump")
+    "Jj" 'avy-goto-char-2
+    "Jl" 'avy-goto-line
+    "Jw" 'avy-goto-word-1))
 #+end_src
 
 ** Ace-Window
@@ -473,6 +552,7 @@
 #+begin_src emacs-lisp
 (use-package eglot
   :hook ((rust-mode . eglot-ensure)
+         (nix-mode . eglot-ensure)
          (typescript-mode . eglot-ensure)
          (js-mode . eglot-ensure)
          (svelte-mode . eglot-ensure))
@@ -485,6 +565,8 @@
 
   (add-to-list 'eglot-server-programs
                '(svelte-mode . ("svelteserver" "--stdio")))
+  (add-to-list 'eglot-server-programs
+               '(nix-mode . ("nixd")))
 
   (add-hook 'eglot-managed-mode-hook
             (lambda ()
@@ -496,11 +578,11 @@
   :general
   (leader-def
     :keymaps 'eglot-mode-map
-    "c" '(:ignore t :which-key "code")
     "ca" 'eglot-code-actions
-    "cr" 'eglot-rename
+    "cR" 'eglot-rename
     "cf" 'eglot-format-buffer
     "cF" 'eglot-format
+    "rn" 'eglot-rename
     "D" 'xref-find-definitions-other-window))
 #+end_src
 
@@ -530,6 +612,8 @@
   (leader-def
     "x" '(:ignore t :which-key "diagnostics")
     "xx" 'consult-flymake
+    "xX" 'flymake-show-buffer-diagnostics
+    "xt" 'my/consult-todos
     "xn" 'flymake-goto-next-error
     "xp" 'flymake-goto-prev-error
     "xl" 'flymake-show-buffer-diagnostics))
@@ -563,6 +647,7 @@
 
   :general
   (leader-def
+    "j" 'apheleia-format-buffer
     "=" '(:ignore t :which-key "format")
     "==" 'apheleia-format-buffer
     "=r" 'apheleia-region))
@@ -642,8 +727,15 @@
   (global-diff-hl-mode)
   (diff-hl-flydiff-mode)
   :hook
-  (magit-pre-refresh . diff-hl-magit-pre-refresh)
-  (magit-post-refresh . diff-hl-magit-post-refresh))
+  ((magit-pre-refresh . diff-hl-magit-pre-refresh)
+   (magit-post-refresh . diff-hl-magit-post-refresh))
+  :general
+  (:states 'normal
+   "]c" 'diff-hl-next-hunk
+   "[c" 'diff-hl-previous-hunk)
+  (leader-def
+    "gp" 'diff-hl-show-hunk
+    "gr" 'diff-hl-revert-hunk))
 #+end_src
 
 * Terminal & Projects
@@ -656,19 +748,68 @@
   (setq vterm-max-scrollback 10000)
   (setq vterm-kill-buffer-on-exit t)
 
+  (defun my/project-root-or-default ()
+    "Return the current project root or `default-directory'."
+    (if-let ((project (project-current nil)))
+        (project-root project)
+      default-directory))
+
+  (defun my/project-name-for-directory (directory)
+    "Return a compact project name for DIRECTORY."
+    (let* ((remote-host (file-remote-p directory 'host))
+           (local-name (directory-file-name (file-local-name directory)))
+           (leaf (file-name-nondirectory local-name)))
+      (cond
+       ((and remote-host (not (string= leaf "")))
+        (format "%s:%s" remote-host leaf))
+       (remote-host remote-host)
+       ((not (string= leaf "")) leaf)
+       (t "default"))))
+
+  (defun my/shell-buffer-name (directory)
+    "Return a shell buffer name for DIRECTORY."
+    (format "*shell-%s*" (my/project-name-for-directory directory)))
+
   (defun my/vterm-project ()
     "Open or switch to project-specific vterm terminal."
     (interactive)
-    (let* ((project (project-current))
-           (project-name (if project
-                            (file-name-nondirectory
-                             (directory-file-name (project-root project)))
-                          "default"))
+    (let* ((default-directory (my/project-root-or-default))
+           (project-name (my/project-name-for-directory default-directory))
            (buffer-name (format "*vterm-%s*" project-name)))
-      (if (get-buffer buffer-name)
-          (switch-to-buffer buffer-name)
-        (let ((vterm-buffer-name buffer-name))
-          (vterm)))))
+      (if (my/remote-directory-p default-directory)
+          (my/project-shell)
+        (if (get-buffer buffer-name)
+            (switch-to-buffer buffer-name)
+          (let ((vterm-buffer-name buffer-name))
+            (vterm))))))
+
+  (defun my/project-shell-buffer ()
+    "Create or return a project shell buffer."
+    (let* ((default-directory (my/project-root-or-default))
+           (buffer-name (my/shell-buffer-name default-directory)))
+      (shell buffer-name)
+      (get-buffer buffer-name)))
+
+  (defun my/project-shell ()
+    "Open a project shell, using TRAMP when `default-directory' is remote."
+    (interactive)
+    (switch-to-buffer (my/project-shell-buffer)))
+
+  (defun my/terminal ()
+    "Open a terminal appropriate for the current directory."
+    (interactive)
+    (let ((default-directory (my/project-root-or-default)))
+      (if (my/remote-directory-p default-directory)
+          (my/project-shell)
+        (vterm))))
+
+  (defun my/terminal-other-window ()
+    "Open a terminal in another window."
+    (interactive)
+    (let ((default-directory (my/project-root-or-default)))
+      (if (my/remote-directory-p default-directory)
+          (switch-to-buffer-other-window (my/project-shell-buffer))
+        (vterm-other-window))))
 
   (defun my/vterm-list ()
     "List and switch to vterm terminals."
@@ -686,9 +827,11 @@
   :general
   (leader-def
     "t" '(:ignore t :which-key "terminal")
-    "tt" 'vterm
-    "tT" 'vterm-other-window
+    "tt" 'my/terminal
+    "tT" 'my/terminal-other-window
     "tp" 'my/vterm-project
+    "ts" 'my/project-shell
+    "tv" 'vterm
     "tl" 'my/vterm-list))
 #+end_src
 
@@ -717,9 +860,13 @@
 #+begin_src emacs-lisp
 (use-package projectile
   :config
+  (setq projectile-auto-discover nil)
+  (setq projectile-enable-caching t)
+  (setq projectile-indexing-method 'alien)
   (projectile-mode +1)
   :general
   (leader-def
+    "fp" 'projectile-switch-project
     "p" '(:ignore t :which-key "project")
     "pp" 'projectile-switch-project
     "pf" 'projectile-find-file
@@ -778,6 +925,7 @@
   :after (treemacs magit))
 
 (use-package treemacs-all-the-icons
+  :if (display-graphic-p)
   :after (treemacs all-the-icons)
   :config
   (treemacs-load-theme "all-the-icons"))
@@ -944,51 +1092,14 @@
     "im" 'gptel-menu))
 #+end_src
 
-** Claude Code
+* Language-Specific
+
+** Nix
 
 #+begin_src emacs-lisp
-(use-package claude-code
-  :straight (:host github :repo "stevemolitor/claude-code.el")
-  :config
-  (setq claude-code-terminal-backend 'vterm)
-  (setq claude-code-newline-keybinding-style 'shift-return)
-
-  ;; macOS notifications
-  (defun my/claude-notify (title message)
-    (call-process "osascript" nil nil nil
-      "-e" (format "display notification \"%s\" with title \"%s\" sound name \"Glass\"" message title)))
-  (setq claude-code-notification-function #'my/claude-notify)
-
-  :general
-  (leader-def
-    "a" '(:ignore t :which-key "claude")
-    "aa" '(claude-code :which-key "start")
-    "ad" '(claude-code-start-in-directory :which-key "start in dir")
-    "aC" '(claude-code-continue :which-key "continue")
-    "aR" '(claude-code-resume :which-key "resume")
-    "ak" '(claude-code-kill :which-key "kill")
-    "aK" '(claude-code-kill-all :which-key "kill all")
-    "as" '(claude-code-send-command :which-key "send command")
-    "ax" '(claude-code-send-command-with-context :which-key "send with context")
-    "ar" '(claude-code-send-region :which-key "send region")
-    "ao" '(claude-code-send-buffer-file :which-key "send file")
-    "ae" '(claude-code-fix-error-at-point :which-key "fix error")
-    "at" '(claude-code-toggle :which-key "toggle window")
-    "ab" '(claude-code-switch-to-buffer :which-key "switch buffer")
-    "aB" '(claude-code-select-buffer :which-key "select buffer")
-    "az" '(claude-code-toggle-read-only-mode :which-key "read-only")
-    "ay" '(claude-code-send-return :which-key "yes")
-    "an" '(claude-code-send-escape :which-key "no")
-    "a1" '(claude-code-send-1 :which-key "send 1")
-    "a2" '(claude-code-send-2 :which-key "send 2")
-    "a3" '(claude-code-send-3 :which-key "send 3")
-    "am" '(claude-code-transient :which-key "menu")
-    "af" '(claude-code-fork :which-key "fork")
-    "a/" '(claude-code-slash-commands :which-key "slash cmds")
-    "aM" '(claude-code-cycle-mode :which-key "cycle mode")))
+(use-package nix-mode
+  :mode "\\.nix\\'")
 #+end_src
-
-* Language-Specific
 
 ** Rust
 

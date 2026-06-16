@@ -41,14 +41,6 @@ return {
 		opts_extend = { "sources.default" },
 	},
 	{
-		"mason-org/mason-lspconfig.nvim",
-		opts = {},
-		dependencies = {
-			{ "mason-org/mason.nvim", opts = {} },
-			"neovim/nvim-lspconfig",
-		},
-	},
-	{
 		"rachartier/tiny-inline-diagnostic.nvim",
 		event = "VeryLazy",
 		priority = 1000,
