@@ -26,37 +26,6 @@ return {
 			zen = { enabled = true },
 		},
 		keys = {
-			-- no idea where this would go otherwise, snacks probably makes some sense
-			{
-				"<C-h>",
-				"<C-w>h",
-				desc = "Switch left",
-			},
-			{
-				"<C-l>",
-				"<C-w>l",
-				desc = "Switch right",
-			},
-			{
-				"<C-j>",
-				"<C-w>j",
-				desc = "Switch down",
-			},
-			{
-				"<C-k>",
-				"<C-w>k",
-				desc = "Switch up",
-			},
-			{
-				"<leader>sv",
-				"<C-w>v",
-				desc = "Split vertical",
-			},
-			{
-				"<leader>sh",
-				"<C-w>s",
-				desc = "Split horizontal",
-			},
 			{
 				"<leader>gg",
 				function()
@@ -141,8 +110,6 @@ return {
 				end,
 				desc = "Rename File",
 			},
-			{ "<S-h>", "<cmd>bprevious<cr>", desc = "Prev Buffer" },
-			{ "<S-l>", "<cmd>bnext<cr>", desc = "Next Buffer" },
 			{
 				"Q",
 				function()

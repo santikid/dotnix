@@ -17,7 +17,6 @@ vim.opt.rtp:prepend(lazypath)
 if vim.env.SSH_TTY or vim.env.SSH_CONNECTION then
 	vim.g.clipboard = "osc52"
 end
-vim.opt.clipboard = "unnamed"
 vim.opt.tabstop = 2
 vim.opt.softtabstop = 2
 vim.opt.shiftwidth = 2
@@ -35,6 +34,7 @@ vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldlevelstart = 99
 
+require("keymaps")
 require("lazy").setup({ spec = { { import = "plugins" } } })
 require("lsp")
 require("autocmds")

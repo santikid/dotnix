@@ -101,6 +101,7 @@
         set -as terminal-features ',xterm-ghostty:clipboard'
         set -as terminal-features ',tmux-256color:clipboard'
         set -as terminal-features ',screen-256color:clipboard'
+        bind-key -T copy-mode-vi y send -X copy-selection-and-cancel
 
         # status bar
         set -g status-position bottom
