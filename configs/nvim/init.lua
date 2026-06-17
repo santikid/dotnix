@@ -14,6 +14,9 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+if vim.env.SSH_TTY or vim.env.SSH_CONNECTION then
+	vim.g.clipboard = "osc52"
+end
 vim.opt.clipboard = "unnamed"
 vim.opt.tabstop = 2
 vim.opt.softtabstop = 2

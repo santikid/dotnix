@@ -84,7 +84,7 @@
     programs.tmux = {
       enable = true;
       prefix = "C-a";
-      terminal = "xterm-ghostty";
+      terminal = "tmux-256color";
       baseIndex = 1;
       clock24 = true;
       mouse = true;
@@ -95,6 +95,12 @@
       extraConfig = ''
         set -g focus-events on
         set -g renumber-windows on
+
+        # Forward OSC 52 clipboard writes from remote or nested tmux sessions.
+        set -s set-clipboard on
+        set -as terminal-features ',xterm-ghostty:clipboard'
+        set -as terminal-features ',tmux-256color:clipboard'
+        set -as terminal-features ',screen-256color:clipboard'
 
         # status bar
         set -g status-position bottom
