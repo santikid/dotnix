@@ -32,18 +32,132 @@
   hex = color: lib.removePrefix "#" color;
   withAlpha = color: alpha: "${hex color}${alpha}";
 
+  swaylockBin = lib.getExe pkgs.swaylock;
+  lockCommand = "${swaylockBin} -f -c ${lockColor} --ignore-empty-password --show-failed-attempts";
+
+  screenshot = pkgs.writeShellApplication {
+    name = "screenshot";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.grim
+      pkgs.slurp
+      pkgs.wl-clipboard
+    ];
+    text = ''
+      mode="''${1:-area}"
+      dir="''${XDG_SCREENSHOTS_DIR:-$HOME/Pictures/Screenshots}"
+      mkdir -p "$dir"
+
+      timestamp="$(date '+%Y-%m-%d %H-%M-%S')"
+      file="$dir/Screenshot from $timestamp.png"
+
+      case "$mode" in
+        full)
+          grim "$file"
+          ;;
+        area)
+          geometry="$(slurp)" || exit 0
+          [[ -n "$geometry" ]] || exit 0
+          grim -g "$geometry" "$file"
+          ;;
+        clip)
+          geometry="$(slurp)" || exit 0
+          [[ -n "$geometry" ]] || exit 0
+          grim -g "$geometry" - | wl-copy --type image/png
+          ;;
+        *)
+          echo "usage: screenshot [full|area|clip]" >&2
+          exit 64
+          ;;
+      esac
+    '';
+  };
+
+  clipboardMenu = pkgs.writeShellApplication {
+    name = "clipboard-menu";
+    runtimeInputs = [
+      pkgs.cliphist
+      pkgs.fuzzel
+      pkgs.wl-clipboard
+    ];
+    text = ''
+      choice="$(cliphist list | fuzzel --dmenu --prompt 'Clipboard ' --width 72)" || exit 0
+      [[ -n "$choice" ]] || exit 0
+
+      printf '%s' "$choice" | cliphist decode | wl-copy
+    '';
+  };
+
+  sessionMenu = pkgs.writeShellApplication {
+    name = "session-menu";
+    runtimeInputs = [
+      config.programs.niri.package
+      pkgs.fuzzel
+      pkgs.systemd
+    ];
+    text = ''
+      choice="$(
+        printf 'Lock\nSuspend\nLogout\nReboot\nShutdown\n' |
+          fuzzel --dmenu --prompt 'Session '
+      )" || exit 0
+
+      case "$choice" in
+        Lock)
+          ${lockCommand}
+          ;;
+        Suspend)
+          systemctl suspend
+          ;;
+        Logout)
+          niri msg action quit
+          ;;
+        Reboot)
+          systemctl reboot
+          ;;
+        Shutdown)
+          systemctl poweroff
+          ;;
+      esac
+    '';
+  };
+
+  powerProfileMenu = pkgs.writeShellApplication {
+    name = "power-profile-menu";
+    runtimeInputs = [
+      pkgs.fuzzel
+      pkgs.power-profiles-daemon
+    ];
+    text = ''
+      current="$(powerprofilesctl get 2>/dev/null || true)"
+      choice="$(
+        printf 'balanced\npower-saver\nperformance\n' |
+          fuzzel --dmenu --prompt "Power ''${current:-unknown} "
+      )" || exit 0
+      [[ -n "$choice" ]] || exit 0
+
+      powerprofilesctl set "$choice"
+    '';
+  };
+
   commands = {
     browser = lib.getExe pkgs.firefox;
     brightnessctl = lib.getExe pkgs.brightnessctl;
-    files = lib.getExe pkgs.kdePackages.dolphin;
+    cliphist = lib.getExe pkgs.cliphist;
+    clipboardMenu = lib.getExe clipboardMenu;
+    files = lib.getExe pkgs.nautilus;
     fuzzel = lib.getExe pkgs.fuzzel;
     mako = lib.getExe pkgs.mako;
     niri = lib.getExe config.programs.niri.package;
     pavucontrol = lib.getExe pkgs.pavucontrol;
+    playerctl = lib.getExe pkgs.playerctl;
+    powerprofilesctl = lib.getExe' pkgs.power-profiles-daemon "powerprofilesctl";
+    powerProfileMenu = lib.getExe powerProfileMenu;
+    screenshot = lib.getExe screenshot;
+    sessionMenu = lib.getExe sessionMenu;
     swayidle = lib.getExe pkgs.swayidle;
-    swaylock = lib.getExe pkgs.swaylock;
     terminal = lib.getExe pkgs.ghostty;
     waybar = lib.getExe pkgs.waybar;
+    wlPaste = lib.getExe' pkgs.wl-clipboard "wl-paste";
     wpctl = lib.getExe' pkgs.wireplumber "wpctl";
     xwaylandSatellite = lib.getExe pkgs.xwayland-satellite;
     bluemanManager = lib.getExe' pkgs.blueman "blueman-manager";
@@ -76,16 +190,33 @@
     XF86AudioLowerVolume = locked (spawnSh "${commands.wpctl} set-volume @DEFAULT_AUDIO_SINK@ 0.1-");
     XF86AudioMute = locked (spawnSh "${commands.wpctl} set-mute @DEFAULT_AUDIO_SINK@ toggle");
     XF86AudioMicMute = locked (spawnSh "${commands.wpctl} set-mute @DEFAULT_AUDIO_SOURCE@ toggle");
+    XF86AudioPlay = locked (spawn [commands.playerctl "play-pause"]);
+    XF86AudioPause = locked (spawn [commands.playerctl "play-pause"]);
+    XF86AudioNext = locked (spawn [commands.playerctl "next"]);
+    XF86AudioPrev = locked (spawn [commands.playerctl "previous"]);
+    XF86AudioStop = locked (spawn [commands.playerctl "stop"]);
     XF86MonBrightnessUp = locked (spawn [commands.brightnessctl "set" "+5%"]);
     XF86MonBrightnessDown = locked (spawn [commands.brightnessctl "set" "5%-"]);
   };
 
   applicationBinds = mapSpawnBinds {
+    "${modifier}+Space" = [commands.fuzzel];
     "${modifier}+T" = [commands.terminal];
+    "${modifier}+Return" = [commands.terminal];
     "${modifier}+D" = [commands.fuzzel];
     "${modifier}+C" = [commands.browser];
     "${modifier}+F" = [commands.files];
-    "Super+Alt+L" = [commands.swaylock "-f" "-c" lockColor];
+    "${modifier}+Shift+V" = [commands.clipboardMenu];
+    "${modifier}+Escape" = [commands.sessionMenu];
+    "${modifier}+Shift+3" = [commands.screenshot "full"];
+    "${modifier}+Shift+4" = [commands.screenshot "area"];
+    "${modifier}+Ctrl+Shift+4" = [commands.screenshot "clip"];
+    Print = [commands.screenshot "full"];
+    "Shift+Print" = [commands.screenshot "area"];
+    "Ctrl+Print" = [commands.screenshot "clip"];
+  } // {
+    "${modifier}+Ctrl+Q" = spawnSh lockCommand;
+    "Super+Alt+L" = spawnSh lockCommand;
   };
 
   actionBinds = mapBinds {
@@ -107,12 +238,11 @@
     "${modifier}+R" = {switch-preset-column-width = [];};
     "${modifier}+Shift+R" = {switch-preset-column-width-back = [];};
     "${modifier}+M" = {maximize-window-to-edges = [];};
-    "${modifier}+V" = {toggle-window-floating = [];};
+    "${modifier}+Ctrl+Space" = {toggle-window-floating = [];};
+    "${modifier}+Ctrl+F" = {fullscreen-window = [];};
     "${modifier}+Shift+F" = {fullscreen-window = [];};
-    Print = {screenshot = [];};
-    "Ctrl+Print" = {screenshot-screen = [];};
     "Alt+Print" = {screenshot-window = [];};
-    "${modifier}+Escape" = {toggle-keyboard-shortcuts-inhibit = [];};
+    "${modifier}+Shift+Escape" = {toggle-keyboard-shortcuts-inhibit = [];};
     "${modifier}+Shift+P" = {power-off-monitors = [];};
     "${modifier}+Shift+E" = {quit = [];};
     "Ctrl+Alt+Delete" = {quit = [];};
@@ -124,7 +254,9 @@
   };
 
   repeatlessBinds = {
+    "${modifier}+Tab" = repeatless (bind {toggle-overview = [];});
     "${modifier}+O" = repeatless (bind {toggle-overview = [];});
+    "${modifier}+W" = repeatless (bind {close-window = [];});
     "${modifier}+Q" = repeatless (bind {close-window = [];});
   };
 
@@ -132,11 +264,13 @@
 in {
   environment.systemPackages = with pkgs; [
     brightnessctl
+    cliphist
     fuzzel
     grim
     imv
-    kdePackages.dolphin
+    localsend
     mako
+    nautilus
     networkmanagerapplet
     pavucontrol
     playerctl
@@ -150,9 +284,10 @@ in {
 
   programs.niri = {
     enable = true;
-    useNautilus = false;
+    useNautilus = true;
   };
 
+  programs.dconf.enable = true;
   programs.firefox.enable = true;
 
   services.greetd = {
@@ -166,6 +301,9 @@ in {
 
   security.pam.services.swaylock = {};
   security.rtkit.enable = true;
+
+  services.gnome.gnome-keyring.enable = true;
+  services.gvfs.enable = true;
 
   services.pipewire = {
     enable = true;
@@ -189,7 +327,16 @@ in {
   xdg.portal = {
     enable = true;
     xdgOpenUsePortal = true;
-    extraPortals = [pkgs.xdg-desktop-portal-gtk];
+    extraPortals = [
+      pkgs.xdg-desktop-portal-gnome
+      pkgs.xdg-desktop-portal-gtk
+    ];
+    config.niri = {
+      default = ["gnome" "gtk"];
+      "org.freedesktop.impl.portal.Access" = ["gtk"];
+      "org.freedesktop.impl.portal.Notification" = ["gtk"];
+      "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
+    };
   };
 
   home-manager.users.${user.name} = {
@@ -237,15 +384,17 @@ in {
         spawn-at-startup = [
           {argv = [commands.mako];}
           {argv = [commands.nmApplet "--indicator"];}
+          {argv = [pkgs.runtimeShell "-c" "${commands.wlPaste} --type text --watch ${commands.cliphist} store"];}
+          {argv = [pkgs.runtimeShell "-c" "${commands.wlPaste} --type image --watch ${commands.cliphist} store"];}
           {
             argv = [
               commands.swayidle
               "-w"
               "timeout"
               "900"
-              "${commands.swaylock} -f -c ${lockColor}"
+              lockCommand
               "before-sleep"
-              "${commands.swaylock} -f -c ${lockColor}"
+              lockCommand
             ];
           }
           {argv = [commands.waybar];}
@@ -267,13 +416,13 @@ in {
       enable = true;
       enableZshIntegration = true;
       settings = {
-        theme = "santi-gray";
+        theme = "soft-gray";
         "font-family" = font;
         "font-size" = 12;
         "window-padding-x" = 12;
         "window-padding-y" = 10;
       };
-      themes."santi-gray" = {
+      themes."soft-gray" = {
         palette = [
           "0=#111111"
           "1=#d16d6d"
@@ -309,7 +458,20 @@ in {
         spacing = 8;
         "modules-left" = ["niri/workspaces" "custom/overview" "niri/window"];
         "modules-center" = [];
-        "modules-right" = ["tray" "niri/language" "network" "bluetooth" "backlight" "pulseaudio" "battery" "clock"];
+        "modules-right" = [
+          "mpris"
+          "tray"
+          "custom/clipboard"
+          "idle_inhibitor"
+          "niri/language"
+          "network"
+          "bluetooth"
+          "custom/power-profile"
+          "backlight"
+          "pulseaudio"
+          "battery"
+          "clock"
+        ];
 
         "niri/workspaces" = {
           format = "{index}";
@@ -328,6 +490,29 @@ in {
         };
         tray = {
           spacing = 10;
+        };
+        mpris = {
+          format = "media {dynamic}";
+          "format-paused" = "media paused";
+          "dynamic-len" = 28;
+          "dynamic-order" = ["title" "artist"];
+          "on-click" = "${commands.playerctl} play-pause";
+          "on-click-right" = "${commands.playerctl} next";
+          "on-scroll-up" = "${commands.playerctl} next";
+          "on-scroll-down" = "${commands.playerctl} previous";
+        };
+        "custom/clipboard" = {
+          format = "clip";
+          tooltip = true;
+          "tooltip-format" = "Clipboard history";
+          "on-click" = commands.clipboardMenu;
+        };
+        idle_inhibitor = {
+          format = "{icon}";
+          "format-icons" = {
+            activated = "awake";
+            deactivated = "idle";
+          };
         };
         bluetooth = {
           format = "bt {status}";
@@ -351,11 +536,21 @@ in {
           "on-click" = commands.nmConnectionEditor;
           "on-click-right" = commands.nmApplet;
         };
+        "custom/power-profile" = {
+          exec = "${commands.powerprofilesctl} get";
+          format = "power {}";
+          interval = 30;
+          tooltip = true;
+          "tooltip-format" = "Power profile";
+          "on-click" = commands.powerProfileMenu;
+        };
         pulseaudio = {
           format = "vol {volume}%";
           "format-muted" = "vol muted";
           "on-click" = commands.pavucontrol;
           "on-click-right" = "${commands.wpctl} set-mute @DEFAULT_AUDIO_SINK@ toggle";
+          "on-scroll-up" = "${commands.wpctl} set-volume @DEFAULT_AUDIO_SINK@ 0.05+ -l 1.0";
+          "on-scroll-down" = "${commands.wpctl} set-volume @DEFAULT_AUDIO_SINK@ 0.05-";
         };
         battery = {
           states = {
@@ -365,6 +560,7 @@ in {
           format = "bat {capacity}%";
           "format-charging" = "bat {capacity}%+";
           "format-plugged" = "bat {capacity}%=";
+          "on-click" = commands.powerProfileMenu;
         };
         clock = {
           format = "{:%H:%M}";
@@ -389,9 +585,13 @@ in {
         #workspaces,
         #custom-overview,
         #window,
+        #mpris,
+        #custom-clipboard,
+        #idle_inhibitor,
         #language,
         #tray,
         #bluetooth,
+        #custom-power-profile,
         #backlight,
         #network,
         #pulseaudio,
@@ -404,6 +604,9 @@ in {
         }
 
         #custom-overview:hover,
+        #custom-clipboard:hover,
+        #custom-power-profile:hover,
+        #idle_inhibitor:hover,
         #workspaces button:hover {
           background: ${colors.surfaceHover};
         }
@@ -425,8 +628,15 @@ in {
         }
 
         #language,
+        #idle_inhibitor,
+        #mpris.paused,
         #tray {
           color: ${colors.muted};
+        }
+
+        #idle_inhibitor.activated,
+        #custom-power-profile {
+          color: ${colors.selected};
         }
 
         #network.disconnected,
@@ -443,6 +653,7 @@ in {
 
     home.file.".config/fuzzel/fuzzel.ini".text = ''
       font=${font}:size=13
+      prompt=>
       width=48
       lines=12
       tabs=4
@@ -475,6 +686,7 @@ in {
       padding=12
       margin=16
       width=420
+      max-icon-size=48
       default-timeout=6000
       anchor=top-right
     '';
@@ -514,11 +726,32 @@ in {
       gtk-theme = "adw-gtk3-dark";
       icon-theme = "Papirus-Dark";
       cursor-theme = cursor.name;
+      document-font-name = "${font} 11";
+      font-name = "${font} 11";
+      monospace-font-name = "${font} 11";
+    };
+
+    xdg.userDirs = {
+      enable = true;
+      createDirectories = true;
+      setSessionVariables = true;
+      desktop = "$HOME/Desktop";
+      documents = "$HOME/Documents";
+      download = "$HOME/Downloads";
+      music = "$HOME/Music";
+      pictures = "$HOME/Pictures";
+      publicShare = "$HOME/Public";
+      templates = "$HOME/Templates";
+      videos = "$HOME/Videos";
+      extraConfig = {
+        SCREENSHOTS = "$HOME/Pictures/Screenshots";
+      };
     };
 
     xdg.mimeApps = {
       enable = true;
       defaultApplications = {
+        "inode/directory" = ["org.gnome.Nautilus.desktop"];
         "text/html" = ["firefox.desktop"];
         "x-scheme-handler/http" = ["firefox.desktop"];
         "x-scheme-handler/https" = ["firefox.desktop"];
