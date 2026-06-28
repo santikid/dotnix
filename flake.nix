@@ -20,6 +20,9 @@
     paneru.url = "github:karinushka/paneru";
     paneru.inputs.nixpkgs.follows = "nixpkgs";
 
+    niri.url = "github:sodiboo/niri-flake";
+    niri.inputs.nixpkgs.follows = "nixpkgs";
+
     nixos-apple-silicon.url = "github:nix-community/nixos-apple-silicon/main";
     nixos-apple-silicon.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -31,6 +34,7 @@
     nix-homebrew,
     homebrew-cask,
     sops-nix,
+    niri,
     nixos-apple-silicon,
     ...
   }: let
