@@ -19,6 +19,9 @@
 
     paneru.url = "github:karinushka/paneru";
     paneru.inputs.nixpkgs.follows = "nixpkgs";
+
+    nixos-apple-silicon.url = "github:nix-community/nixos-apple-silicon/main";
+    nixos-apple-silicon.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = inputs @ {
     self,
@@ -28,6 +31,7 @@
     nix-homebrew,
     homebrew-cask,
     sops-nix,
+    nixos-apple-silicon,
     ...
   }: let
     user = {
@@ -64,6 +68,15 @@
       ruby = {
         system = "x86_64-linux";
         extraModules = [./hosts/ruby ./modules/linux/server.nix];
+      };
+
+      santisasahi = {
+        system = "aarch64-linux";
+        extraModules = [
+          nixos-apple-silicon.nixosModules.default
+          ./hosts/santisasahi
+          ./modules/linux/niri.nix
+        ];
       };
     };
 

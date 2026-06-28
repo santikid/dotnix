@@ -60,7 +60,7 @@ REBOOT
 
 # Installing Asahi NixOS
 
-Installing an Asahi system is similar to regular NixOS, but the formatting has to be done as explained in `tpwrules/apple-silicon-support`. 
+Installing an Asahi system is similar to regular NixOS, but the formatting has to be done as explained in `nix-community/nixos-apple-silicon`.
 
 ```bash
 # Create root partition
@@ -70,20 +70,33 @@ sgdisk /dev/nvme0n1 -n 0:0 -s
 sgdisk /dev/nvme0n1 -p
 
 # Format root partition
-mkfs.ext4 -L nixos-root /dev/nvme0n1p5
+mkfs.btrfs -L nixos /dev/nvme0n1p5
 
-# Mount partitions
+# Create and mount subvolumes
 mount /dev/disk/by-label/nixos /mnt
+btrfs subvolume create /mnt/root
+btrfs subvolume create /mnt/nix
+btrfs subvolume create /mnt/home
+umount /mnt
+
+mount -o subvol=root,compress=zstd,noatime /dev/disk/by-label/nixos /mnt
+mkdir -p /mnt/{nix,home,boot}
+mount -o subvol=nix,compress=zstd,noatime /dev/disk/by-label/nixos /mnt/nix
+mount -o subvol=home,compress=zstd,noatime /dev/disk/by-label/nixos /mnt/home
+
+# Label and mount EFI partition created by the Asahi installer
 mkdir -p /mnt/boot
-mount /dev/disk/by-partuuid/`cat /proc/device-tree/chosen/asahi,efi-system-partition` /mnt/boot
-```
-
-The EFI partition can be renamed with `fatlabel /dev/nvme0n1pX EFI` so it can be mounted through /dev/disk/by-label/EFI (both during install and in `hardware-configuration.nix`).
-
-```bash
 fatlabel /dev/disk/by-partuuid/`cat /proc/device-tree/chosen/asahi,efi-system-partition` EFI
+mount /dev/disk/by-label/EFI /mnt/boot
 ```
 
-Both `nixos-install` and `nixos-rebuild` have to be ran with the `--impure` flag since vendor firmware from /boot/asahi has to be accessed. Using a folder inside the repo is not possible without git-adding the firmware so impure builds seem to be the most elegant solution.
+Both `nixos-install` and `nixos-rebuild` have to be run with the `--impure` flag since vendor firmware from /boot/asahi has to be accessed. Using a folder inside the repo is not possible without git-adding the firmware so impure builds seem to be the most elegant solution.
 
 When installing, setting TMPDIR to a subdirectory in /mnt is recommended to not run out of disk space.
+
+Install the flake:
+
+```bash
+mkdir -p /mnt/tmp
+TMPDIR=/mnt/tmp nixos-install --impure --flake /mnt/.nix#santisasahi
+```

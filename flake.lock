@@ -37,6 +37,21 @@
         "type": "github"
       }
     },
+    "flake-compat": {
+      "locked": {
+        "lastModified": 1761640442,
+        "narHash": "sha256-AtrEP6Jmdvrqiv4x2xa5mrtaIp3OEe8uBYCDZDS+hu8=",
+        "owner": "nix-community",
+        "repo": "flake-compat",
+        "rev": "4a56054d8ffc173222d09dad23adf4ba946c8884",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": "nixpkgs-lib"
@@ -147,6 +162,28 @@
         "type": "github"
       }
     },
+    "nixos-apple-silicon": {
+      "inputs": {
+        "flake-compat": "flake-compat",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1782374867,
+        "narHash": "sha256-wgU8MdUzSH2ccq85xo80pP1PAFW+e5kzx6rofVO1Jsk=",
+        "owner": "nix-community",
+        "repo": "nixos-apple-silicon",
+        "rev": "bf99497876c07bb945d5fc536916cdee4f3b9eb6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "ref": "main",
+        "repo": "nixos-apple-silicon",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1781577229,
@@ -207,6 +244,7 @@
         "home-manager": "home-manager",
         "homebrew-cask": "homebrew-cask",
         "nix-homebrew": "nix-homebrew",
+        "nixos-apple-silicon": "nixos-apple-silicon",
         "nixpkgs": "nixpkgs",
         "paneru": "paneru",
         "sops-nix": "sops-nix"

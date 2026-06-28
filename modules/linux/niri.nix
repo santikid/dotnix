@@ -5,12 +5,16 @@
   ...
 }: {
   environment.systemPackages = with pkgs; [
+    brightnessctl
     firefox
     foot
     fuzzel
     grim
+    imv
     kdePackages.dolphin
     mako
+    networkmanagerapplet
+    pavucontrol
     playerctl
     slurp
     swayidle
@@ -28,9 +32,10 @@
 
   services.greetd = {
     enable = true;
-    settings.default_session = {
-      command = "${config.programs.niri.package}/bin/niri-session";
-      user = user.name;
+    settings = {
+      default_session = {
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-user-session --cmd ${config.programs.niri.package}/bin/niri-session";
+      };
     };
   };
 
@@ -40,7 +45,7 @@
   services.pipewire = {
     enable = true;
     alsa.enable = true;
-    alsa.support32Bit = true;
+    alsa.support32Bit = pkgs.stdenv.hostPlatform.isx86;
     pulse.enable = true;
     wireplumber.enable = true;
   };
@@ -55,6 +60,7 @@
 
   xdg.portal = {
     enable = true;
+    xdgOpenUsePortal = true;
     extraPortals = [pkgs.xdg-desktop-portal-gtk];
   };
 
@@ -74,8 +80,8 @@
           }
       }
 
-      output "Virtual-1" {
-          scale 1.75
+      output "eDP-1" {
+          scale 2
       }
 
       layout {
@@ -104,7 +110,9 @@
       }
 
       spawn-at-startup "mako"
+      spawn-at-startup "nm-applet" "--indicator"
       spawn-at-startup "waybar"
+      spawn-at-startup "xwayland-satellite"
 
       hotkey-overlay {
           skip-at-startup
@@ -120,12 +128,14 @@
           Mod+D { spawn "fuzzel"; }
           Mod+C { spawn "firefox"; }
           Mod+F { spawn "dolphin"; }
-          Super+Alt+L { spawn "swaylock"; }
+          Super+Alt+L { spawn "swaylock" "-f" "-c" "101010"; }
 
           XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0"; }
           XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-"; }
           XF86AudioMute allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
           XF86AudioMicMute allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
+          XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "set" "+5%"; }
+          XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "set" "5%-"; }
 
           Mod+O repeat=false { toggle-overview; }
           Mod+Q repeat=false { close-window; }
@@ -193,13 +203,19 @@
         "height": 28,
         "modules-left": ["niri/workspaces"],
         "modules-center": ["niri/window"],
-        "modules-right": ["network", "pulseaudio", "clock"],
+        "modules-right": ["tray", "backlight", "network", "pulseaudio", "battery", "clock"],
         "niri/workspaces": {
           "format": "{icon}",
           "format-icons": {
             "active": "*",
             "default": "."
           }
+        },
+        "tray": {
+          "spacing": 8
+        },
+        "backlight": {
+          "format": "{percent}%"
         },
         "network": {
           "format-ethernet": "{ifname}",
@@ -209,6 +225,10 @@
         "pulseaudio": {
           "format": "{volume}%",
           "format-muted": "muted"
+        },
+        "battery": {
+          "format": "{capacity}%",
+          "format-charging": "{capacity}%+"
         },
         "clock": {
           "format": "{:%H:%M}"
@@ -232,8 +252,11 @@
 
       #workspaces,
       #window,
+      #tray,
+      #backlight,
       #network,
       #pulseaudio,
+      #battery,
       #clock {
         padding: 0 10px;
       }
