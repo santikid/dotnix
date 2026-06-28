@@ -6,7 +6,6 @@
 }: {
   environment.systemPackages = with pkgs; [
     brightnessctl
-    firefox
     foot
     fuzzel
     grim
@@ -17,6 +16,7 @@
     pavucontrol
     playerctl
     slurp
+    swaybg
     swayidle
     swaylock
     waybar
@@ -29,6 +29,8 @@
     enable = true;
     useNautilus = false;
   };
+
+  programs.firefox.enable = true;
 
   services.greetd = {
     enable = true;
@@ -54,8 +56,11 @@
     MOZ_ENABLE_WAYLAND = "1";
     NIXOS_OZONE_WL = "1";
     QT_QPA_PLATFORM = "wayland";
+    QT_QPA_PLATFORMTHEME = "gtk3";
     TERMINAL = "foot";
     XDG_CURRENT_DESKTOP = "niri";
+    XCURSOR_SIZE = "24";
+    XCURSOR_THEME = "Bibata-Modern-Ice";
   };
 
   xdg.portal = {
@@ -111,6 +116,8 @@
 
       spawn-at-startup "mako"
       spawn-at-startup "nm-applet" "--indicator"
+      spawn-at-startup "swaybg" "-c" "#0d1017"
+      spawn-at-startup "swayidle" "-w" "timeout" "900" "swaylock -f -c 0d1017" "before-sleep" "swaylock -f -c 0d1017"
       spawn-at-startup "waybar"
       spawn-at-startup "xwayland-satellite"
 
@@ -200,38 +207,57 @@
       {
         "layer": "top",
         "position": "top",
-        "height": 28,
-        "modules-left": ["niri/workspaces"],
-        "modules-center": ["niri/window"],
-        "modules-right": ["tray", "backlight", "network", "pulseaudio", "battery", "clock"],
+        "height": 42,
+        "spacing": 8,
+        "modules-left": ["niri/workspaces", "niri/window"],
+        "modules-center": [],
+        "modules-right": ["tray", "network", "bluetooth", "backlight", "pulseaudio", "battery", "clock"],
         "niri/workspaces": {
-          "format": "{icon}",
-          "format-icons": {
-            "active": "*",
-            "default": "."
-          }
+          "format": "{index}"
         },
         "tray": {
-          "spacing": 8
+          "spacing": 10
+        },
+        "bluetooth": {
+          "format": "bt {status}",
+          "format-disabled": "bt off",
+          "format-off": "bt off",
+          "format-connected": "bt {num_connections}",
+          "tooltip-format": "{controller_alias}",
+          "tooltip-format-connected": "{controller_alias}: {device_alias}",
+          "on-click": "blueman-manager"
         },
         "backlight": {
-          "format": "{percent}%"
+          "format": "sun {percent}%",
+          "on-scroll-up": "brightnessctl set +5%",
+          "on-scroll-down": "brightnessctl set 5%-"
         },
         "network": {
-          "format-ethernet": "{ifname}",
-          "format-wifi": "{essid}",
-          "format-disconnected": "offline"
+          "format-ethernet": "net {ifname}",
+          "format-wifi": "wifi {essid}",
+          "format-disconnected": "net offline",
+          "tooltip-format-wifi": "{ifname}: {ipaddr}/{cidr} {signalStrength}%",
+          "on-click": "nm-connection-editor",
+          "on-click-right": "nm-applet"
         },
         "pulseaudio": {
-          "format": "{volume}%",
-          "format-muted": "muted"
+          "format": "vol {volume}%",
+          "format-muted": "vol muted",
+          "on-click": "pavucontrol",
+          "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
         },
         "battery": {
-          "format": "{capacity}%",
-          "format-charging": "{capacity}%+"
+          "states": {
+            "warning": 30,
+            "critical": 15
+          },
+          "format": "bat {capacity}%",
+          "format-charging": "bat {capacity}%+",
+          "format-plugged": "bat {capacity}%="
         },
         "clock": {
-          "format": "{:%H:%M}"
+          "format": "{:%H:%M}",
+          "tooltip-format": "{:%A, %d %B %Y}"
         }
       }
     '';
@@ -239,36 +265,167 @@
     home.file.".config/waybar/style.css".text = ''
       * {
         border: none;
-        border-radius: 0;
         font-family: Iosevka, monospace;
-        font-size: 12px;
+        font-size: 13px;
         min-height: 0;
       }
 
       window#waybar {
-        background: #101010;
-        color: #f8f8f2;
+        background: rgba(13, 16, 23, 0.94);
+        border-bottom: 1px solid rgba(156, 207, 216, 0.28);
+        color: #e8eaed;
       }
 
       #workspaces,
       #window,
       #tray,
+      #bluetooth,
       #backlight,
       #network,
       #pulseaudio,
       #battery,
       #clock {
-        padding: 0 10px;
+        margin: 7px 0;
+        padding: 0 12px;
+        border-radius: 7px;
+        background: rgba(24, 29, 39, 0.82);
       }
 
       #workspaces button {
-        color: #727072;
-        padding: 0 4px;
+        margin: 0 2px;
+        padding: 0 9px;
+        border-radius: 6px;
+        color: #8b95a7;
       }
 
       #workspaces button.active {
-        color: #a9dc76;
+        background: #9ccfd8;
+        color: #0d1017;
+      }
+
+      #window {
+        color: #c4c8d2;
+      }
+
+      #network.disconnected,
+      #pulseaudio.muted,
+      #battery.warning {
+        color: #f6c177;
+      }
+
+      #battery.critical {
+        color: #eb6f92;
       }
     '';
+
+    home.file.".config/foot/foot.ini".text = ''
+      font=Iosevka:size=13
+      pad=12x10
+      resize-delay-ms=0
+
+      [colors]
+      foreground=e8eaed
+      background=0d1017
+      regular0=0d1017
+      regular1=eb6f92
+      regular2=a9dc76
+      regular3=f6c177
+      regular4=9ccfd8
+      regular5=c4a7e7
+      regular6=95d3d0
+      regular7=e8eaed
+      bright0=6e7687
+      bright1=ff8aa3
+      bright2=c3e88d
+      bright3=ffd28f
+      bright4=b9e7ef
+      bright5=d6b4ff
+      bright6=a8e6e2
+      bright7=ffffff
+    '';
+
+    home.file.".config/fuzzel/fuzzel.ini".text = ''
+      font=Iosevka:size=14
+      width=48
+      lines=12
+      tabs=4
+      horizontal-pad=18
+      vertical-pad=14
+      inner-pad=8
+      layer=overlay
+
+      [colors]
+      background=0d1017f2
+      text=e8eaedff
+      match=9ccfd8ff
+      selection=1a2130ff
+      selection-text=ffffffff
+      selection-match=9ccfd8ff
+      border=9ccfd8ff
+
+      [border]
+      width=2
+      radius=8
+    '';
+
+    home.file.".config/mako/config".text = ''
+      font=Iosevka 12
+      background-color=#0d1017f2
+      text-color=#e8eaed
+      border-color=#9ccfd8
+      border-size=2
+      border-radius=8
+      padding=12
+      margin=16
+      width=420
+      default-timeout=6000
+      anchor=top-right
+    '';
+
+    gtk = {
+      enable = true;
+      theme = {
+        name = "adw-gtk3-dark";
+        package = pkgs.adw-gtk3;
+      };
+      gtk4.theme = {
+        name = "adw-gtk3-dark";
+        package = pkgs.adw-gtk3;
+      };
+      iconTheme = {
+        name = "Papirus-Dark";
+        package = pkgs.papirus-icon-theme;
+      };
+      cursorTheme = {
+        name = "Bibata-Modern-Ice";
+        package = pkgs.bibata-cursors;
+        size = 24;
+      };
+      gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
+      gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
+    };
+
+    home.pointerCursor = {
+      gtk.enable = true;
+      package = pkgs.bibata-cursors;
+      name = "Bibata-Modern-Ice";
+      size = 24;
+    };
+
+    dconf.settings."org/gnome/desktop/interface" = {
+      color-scheme = "prefer-dark";
+      gtk-theme = "adw-gtk3-dark";
+      icon-theme = "Papirus-Dark";
+      cursor-theme = "Bibata-Modern-Ice";
+    };
+
+    xdg.mimeApps = {
+      enable = true;
+      defaultApplications = {
+        "text/html" = ["firefox.desktop"];
+        "x-scheme-handler/http" = ["firefox.desktop"];
+        "x-scheme-handler/https" = ["firefox.desktop"];
+      };
+    };
   };
 }

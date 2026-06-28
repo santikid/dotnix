@@ -6,12 +6,21 @@
   ...
 }: {
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
+  nixpkgs.config.allowUnfreePredicate = pkg:
+    builtins.elem (lib.getName pkg) [
+      "1password"
+      "1password-cli"
+      "chromium"
+      "chromium-unwrapped"
+      "widevine-cdm"
+    ];
 
   boot.loader.systemd-boot = {
     enable = true;
     configurationLimit = 8;
   };
   boot.loader.efi.canTouchEfiVariables = false;
+  boot.kernelParams = ["appledrm.show_notch=1"];
   boot.supportedFilesystems = ["btrfs"];
 
   fileSystems."/" = {
@@ -55,6 +64,12 @@
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
 
+  programs._1password.enable = true;
+  programs._1password-gui = {
+    enable = true;
+    polkitPolicyOwners = [user.name];
+  };
+
   nix.settings = {
     trusted-users = ["root" "@wheel" user.name];
     extra-substituters = [
@@ -66,6 +81,9 @@
   };
 
   environment.systemPackages = with pkgs; [
+    (chromium.override {
+      enableWideVine = true;
+    })
     brightnessctl
     libinput
     lm_sensors
@@ -73,6 +91,16 @@
     powertop
     usbutils
   ];
+
+  home-manager.users.${user.name} = {
+    programs.ssh = {
+      enable = true;
+      enableDefaultConfig = false;
+      settings."*" = {
+        IdentityAgent = "~/.1password/agent.sock";
+      };
+    };
+  };
 
   system.stateVersion = "26.05";
 }
