@@ -27,27 +27,27 @@
     window-padding-x = 12
     window-padding-y = 10
 
-    background = 111111
-    foreground = eeeeee
-    cursor-color = eeeeee
-    selection-background = 3a3a3a
+    background = 111318
+    foreground = f4f7fb
+    cursor-color = 7dd3fc
+    selection-background = 2d3443
     selection-foreground = ffffff
 
-    palette = 0=#111111
-    palette = 1=#d16d6d
-    palette = 2=#8fa876
-    palette = 3=#d6b25e
-    palette = 4=#b8b8b8
-    palette = 5=#c49ab7
-    palette = 6=#9bb0ad
-    palette = 7=#e8e8e8
-    palette = 8=#5a5a5a
-    palette = 9=#e08a8a
-    palette = 10=#a8be8f
-    palette = 11=#e0c279
-    palette = 12=#d0d0d0
-    palette = 13=#d5b0ca
-    palette = 14=#b7c7c4
+    palette = 0=#111318
+    palette = 1=#ff7b8a
+    palette = 2=#a7f3d0
+    palette = 3=#f6c177
+    palette = 4=#7dd3fc
+    palette = 5=#c4a7e7
+    palette = 6=#67e8f9
+    palette = 7=#e6edf3
+    palette = 8=#667085
+    palette = 9=#ff9aa6
+    palette = 10=#c4f8df
+    palette = 11=#ffd899
+    palette = 12=#a5e4ff
+    palette = 13=#d8b4fe
+    palette = 14=#9bf6ff
     palette = 15=#ffffff
   '';
 

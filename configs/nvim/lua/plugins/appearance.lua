@@ -5,39 +5,44 @@ return { -- colorscheme
 		lazy = false,
 		config = function()
 			require("kanagawa").setup({
-				theme = "dragon",
+				theme = "wave",
 				background = {
-					dark = "dragon",
+					dark = "wave",
 					light = "lotus",
 				},
 				colors = {
 					theme = {
-						dragon = {
+						wave = {
 							ui = {
-								bg = "#111111",
-								bg_gutter = "#111111",
-								bg_m3 = "#111111",
-								bg_m2 = "#151515",
-								bg_m1 = "#181818",
-								bg_p1 = "#202020",
-								bg_p2 = "#2a2a2a",
+								bg = "#111318",
+								bg_gutter = "#111318",
+								bg_m3 = "#111318",
+								bg_m2 = "#171a21",
+								bg_m1 = "#1b2029",
+								bg_p1 = "#222734",
+								bg_p2 = "#2d3443",
+								special = "#7dd3fc",
 							},
 						},
 					},
 				},
 				overrides = function()
 					return {
-						Normal = { bg = "#111111" },
-						NormalFloat = { bg = "#181818" },
-						FloatBorder = { bg = "#181818", fg = "#5a5a5a" },
-						SignColumn = { bg = "#111111" },
-						LineNr = { bg = "#111111", fg = "#5a5a5a" },
-						CursorLineNr = { bg = "#111111", fg = "#d0d0d0" },
-						Visual = { bg = "#3a3a3a" },
+						Normal = { bg = "#111318", fg = "#f4f7fb" },
+						NormalFloat = { bg = "#1b2029" },
+						FloatBorder = { bg = "#1b2029", fg = "#667085" },
+						SignColumn = { bg = "#111318" },
+						LineNr = { bg = "#111318", fg = "#667085" },
+						CursorLineNr = { bg = "#111318", fg = "#7dd3fc", bold = true },
+						Visual = { bg = "#2d3443" },
+						Pmenu = { bg = "#1b2029", fg = "#f4f7fb" },
+						PmenuSel = { bg = "#7dd3fc", fg = "#071118", bold = true },
+						Search = { bg = "#f6c177", fg = "#111318" },
+						IncSearch = { bg = "#ff7b8a", fg = "#111318" },
 					}
 				end,
 			})
-			vim.cmd.colorscheme("kanagawa-dragon")
+			vim.cmd.colorscheme("kanagawa-wave")
 		end,
 	},
 	{

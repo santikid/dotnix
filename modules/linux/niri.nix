@@ -14,18 +14,19 @@
   };
 
   colors = {
-    desktop = "#eeeeee";
-    bar = "#2d2d2d";
-    barBorder = "#242424";
-    surface = "#3a3a3a";
-    surfaceHover = "#484848";
-    text = "#f2f2f2";
-    muted = "#b8b8b8";
-    selected = "#f4f4f4";
-    selectedText = "#202020";
-    warning = "#d6b25e";
-    critical = "#d16d6d";
-    focusInactive = "#c6c6c6";
+    desktop = "#111318";
+    bar = "#171a21";
+    barBorder = "#2b303b";
+    surface = "#222734";
+    surfaceHover = "#2d3443";
+    text = "#f4f7fb";
+    muted = "#9aa7b8";
+    selected = "#7dd3fc";
+    selectedText = "#071118";
+    accent = "#a7f3d0";
+    warning = "#f6c177";
+    critical = "#ff7b8a";
+    focusInactive = "#667085";
   };
 
   icons = {
@@ -33,10 +34,8 @@
     clipboard = "";
     idleActive = "";
     idleInactive = "";
-    ethernet = "󰈀";
-    wifi = "";
-    offline = "󰖪";
     power = "";
+    brightness = ["󰃞" "󰃟" "󰃠"];
     volumeMuted = "󰝟";
     volume = ["" "" ""];
     battery = ["" "" "" "" ""];
@@ -57,8 +56,8 @@
       "tray"
       "custom/clipboard"
       "idle_inhibitor"
-      "network"
       "custom/power-profile"
+      "backlight"
       "pulseaudio"
       "battery"
       "clock"
@@ -72,7 +71,7 @@
     "#idle_inhibitor"
     "#tray"
     "#custom-power-profile"
-    "#network"
+    "#backlight"
     "#pulseaudio"
     "#battery"
     "#clock"
@@ -139,6 +138,7 @@
     runtimeInputs = [
       pkgs.coreutils
       pkgs.grim
+      pkgs.libnotify
       pkgs.slurp
       pkgs.wl-clipboard
     ];
@@ -164,6 +164,8 @@
           exit 64
           ;;
       esac
+
+      notify-send --app-name=screenshot "Screenshot copied" "$(basename "$file")"
     '';
   };
 
@@ -249,6 +251,7 @@
     screenshot = lib.getExe screenshot;
     sessionMenu = lib.getExe sessionMenu;
     swayidle = lib.getExe pkgs.swayidle;
+    tailscale = lib.getExe pkgs.tailscale;
     terminal = lib.getExe pkgs.ghostty;
     waybar = lib.getExe pkgs.waybar;
     wlPaste = lib.getExe' pkgs.wl-clipboard "wl-paste";
@@ -509,6 +512,7 @@ in {
             ];
           }
           {argv = [commands.waybar];}
+          {argv = [commands.tailscale "systray"];}
           {argv = [commands.xwaylandSatellite];}
         ];
 
@@ -527,35 +531,35 @@ in {
       enable = true;
       enableZshIntegration = true;
       settings = {
-        theme = "soft-gray";
+        theme = "graphite-night";
         "font-family" = monoFont;
         "font-size" = 12;
         "window-padding-x" = 12;
         "window-padding-y" = 10;
       };
-      themes."soft-gray" = {
+      themes."graphite-night" = {
         palette = [
-          "0=#111111"
-          "1=#d16d6d"
-          "2=#8fa876"
-          "3=#d6b25e"
-          "4=#b8b8b8"
-          "5=#c49ab7"
-          "6=#9bb0ad"
-          "7=#e8e8e8"
-          "8=#5a5a5a"
-          "9=#e08a8a"
-          "10=#a8be8f"
-          "11=#e0c279"
-          "12=#d0d0d0"
-          "13=#d5b0ca"
-          "14=#b7c7c4"
+          "0=#111318"
+          "1=#ff7b8a"
+          "2=#a7f3d0"
+          "3=#f6c177"
+          "4=#7dd3fc"
+          "5=#c4a7e7"
+          "6=#67e8f9"
+          "7=#e6edf3"
+          "8=#667085"
+          "9=#ff9aa6"
+          "10=#c4f8df"
+          "11=#ffd899"
+          "12=#a5e4ff"
+          "13=#d8b4fe"
+          "14=#9bf6ff"
           "15=#ffffff"
         ];
-        background = "111111";
-        foreground = "eeeeee";
-        cursor-color = "eeeeee";
-        selection-background = "3a3a3a";
+        background = "111318";
+        foreground = "f4f7fb";
+        cursor-color = "7dd3fc";
+        selection-background = "2d3443";
         selection-foreground = "ffffff";
       };
     };
@@ -565,8 +569,8 @@ in {
       settings.mainBar = {
         layer = "top";
         position = "top";
-        height = 38;
-        spacing = 6;
+        height = 40;
+        spacing = 7;
         "modules-left" = waybarModules.left;
         "modules-center" = waybarModules.center;
         "modules-right" = waybarModules.right;
@@ -596,16 +600,6 @@ in {
             deactivated = icons.idleInactive;
           };
         };
-        network = {
-          "format-ethernet" = icons.ethernet;
-          "format-wifi" = icons.wifi;
-          "format-disconnected" = icons.offline;
-          "tooltip-format-wifi" = "{ifname}: {ipaddr}/{cidr} {signalStrength}%";
-          "tooltip-format-ethernet" = "{ifname}: {ipaddr}/{cidr}";
-          "tooltip-format-disconnected" = "Network offline";
-          "on-click" = commands.nmConnectionEditor;
-          "on-click-right" = commands.nmApplet;
-        };
         "custom/power-profile" = {
           exec = "${commands.powerprofilesctl} get";
           format = "${icons.power} {}";
@@ -613,6 +607,12 @@ in {
           tooltip = true;
           "tooltip-format" = "Power profile";
           "on-click" = commands.powerProfileMenu;
+        };
+        backlight = {
+          format = "{icon} {percent}%";
+          "format-icons" = icons.brightness;
+          "on-scroll-up" = "${commands.brightnessctl} set +5%";
+          "on-scroll-down" = "${commands.brightnessctl} set 5%-";
         };
         pulseaudio = {
           format = "{icon} {volume}%";
@@ -637,8 +637,8 @@ in {
           "on-click" = commands.powerProfileMenu;
         };
         clock = {
-          format = "{:%H:%M}";
-          "tooltip-format" = "{:%A, %d %B %Y}";
+          format = "{:%a %b %d  %H:%M}";
+          "tooltip-format" = "{:%A, %B %d, %Y}";
         };
       };
 
@@ -647,6 +647,7 @@ in {
           border: none;
           font-family: ${uiFont}, "Symbols Nerd Font", "Symbols Nerd Font Mono", sans-serif;
           font-size: 12px;
+          font-weight: 600;
           min-height: 0;
         }
 
@@ -654,12 +655,13 @@ in {
           background: ${colors.bar};
           border-bottom: 1px solid ${colors.barBorder};
           color: ${colors.text};
+          padding: 0 12px;
         }
 
 ${cssSelector waybarStyledSelectors} {
-          margin: 7px 0;
-          padding: 0 11px;
-          border-radius: 7px;
+          margin: 6px 0;
+          padding: 0 12px;
+          border-radius: 8px;
           background: ${colors.surface};
         }
 
@@ -667,21 +669,24 @@ ${cssSelector waybarStyledSelectors} {
         #custom-clipboard:hover,
         #custom-power-profile:hover,
         #idle_inhibitor:hover,
+        #backlight:hover,
         #workspaces button:hover {
           background: ${colors.surfaceHover};
         }
 
         #custom-overview,
         #custom-clipboard,
-        #idle_inhibitor,
-        #network {
-          min-width: 18px;
+        #idle_inhibitor {
+          min-width: 24px;
+          padding-left: 8px;
+          padding-right: 8px;
         }
 
         #workspaces button {
-          margin: 0 2px;
-          padding: 0 7px;
-          border-radius: 6px;
+          min-width: 24px;
+          margin: 0 1px;
+          padding: 0 6px;
+          border-radius: 7px;
           color: ${colors.muted};
         }
 
@@ -697,10 +702,13 @@ ${cssSelector waybarStyledSelectors} {
 
         #idle_inhibitor.activated,
         #custom-power-profile {
-          color: ${colors.selected};
+          color: ${colors.accent};
         }
 
-        #network.disconnected,
+        #clock {
+          min-width: 112px;
+        }
+
         #pulseaudio.muted,
         #battery.warning {
           color: ${colors.warning};

@@ -56,15 +56,32 @@
     enable = true;
     wifi.backend = "iwd";
   };
+  services.timesyncd = {
+    enable = true;
+    servers = [
+      "time.cloudflare.com"
+      "time.google.com"
+      "pool.ntp.org"
+    ];
+    fallbackServers = [
+      "time.nist.gov"
+      "0.nixos.pool.ntp.org"
+      "1.nixos.pool.ntp.org"
+    ];
+  };
+  services.automatic-timezoned.enable = true;
 
   hardware.asahi.extractPeripheralFirmware = true;
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
+  services.tailscale.enable = true;
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
 
   programs._1password.enable = true;
+  programs.librepods.enable = true;
+  users.users.${user.name}.extraGroups = ["librepods"];
   programs._1password-gui = {
     enable = true;
     polkitPolicyOwners = [user.name];
@@ -85,6 +102,7 @@
     (chromium.override {
       enableWideVine = true;
     })
+    thunderbird
     brightnessctl
     libinput
     lm_sensors
