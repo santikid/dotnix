@@ -56,8 +56,7 @@
     wifi.backend = "iwd";
   };
 
-  hardware.asahi.extractPeripheralFirmware =
-    lib.mkDefault (config.hardware.asahi.peripheralFirmwareDirectory != null);
+  hardware.asahi.extractPeripheralFirmware = true;
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
