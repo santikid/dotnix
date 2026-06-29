@@ -1,6 +1,11 @@
 .PHONY: all format rebuild update regenerate-keys upgrade
 
 HOSTNAME := $(shell hostname)
+NIX_REBUILD_FLAGS :=
+
+ifeq ($(HOSTNAME),santisasahi)
+	NIX_REBUILD_FLAGS += --impure
+endif
 
 # Detect system type (Linux or Darwin)
 SYS_TYPE := $(shell uname -s)
@@ -19,7 +24,7 @@ format:
 rebuild:
 ifeq ($(SYS_TYPE),Linux)
 	@echo "Rebuilding NixOS configuration..."
-	sudo nixos-rebuild switch --flake .#$(HOSTNAME)
+	sudo nixos-rebuild switch --flake .#$(HOSTNAME) $(NIX_REBUILD_FLAGS)
 endif
 ifeq ($(SYS_TYPE),Darwin)
 	@echo "Rebuilding Darwin configuration..."
