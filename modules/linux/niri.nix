@@ -6,7 +6,8 @@
   user,
   ...
 }: let
-  font = "Iosevka";
+  uiFont = "Inter";
+  monoFont = "Iosevka";
   cursor = {
     name = "Bibata-Modern-Ice";
     size = 24;
@@ -24,16 +25,114 @@
     selectedText = "#202020";
     warning = "#d6b25e";
     critical = "#d16d6d";
-    focus = "#4a4a4a";
     focusInactive = "#c6c6c6";
   };
+
+  icons = {
+    overview = "󰕰";
+    clipboard = "";
+    idleActive = "";
+    idleInactive = "";
+    ethernet = "󰈀";
+    wifi = "";
+    offline = "󰖪";
+    power = "";
+    volumeMuted = "󰝟";
+    volume = ["" "" ""];
+    battery = ["" "" "" "" ""];
+    plugged = "";
+    workspace = {
+      focused = "";
+      active = "";
+      urgent = "";
+      empty = "";
+      default = "";
+    };
+  };
+
+  waybarModules = {
+    left = ["niri/workspaces" "custom/overview"];
+    center = [];
+    right = [
+      "tray"
+      "custom/clipboard"
+      "idle_inhibitor"
+      "network"
+      "custom/power-profile"
+      "pulseaudio"
+      "battery"
+      "clock"
+    ];
+  };
+
+  waybarStyledSelectors = [
+    "#workspaces"
+    "#custom-overview"
+    "#custom-clipboard"
+    "#idle_inhibitor"
+    "#tray"
+    "#custom-power-profile"
+    "#network"
+    "#pulseaudio"
+    "#battery"
+    "#clock"
+  ];
+  cssSelector = selectors: lib.concatStringsSep ",\n" (map (selector: "        ${selector}") selectors);
 
   lockColor = lib.removePrefix "#" colors.desktop;
   hex = color: lib.removePrefix "#" color;
   withAlpha = color: alpha: "${hex color}${alpha}";
 
   swaylockBin = lib.getExe pkgs.swaylock;
-  lockCommand = "${swaylockBin} -f -c ${lockColor} --ignore-empty-password --show-failed-attempts";
+  lockCommand = lib.concatStringsSep " " [
+    swaylockBin
+    "-f"
+    "-c"
+    "${hex colors.bar}"
+    "--ignore-empty-password"
+    "--show-failed-attempts"
+    "--font"
+    uiFont
+    "--font-size"
+    "16"
+    "--indicator-idle-visible"
+    "--indicator-radius"
+    "92"
+    "--indicator-thickness"
+    "7"
+    "--ring-color"
+    "${hex colors.surface}"
+    "--ring-ver-color"
+    "${hex colors.warning}"
+    "--ring-wrong-color"
+    "${hex colors.critical}"
+    "--ring-clear-color"
+    "${hex colors.muted}"
+    "--key-hl-color"
+    "${hex colors.selected}"
+    "--bs-hl-color"
+    "${hex colors.critical}"
+    "--inside-color"
+    "${withAlpha colors.bar "cc"}"
+    "--inside-ver-color"
+    "${withAlpha colors.bar "cc"}"
+    "--inside-wrong-color"
+    "${withAlpha colors.bar "cc"}"
+    "--inside-clear-color"
+    "${withAlpha colors.bar "cc"}"
+    "--line-color"
+    "${withAlpha colors.barBorder "00"}"
+    "--separator-color"
+    "${withAlpha colors.barBorder "00"}"
+    "--text-color"
+    "${hex colors.text}"
+    "--text-ver-color"
+    "${hex colors.text}"
+    "--text-wrong-color"
+    "${hex colors.critical}"
+    "--text-clear-color"
+    "${hex colors.text}"
+  ];
 
   screenshot = pkgs.writeShellApplication {
     name = "screenshot";
@@ -53,20 +152,15 @@
 
       case "$mode" in
         full)
-          grim "$file"
+          grim - | tee "$file" | wl-copy --type image/png
           ;;
         area)
           geometry="$(slurp)" || exit 0
           [[ -n "$geometry" ]] || exit 0
-          grim -g "$geometry" "$file"
-          ;;
-        clip)
-          geometry="$(slurp)" || exit 0
-          [[ -n "$geometry" ]] || exit 0
-          grim -g "$geometry" - | wl-copy --type image/png
+          grim -g "$geometry" - | tee "$file" | wl-copy --type image/png
           ;;
         *)
-          echo "usage: screenshot [full|area|clip]" >&2
+          echo "usage: screenshot [full|area]" >&2
           exit 64
           ;;
       esac
@@ -160,9 +254,16 @@
     wlPaste = lib.getExe' pkgs.wl-clipboard "wl-paste";
     wpctl = lib.getExe' pkgs.wireplumber "wpctl";
     xwaylandSatellite = lib.getExe pkgs.xwayland-satellite;
-    bluemanManager = lib.getExe' pkgs.blueman "blueman-manager";
     nmApplet = lib.getExe pkgs.networkmanagerapplet;
     nmConnectionEditor = lib.getExe' pkgs.networkmanagerapplet "nm-connection-editor";
+  };
+
+  cliphistWatcher = type: {
+    argv = [
+      pkgs.runtimeShell
+      "-c"
+      "${commands.wlPaste} --type ${type} --watch ${commands.cliphist} store"
+    ];
   };
 
   modifier = "Mod";
@@ -180,10 +281,25 @@
       value = bind {focus-workspace = workspace;};
     }
     {
-      name = "${modifier}+Ctrl+${toString workspace}";
+      name = "${modifier}+Shift+${toString workspace}";
       value = bind {move-column-to-workspace = workspace;};
     }
   ]) (lib.range 1 9)));
+
+  directionalBinds = mapBinds {
+    "${modifier}+H" = {focus-column-left = [];};
+    "${modifier}+J" = {focus-window-down = [];};
+    "${modifier}+K" = {focus-window-up = [];};
+    "${modifier}+L" = {focus-column-right = [];};
+    "${modifier}+Shift+H" = {move-column-left = [];};
+    "${modifier}+Shift+J" = {move-window-down = [];};
+    "${modifier}+Shift+K" = {move-window-up = [];};
+    "${modifier}+Shift+L" = {move-column-right = [];};
+    "${modifier}+U" = {focus-workspace-down = [];};
+    "${modifier}+I" = {focus-workspace-up = [];};
+    "${modifier}+Shift+U" = {move-column-to-workspace-down = [];};
+    "${modifier}+Shift+I" = {move-column-to-workspace-up = [];};
+  };
 
   mediaBinds = {
     XF86AudioRaiseVolume = locked (spawnSh "${commands.wpctl} set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0");
@@ -202,18 +318,13 @@
   applicationBinds = mapSpawnBinds {
     "${modifier}+Space" = [commands.fuzzel];
     "${modifier}+T" = [commands.terminal];
-    "${modifier}+Return" = [commands.terminal];
-    "${modifier}+D" = [commands.fuzzel];
     "${modifier}+C" = [commands.browser];
     "${modifier}+F" = [commands.files];
     "${modifier}+Shift+V" = [commands.clipboardMenu];
     "${modifier}+Escape" = [commands.sessionMenu];
-    "${modifier}+Shift+3" = [commands.screenshot "full"];
-    "${modifier}+Shift+4" = [commands.screenshot "area"];
-    "${modifier}+Ctrl+Shift+4" = [commands.screenshot "clip"];
-    Print = [commands.screenshot "full"];
-    "Shift+Print" = [commands.screenshot "area"];
-    "Ctrl+Print" = [commands.screenshot "clip"];
+    "${modifier}+Ctrl+3" = [commands.screenshot "full"];
+    "${modifier}+Ctrl+4" = [commands.screenshot "area"];
+    "Alt+Print" = [commands.screenshot "area"];
   } // {
     "${modifier}+Ctrl+Q" = spawnSh lockCommand;
     "Super+Alt+L" = spawnSh lockCommand;
@@ -221,27 +332,13 @@
 
   actionBinds = mapBinds {
     "${modifier}+Shift+Slash" = {show-hotkey-overlay = [];};
-    "${modifier}+H" = {focus-column-left = [];};
-    "${modifier}+J" = {focus-window-down = [];};
-    "${modifier}+K" = {focus-window-up = [];};
-    "${modifier}+L" = {focus-column-right = [];};
-    "${modifier}+Ctrl+H" = {move-column-left = [];};
-    "${modifier}+Ctrl+J" = {move-window-down = [];};
-    "${modifier}+Ctrl+K" = {move-window-up = [];};
-    "${modifier}+Ctrl+L" = {move-column-right = [];};
-    "${modifier}+U" = {focus-workspace-down = [];};
-    "${modifier}+I" = {focus-workspace-up = [];};
-    "${modifier}+Ctrl+U" = {move-column-to-workspace-down = [];};
-    "${modifier}+Ctrl+I" = {move-column-to-workspace-up = [];};
     "${modifier}+BracketLeft" = {consume-or-expel-window-left = [];};
     "${modifier}+BracketRight" = {consume-or-expel-window-right = [];};
     "${modifier}+R" = {switch-preset-column-width = [];};
     "${modifier}+Shift+R" = {switch-preset-column-width-back = [];};
     "${modifier}+M" = {maximize-window-to-edges = [];};
     "${modifier}+Ctrl+Space" = {toggle-window-floating = [];};
-    "${modifier}+Ctrl+F" = {fullscreen-window = [];};
     "${modifier}+Shift+F" = {fullscreen-window = [];};
-    "Alt+Print" = {screenshot-window = [];};
     "${modifier}+Shift+Escape" = {toggle-keyboard-shortcuts-inhibit = [];};
     "${modifier}+Shift+P" = {power-off-monitors = [];};
     "${modifier}+Shift+E" = {quit = [];};
@@ -260,7 +357,7 @@
     "${modifier}+Q" = repeatless (bind {close-window = [];});
   };
 
-  baseBinds = applicationBinds // actionBinds // parameterBinds // repeatlessBinds;
+  baseBinds = applicationBinds // directionalBinds // actionBinds // parameterBinds // repeatlessBinds;
 in {
   environment.systemPackages = with pkgs; [
     brightnessctl
@@ -355,7 +452,13 @@ in {
           touchpad = {
             tap = true;
             natural-scroll = true;
+            dwt = true;
           };
+          focus-follows-mouse = {
+            enable = true;
+            max-scroll-amount = "0%";
+          };
+          warp-mouse-to-focus.enable = true;
         };
 
         outputs."eDP-1" = {
@@ -374,18 +477,26 @@ in {
           ];
           default-column-width.proportion = 0.5;
           focus-ring = {
-            width = 2;
-            active.color = colors.focus;
-            inactive.color = colors.focusInactive;
+            enable = false;
           };
-          border.enable = false;
+          border = {
+            enable = true;
+            width = 2;
+            active.color = colors.selected;
+            inactive.color = colors.focusInactive;
+            urgent.color = colors.critical;
+          };
         };
+
+        window-rules = [
+          {draw-border-with-background = false;}
+        ];
 
         spawn-at-startup = [
           {argv = [commands.mako];}
           {argv = [commands.nmApplet "--indicator"];}
-          {argv = [pkgs.runtimeShell "-c" "${commands.wlPaste} --type text --watch ${commands.cliphist} store"];}
-          {argv = [pkgs.runtimeShell "-c" "${commands.wlPaste} --type image --watch ${commands.cliphist} store"];}
+          (cliphistWatcher "text")
+          (cliphistWatcher "image")
           {
             argv = [
               commands.swayidle
@@ -417,7 +528,7 @@ in {
       enableZshIntegration = true;
       settings = {
         theme = "soft-gray";
-        "font-family" = font;
+        "font-family" = monoFont;
         "font-size" = 12;
         "window-padding-x" = 12;
         "window-padding-y" = 10;
@@ -454,55 +565,26 @@ in {
       settings.mainBar = {
         layer = "top";
         position = "top";
-        height = 42;
-        spacing = 8;
-        "modules-left" = ["niri/workspaces" "custom/overview" "niri/window"];
-        "modules-center" = [];
-        "modules-right" = [
-          "mpris"
-          "tray"
-          "custom/clipboard"
-          "idle_inhibitor"
-          "niri/language"
-          "network"
-          "bluetooth"
-          "custom/power-profile"
-          "backlight"
-          "pulseaudio"
-          "battery"
-          "clock"
-        ];
+        height = 38;
+        spacing = 6;
+        "modules-left" = waybarModules.left;
+        "modules-center" = waybarModules.center;
+        "modules-right" = waybarModules.right;
 
         "niri/workspaces" = {
-          format = "{index}";
+          format = "{icon}";
+          "format-icons" = icons.workspace;
         };
         "custom/overview" = {
-          format = "overview";
+          format = icons.overview;
           tooltip = false;
           "on-click" = "${commands.niri} msg action toggle-overview";
-        };
-        "niri/window" = {
-          format = "{}";
-          "max-length" = 72;
-        };
-        "niri/language" = {
-          format = "{}";
         };
         tray = {
           spacing = 10;
         };
-        mpris = {
-          format = "media {dynamic}";
-          "format-paused" = "media paused";
-          "dynamic-len" = 28;
-          "dynamic-order" = ["title" "artist"];
-          "on-click" = "${commands.playerctl} play-pause";
-          "on-click-right" = "${commands.playerctl} next";
-          "on-scroll-up" = "${commands.playerctl} next";
-          "on-scroll-down" = "${commands.playerctl} previous";
-        };
         "custom/clipboard" = {
-          format = "clip";
+          format = icons.clipboard;
           tooltip = true;
           "tooltip-format" = "Clipboard history";
           "on-click" = commands.clipboardMenu;
@@ -510,43 +592,34 @@ in {
         idle_inhibitor = {
           format = "{icon}";
           "format-icons" = {
-            activated = "awake";
-            deactivated = "idle";
+            activated = icons.idleActive;
+            deactivated = icons.idleInactive;
           };
         };
-        bluetooth = {
-          format = "bt {status}";
-          "format-disabled" = "bt off";
-          "format-off" = "bt off";
-          "format-connected" = "bt {num_connections}";
-          "tooltip-format" = "{controller_alias}";
-          "tooltip-format-connected" = "{controller_alias}: {device_alias}";
-          "on-click" = commands.bluemanManager;
-        };
-        backlight = {
-          format = "sun {percent}%";
-          "on-scroll-up" = "${commands.brightnessctl} set +5%";
-          "on-scroll-down" = "${commands.brightnessctl} set 5%-";
-        };
         network = {
-          "format-ethernet" = "net {ifname}";
-          "format-wifi" = "wifi {essid}";
-          "format-disconnected" = "net offline";
+          "format-ethernet" = icons.ethernet;
+          "format-wifi" = icons.wifi;
+          "format-disconnected" = icons.offline;
           "tooltip-format-wifi" = "{ifname}: {ipaddr}/{cidr} {signalStrength}%";
+          "tooltip-format-ethernet" = "{ifname}: {ipaddr}/{cidr}";
+          "tooltip-format-disconnected" = "Network offline";
           "on-click" = commands.nmConnectionEditor;
           "on-click-right" = commands.nmApplet;
         };
         "custom/power-profile" = {
           exec = "${commands.powerprofilesctl} get";
-          format = "power {}";
+          format = "${icons.power} {}";
           interval = 30;
           tooltip = true;
           "tooltip-format" = "Power profile";
           "on-click" = commands.powerProfileMenu;
         };
         pulseaudio = {
-          format = "vol {volume}%";
-          "format-muted" = "vol muted";
+          format = "{icon} {volume}%";
+          "format-muted" = icons.volumeMuted;
+          "format-icons" = {
+            default = icons.volume;
+          };
           "on-click" = commands.pavucontrol;
           "on-click-right" = "${commands.wpctl} set-mute @DEFAULT_AUDIO_SINK@ toggle";
           "on-scroll-up" = "${commands.wpctl} set-volume @DEFAULT_AUDIO_SINK@ 0.05+ -l 1.0";
@@ -557,9 +630,10 @@ in {
             warning = 30;
             critical = 15;
           };
-          format = "bat {capacity}%";
-          "format-charging" = "bat {capacity}%+";
-          "format-plugged" = "bat {capacity}%=";
+          format = "{icon} {capacity}%";
+          "format-charging" = "${icons.power} {capacity}%";
+          "format-plugged" = "${icons.plugged} {capacity}%";
+          "format-icons" = icons.battery;
           "on-click" = commands.powerProfileMenu;
         };
         clock = {
@@ -571,7 +645,7 @@ in {
       style = ''
         * {
           border: none;
-          font-family: ${font}, sans-serif;
+          font-family: ${uiFont}, "Symbols Nerd Font", "Symbols Nerd Font Mono", sans-serif;
           font-size: 12px;
           min-height: 0;
         }
@@ -582,21 +656,7 @@ in {
           color: ${colors.text};
         }
 
-        #workspaces,
-        #custom-overview,
-        #window,
-        #mpris,
-        #custom-clipboard,
-        #idle_inhibitor,
-        #language,
-        #tray,
-        #bluetooth,
-        #custom-power-profile,
-        #backlight,
-        #network,
-        #pulseaudio,
-        #battery,
-        #clock {
+${cssSelector waybarStyledSelectors} {
           margin: 7px 0;
           padding: 0 11px;
           border-radius: 7px;
@@ -611,9 +671,16 @@ in {
           background: ${colors.surfaceHover};
         }
 
+        #custom-overview,
+        #custom-clipboard,
+        #idle_inhibitor,
+        #network {
+          min-width: 18px;
+        }
+
         #workspaces button {
           margin: 0 2px;
-          padding: 0 8px;
+          padding: 0 7px;
           border-radius: 6px;
           color: ${colors.muted};
         }
@@ -623,13 +690,7 @@ in {
           color: ${colors.selectedText};
         }
 
-        #window {
-          color: ${colors.text};
-        }
-
-        #language,
         #idle_inhibitor,
-        #mpris.paused,
         #tray {
           color: ${colors.muted};
         }
@@ -652,7 +713,7 @@ in {
     };
 
     home.file.".config/fuzzel/fuzzel.ini".text = ''
-      font=${font}:size=13
+      font=${uiFont}:size=13
       prompt=>
       width=48
       lines=12
@@ -677,7 +738,7 @@ in {
     '';
 
     home.file.".config/mako/config".text = ''
-      font=${font} 12
+      font=${uiFont} 12
       background-color=${colors.bar}f2
       text-color=${colors.text}
       border-color=#777777
@@ -693,6 +754,10 @@ in {
 
     gtk = {
       enable = true;
+      font = {
+        name = uiFont;
+        size = 11;
+      };
       theme = {
         name = "adw-gtk3-dark";
         package = pkgs.adw-gtk3;
@@ -726,9 +791,9 @@ in {
       gtk-theme = "adw-gtk3-dark";
       icon-theme = "Papirus-Dark";
       cursor-theme = cursor.name;
-      document-font-name = "${font} 11";
-      font-name = "${font} 11";
-      monospace-font-name = "${font} 11";
+      document-font-name = "${uiFont} 11";
+      font-name = "${uiFont} 11";
+      monospace-font-name = "${monoFont} 11";
     };
 
     xdg.userDirs = {

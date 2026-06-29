@@ -1,11 +1,43 @@
 return { -- colorscheme
 	{
-		"loctvl842/monokai-pro.nvim",
+		"rebelot/kanagawa.nvim",
 		priority = 1000,
 		lazy = false,
 		config = function()
-			require("monokai-pro").setup({ filter = "spectrum" })
-			vim.cmd.colorscheme("monokai-pro")
+			require("kanagawa").setup({
+				theme = "dragon",
+				background = {
+					dark = "dragon",
+					light = "lotus",
+				},
+				colors = {
+					theme = {
+						dragon = {
+							ui = {
+								bg = "#111111",
+								bg_gutter = "#111111",
+								bg_m3 = "#111111",
+								bg_m2 = "#151515",
+								bg_m1 = "#181818",
+								bg_p1 = "#202020",
+								bg_p2 = "#2a2a2a",
+							},
+						},
+					},
+				},
+				overrides = function()
+					return {
+						Normal = { bg = "#111111" },
+						NormalFloat = { bg = "#181818" },
+						FloatBorder = { bg = "#181818", fg = "#5a5a5a" },
+						SignColumn = { bg = "#111111" },
+						LineNr = { bg = "#111111", fg = "#5a5a5a" },
+						CursorLineNr = { bg = "#111111", fg = "#d0d0d0" },
+						Visual = { bg = "#3a3a3a" },
+					}
+				end,
+			})
+			vim.cmd.colorscheme("kanagawa-dragon")
 		end,
 	},
 	{

@@ -9,7 +9,15 @@
 
   security.polkit.enable = true;
 
-  fonts.fontDir.enable = true;
+  fonts = {
+    fontDir.enable = true;
+    fontconfig.defaultFonts = {
+      sansSerif = ["Inter" "Noto Sans"];
+      serif = ["Noto Serif"];
+      monospace = ["Iosevka"];
+      emoji = ["Noto Color Emoji"];
+    };
+  };
 
   environment.systemPackages = with pkgs; [
     coreutils

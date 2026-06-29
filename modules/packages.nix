@@ -87,6 +87,11 @@
     ];
 
   fonts.packages = with pkgs; [
+    inter
     iosevka-bin
+    noto-fonts
+    noto-fonts-cjk-sans
+    noto-fonts-color-emoji
+    nerd-fonts.symbols-only
   ];
 }

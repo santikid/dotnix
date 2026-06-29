@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  inputs,
   user,
   ...
 }: {
@@ -80,6 +81,7 @@
   };
 
   environment.systemPackages = with pkgs; [
+    inputs.zen-browser.packages.${pkgs.system}.default
     (chromium.override {
       enableWideVine = true;
     })
@@ -92,6 +94,13 @@
   ];
 
   home-manager.users.${user.name} = {
+    home.sessionPath = [
+      "$HOME/.npm-global/bin"
+    ];
+
+    home.sessionVariables = {
+      NPM_CONFIG_PREFIX = "$HOME/.npm-global";
+    };
     programs.zsh.shellAliases = {
       macos = "nix shell nixpkgs#asahi-bless -c sh -c 'sudo \"$(command -v asahi-bless)\" --next --set-boot-macos --yes && sudo reboot'";
     };

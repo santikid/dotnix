@@ -25,6 +25,9 @@
 
     nixos-apple-silicon.url = "github:nix-community/nixos-apple-silicon/main";
     nixos-apple-silicon.inputs.nixpkgs.follows = "nixpkgs";
+
+    zen-browser.url = "github:0xc000022070/zen-browser-flake";
+    zen-browser.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = inputs @ {
     self,
@@ -36,6 +39,7 @@
     sops-nix,
     niri,
     nixos-apple-silicon,
+    zen-browser,
     ...
   }: let
     user = {
@@ -44,6 +48,7 @@
       email = "lukas@santi.gg";
       sshKeys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILds3nmPYniDOxaeLUY6B7Om/nQF04wXpIqWaHwrkriA santi"
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF3RkGoQaJGtdljyefEXXPOjviIJeWVc+CHU/s9RMBLG personal"
       ];
     };
 
