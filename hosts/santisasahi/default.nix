@@ -92,6 +92,10 @@
   ];
 
   home-manager.users.${user.name} = {
+    programs.zsh.shellAliases = {
+      macos = "nix shell nixpkgs#asahi-bless -c sh -c 'sudo \"$(command -v asahi-bless)\" --next --set-boot-macos --yes && sudo reboot'";
+    };
+
     programs.ssh = {
       enable = true;
       enableDefaultConfig = false;

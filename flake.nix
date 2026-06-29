@@ -50,7 +50,7 @@
     darwinHosts = {
       santibook = {
         system = "aarch64-darwin";
-        extraModules = [./modules/darwin/desktop.nix ./modules/darwin/paneru.nix];
+        extraModules = [./hosts/santibook ./modules/darwin/desktop.nix ./modules/darwin/paneru.nix];
       };
       lisbon = {
         system = "aarch64-darwin";
