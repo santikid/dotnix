@@ -79,6 +79,11 @@
   services.tailscale.enable = true;
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend";
+    HandleLidSwitchDocked = "suspend";
+    HandleLidSwitchExternalPower = "suspend";
+  };
 
   programs._1password.enable = true;
   programs.librepods.enable = true;
@@ -123,7 +128,7 @@
       NPM_CONFIG_PREFIX = "$HOME/.npm-global";
     };
     programs.zsh.shellAliases = {
-      macos = "nix shell nixpkgs#asahi-bless -c sh -c 'sudo \"$(command -v asahi-bless)\" --next --set-boot-macos --yes && sudo reboot'";
+      macos = "nix shell nixpkgs#asahi-bless -c sh -c 'sudo \"$(command -v asahi-bless)\" --set-boot-macos --yes && sudo reboot'";
     };
 
     programs.ssh = {

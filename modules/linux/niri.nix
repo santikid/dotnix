@@ -546,8 +546,11 @@ in {
               commands.swayidle
               "-w"
               "timeout"
-              "900"
+              "600"
               lockCommand
+              "timeout"
+              "660"
+              "${commands.niri} msg action power-off-monitors"
               "before-sleep"
               lockCommand
             ];
