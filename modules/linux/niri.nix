@@ -59,7 +59,7 @@
       "custom/power-profile"
       "backlight"
       "pulseaudio"
-      "battery"
+      "custom/battery"
       "clock"
     ];
   };
@@ -73,7 +73,7 @@
     "#custom-power-profile"
     "#backlight"
     "#pulseaudio"
-    "#battery"
+    "#custom-battery"
     "#clock"
   ];
   cssSelector = selectors: lib.concatStringsSep ",\n" (map (selector: "        ${selector}") selectors);
@@ -235,6 +235,45 @@
     '';
   };
 
+  waybarBattery = pkgs.writeShellApplication {
+    name = "waybar-battery";
+    text = ''
+      battery=/sys/class/power_supply/macsmc-battery
+
+      if [[ ! -r "$battery/capacity" ]]; then
+        printf '{"text":"","tooltip":"Battery unavailable","class":"missing"}\n'
+        exit 0
+      fi
+
+      capacity="$(<"$battery/capacity")"
+      status="Unknown"
+      [[ -r "$battery/status" ]] && status="$(<"$battery/status")"
+
+      class=""
+      if [[ "$status" == "Charging" ]]; then
+        icon="${icons.power}"
+        class="charging"
+      elif [[ "$status" == "Full" || "$status" == "Not charging" ]]; then
+        icon="${icons.plugged}"
+        class="plugged"
+      elif (( capacity <= 15 )); then
+        icon="${builtins.elemAt icons.battery 0}"
+        class="critical"
+      elif (( capacity <= 30 )); then
+        icon="${builtins.elemAt icons.battery 1}"
+        class="warning"
+      elif (( capacity <= 60 )); then
+        icon="${builtins.elemAt icons.battery 2}"
+      elif (( capacity <= 85 )); then
+        icon="${builtins.elemAt icons.battery 3}"
+      else
+        icon="${builtins.elemAt icons.battery 4}"
+      fi
+
+      printf '{"text":"%s %s%%","tooltip":"%s","class":"%s"}\n' "$icon" "$capacity" "$status" "$class"
+    '';
+  };
+
   commands = {
     browser = lib.getExe pkgs.firefox;
     brightnessctl = lib.getExe pkgs.brightnessctl;
@@ -254,6 +293,7 @@
     tailscale = lib.getExe pkgs.tailscale;
     terminal = lib.getExe pkgs.ghostty;
     waybar = lib.getExe pkgs.waybar;
+    waybarBattery = lib.getExe waybarBattery;
     wlPaste = lib.getExe' pkgs.wl-clipboard "wl-paste";
     wpctl = lib.getExe' pkgs.wireplumber "wpctl";
     xwaylandSatellite = lib.getExe pkgs.xwayland-satellite;
@@ -372,6 +412,7 @@ in {
     mako
     nautilus
     networkmanagerapplet
+    nwg-displays
     pavucontrol
     playerctl
     slurp
@@ -625,15 +666,10 @@ in {
           "on-scroll-up" = "${commands.wpctl} set-volume @DEFAULT_AUDIO_SINK@ 0.05+ -l 1.0";
           "on-scroll-down" = "${commands.wpctl} set-volume @DEFAULT_AUDIO_SINK@ 0.05-";
         };
-        battery = {
-          states = {
-            warning = 30;
-            critical = 15;
-          };
-          format = "{icon} {capacity}%";
-          "format-charging" = "${icons.power} {capacity}%";
-          "format-plugged" = "${icons.plugged} {capacity}%";
-          "format-icons" = icons.battery;
+        "custom/battery" = {
+          exec = commands.waybarBattery;
+          interval = 30;
+          "return-type" = "json";
           "on-click" = commands.powerProfileMenu;
         };
         clock = {
@@ -710,11 +746,11 @@ ${cssSelector waybarStyledSelectors} {
         }
 
         #pulseaudio.muted,
-        #battery.warning {
+        #custom-battery.warning {
           color: ${colors.warning};
         }
 
-        #battery.critical {
+        #custom-battery.critical {
           color: ${colors.critical};
         }
       '';

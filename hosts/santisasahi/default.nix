@@ -72,6 +72,7 @@
   services.automatic-timezoned.enable = true;
 
   hardware.asahi.extractPeripheralFirmware = true;
+  hardware.sensor.iio.enable = true;
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
@@ -102,7 +103,9 @@
     (chromium.override {
       enableWideVine = true;
     })
+    teams-for-linux
     thunderbird
+    vesktop
     brightnessctl
     libinput
     lm_sensors
