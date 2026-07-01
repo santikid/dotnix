@@ -100,3 +100,54 @@ Install the flake:
 mkdir -p /mnt/tmp
 TMPDIR=/mnt/tmp nixos-install --impure --flake /mnt/.nix#santisasahi
 ```
+
+# Installing NixOS on the Razer Blade
+
+This is intended for the Razer Blade 15 Advanced 2021 as a Windows dual-boot. Do the shrinking from Windows first, keep the existing EFI partition, and disable Windows Fast Startup before installing. If BitLocker is enabled, suspend it before changing partitions.
+
+Boot the NixOS installer and create one Linux partition in the free space:
+
+```bash
+# Replace /dev/nvme0n1 and partition numbers with what lsblk shows.
+lsblk -o NAME,SIZE,FSTYPE,LABEL,PARTLABEL,MOUNTPOINTS
+sgdisk /dev/nvme0n1 -n 0:0:0 -t 0:8300 -c 0:nixos
+partprobe /dev/nvme0n1
+lsblk -o NAME,SIZE,FSTYPE,LABEL,PARTLABEL,MOUNTPOINTS
+
+mkfs.btrfs -L nixos /dev/nvme0n1pX
+
+mount /dev/disk/by-label/nixos /mnt
+btrfs subvolume create /mnt/root
+btrfs subvolume create /mnt/nix
+btrfs subvolume create /mnt/home
+umount /mnt
+
+mount -o subvol=root,compress=zstd,noatime /dev/disk/by-label/nixos /mnt
+mkdir -p /mnt/{nix,home,boot}
+mount -o subvol=nix,compress=zstd,noatime /dev/disk/by-label/nixos /mnt/nix
+mount -o subvol=home,compress=zstd,noatime /dev/disk/by-label/nixos /mnt/home
+```
+
+Mount the existing Windows EFI partition at `/mnt/boot`. If it does not already have the label `EFI`, either label it or update `hosts/razer/hardware-configuration.nix` after running `nixos-generate-config`.
+
+```bash
+mount /dev/disk/by-label/EFI /mnt/boot
+```
+
+Clone and install:
+
+```bash
+git clone https://github.com/santikid/dotnix /mnt/.nix
+nixos-generate-config --root /mnt
+
+# Optional but recommended: compare the generated file with hosts/razer/hardware-configuration.nix
+# and copy over any device-specific module or filesystem changes.
+
+nixos-install --flake /mnt/.nix#razer
+```
+
+The Razer profile keeps the same Niri desktop and `de`/`mac` keyboard layout as `santisasahi`, adds NVIDIA PRIME offload, Steam, GameMode, and OpenRazer. Launch Steam for CS2 with:
+
+```bash
+steam-nvidia
+```

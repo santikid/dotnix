@@ -238,9 +238,29 @@
   waybarBattery = pkgs.writeShellApplication {
     name = "waybar-battery";
     text = ''
-      battery=/sys/class/power_supply/macsmc-battery
+      find_battery() {
+        for candidate in \
+          /sys/class/power_supply/macsmc-battery \
+          /sys/class/power_supply/BAT0 \
+          /sys/class/power_supply/BAT1 \
+          /sys/class/power_supply/battery; do
+          [[ -r "$candidate/capacity" ]] || continue
+          printf '%s\n' "$candidate"
+          return
+        done
 
-      if [[ ! -r "$battery/capacity" ]]; then
+        for candidate in /sys/class/power_supply/*; do
+          [[ -r "$candidate/type" ]] || continue
+          [[ "$(<"$candidate/type")" == "Battery" ]] || continue
+          [[ -r "$candidate/capacity" ]] || continue
+          printf '%s\n' "$candidate"
+          return
+        done
+      }
+
+      battery="$(find_battery)"
+
+      if [[ -z "$battery" || ! -r "$battery/capacity" ]]; then
         printf '{"text":"","tooltip":"Battery unavailable","class":"missing"}\n'
         exit 0
       fi

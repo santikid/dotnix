@@ -76,6 +76,14 @@
         extraModules = [./hosts/ruby ./modules/linux/server.nix];
       };
 
+      razer = {
+        system = "x86_64-linux";
+        extraModules = [
+          ./hosts/razer
+          ./modules/linux/niri.nix
+        ];
+      };
+
       santisasahi = {
         system = "aarch64-linux";
         extraModules = [
