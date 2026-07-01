@@ -89,7 +89,6 @@ in {
     })
     teams-for-linux
     thunderbird
-    vesktop
     brightnessctl
     libinput
     lm_sensors
