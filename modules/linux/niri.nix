@@ -344,6 +344,17 @@
     "${modifier}+Shift+I" = {move-column-to-workspace-up = [];};
   };
 
+  monitorBinds = mapBinds {
+    "${modifier}+Ctrl+H" = {focus-monitor-left = [];};
+    "${modifier}+Ctrl+J" = {focus-monitor-down = [];};
+    "${modifier}+Ctrl+K" = {focus-monitor-up = [];};
+    "${modifier}+Ctrl+L" = {focus-monitor-right = [];};
+    "${modifier}+Ctrl+Shift+H" = {move-column-to-monitor-left = [];};
+    "${modifier}+Ctrl+Shift+J" = {move-column-to-monitor-down = [];};
+    "${modifier}+Ctrl+Shift+K" = {move-column-to-monitor-up = [];};
+    "${modifier}+Ctrl+Shift+L" = {move-column-to-monitor-right = [];};
+  };
+
   mediaBinds = {
     XF86AudioRaiseVolume = locked (spawnSh "${commands.wpctl} set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0");
     XF86AudioLowerVolume = locked (spawnSh "${commands.wpctl} set-volume @DEFAULT_AUDIO_SINK@ 0.1-");
@@ -400,7 +411,7 @@
     "${modifier}+Q" = repeatless (bind {close-window = [];});
   };
 
-  baseBinds = applicationBinds // directionalBinds // actionBinds // parameterBinds // repeatlessBinds;
+  baseBinds = applicationBinds // directionalBinds // monitorBinds // actionBinds // parameterBinds // repeatlessBinds;
 in {
   environment.systemPackages = with pkgs; [
     brightnessctl
