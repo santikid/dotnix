@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   pkgs,
   inputs,
@@ -6,6 +7,23 @@
   ...
 }: let
   system = pkgs.stdenv.hostPlatform.system;
+  asahiPkgs = config.hardware.asahi.pkgs;
+
+  fairydustKernel =
+    (asahiPkgs.linux-asahi.override {
+      _kernelPatches = config.boot.kernelPatches;
+    })
+    .kernel
+    .overrideAttrs (_old: {
+      version = "7.0.13-fairydust";
+      modDirVersion = "7.0.13";
+      src = asahiPkgs.fetchFromGitHub {
+        owner = "AsahiLinux";
+        repo = "linux";
+        rev = "c83992242bc1e38bfc861a91696534479a2dbdf4";
+        hash = "sha256-sGcgrrf/rpb8u9dvwiTFdNjp18UyuRhW94biH1WMO5I=";
+      };
+    });
 
   allowedUnfreePackages = [
     "1password"
@@ -16,9 +34,10 @@
   ];
 in {
   imports = [
-    ./fairydust-kernel.nix
     ./hardware-configuration.nix
   ];
+
+  boot.kernelPackages = lib.mkForce (asahiPkgs.linuxPackagesFor fairydustKernel);
 
   nixpkgs.config.allowUnfreePredicate = pkg:
     builtins.elem (lib.getName pkg) allowedUnfreePackages;
