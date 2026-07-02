@@ -18,7 +18,7 @@
 
       # Js
       nodejs_24
-      pnpm
+      pnpm_11
       bun
       oxlint
       prettier

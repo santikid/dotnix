@@ -432,7 +432,7 @@ in {
     mako
     nautilus
     networkmanagerapplet
-    nwg-displays
+    wdisplays
     pavucontrol
     playerctl
     slurp
