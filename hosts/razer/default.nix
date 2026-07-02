@@ -146,6 +146,24 @@
       steam-nvidia = "nvidia-offload steam";
     };
 
+    xdg.desktopEntries.steam = {
+      name = "Steam";
+      comment = "Application for managing and playing games on Steam";
+      exec = "nvidia-offload steam %U";
+      icon = "steam";
+      terminal = false;
+      type = "Application";
+      categories = ["Network" "FileTransfer" "Game"];
+      mimeType = [
+        "x-scheme-handler/steam"
+        "x-scheme-handler/steamlink"
+      ];
+      settings = {
+        PrefersNonDefaultGPU = "true";
+        X-KDE-RunOnDiscreteGpu = "true";
+      };
+    };
+
     programs.ssh = {
       enable = true;
       enableDefaultConfig = false;
