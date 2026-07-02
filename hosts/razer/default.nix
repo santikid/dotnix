@@ -17,6 +17,7 @@
       "1password-gui"
       "chromium"
       "chromium-unwrapped"
+      "discord"
       "nvidia-kernel-modules"
       "nvidia-settings"
       "nvidia-x11"
@@ -119,9 +120,7 @@
     (chromium.override {
       enableWideVine = true;
     })
-    teams-for-linux
-    thunderbird
-    vesktop
+    discord
     brightnessctl
     libinput
     lm_sensors
