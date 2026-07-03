@@ -152,7 +152,7 @@ return {
 			{
 				"<leader>cs",
 				"<cmd>Trouble symbols toggle<cr>",
-				desc = " (Trouble)",
+				desc = "Symbols (Trouble)",
 			},
 			{
 				"<leader>xq",

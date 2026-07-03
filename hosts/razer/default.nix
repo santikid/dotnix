@@ -8,6 +8,7 @@
 }: {
   imports = [
     ./hardware-configuration.nix
+    ../../modules/common/npm-global.nix
   ];
 
   nixpkgs.config.allowUnfreePredicate = pkg:
@@ -134,14 +135,6 @@
   ];
 
   home-manager.users.${user.name} = {
-    home.sessionPath = [
-      "$HOME/.npm-global/bin"
-    ];
-
-    home.sessionVariables = {
-      NPM_CONFIG_PREFIX = "$HOME/.npm-global";
-    };
-
     programs.zsh.shellAliases = {
       steam-nvidia = "nvidia-offload steam";
     };

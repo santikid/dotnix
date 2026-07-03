@@ -19,7 +19,7 @@
   virtualisation.incus.enable = true;
 
   networking.nftables.enable = true;
-  systemd.services.docker.path = [ pkgs.nftables ];
+  systemd.services.docker.path = [pkgs.nftables];
   virtualisation.docker.daemon.settings = {
     "firewall-backend" = "nftables";
   };

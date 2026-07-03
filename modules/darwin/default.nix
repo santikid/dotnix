@@ -1,16 +1,45 @@
 {
+  lib,
   pkgs,
   user,
   ...
-}: {
-  system.stateVersion = 5;
-
+}: let
+  ghosttyFont = "Iosevka";
+  ghosttyTheme = {
+    palette = [
+      "0=#111318"
+      "1=#ff7b8a"
+      "2=#a7f3d0"
+      "3=#f6c177"
+      "4=#7dd3fc"
+      "5=#c4a7e7"
+      "6=#67e8f9"
+      "7=#e6edf3"
+      "8=#667085"
+      "9=#ff9aa6"
+      "10=#c4f8df"
+      "11=#ffd899"
+      "12=#a5e4ff"
+      "13=#d8b4fe"
+      "14=#9bf6ff"
+      "15=#ffffff"
+    ];
+    background = "111318";
+    foreground = "f4f7fb";
+    cursor-color = "7dd3fc";
+    selection-background = "2d3443";
+    selection-foreground = "ffffff";
+  };
+  paletteLines = map (entry: "palette = ${entry}") ghosttyTheme.palette;
+in {
   users.users.${user.name} = {
     description = user.description;
     home = "/Users/${user.name}";
     shell = pkgs.zsh;
   };
+
   system.primaryUser = user.name;
+  system.stateVersion = 5;
 
   homebrew = {
     enable = true;
@@ -21,39 +50,23 @@
     ];
   };
 
-  home-manager.users.${user.name}.home.file."Library/Application Support/com.mitchellh.ghostty/config".text = ''
-    font-family = Iosevka
-    font-size = 12
-    window-padding-x = 12
-    window-padding-y = 10
-
-    background = 111318
-    foreground = f4f7fb
-    cursor-color = 7dd3fc
-    selection-background = 2d3443
-    selection-foreground = ffffff
-
-    palette = 0=#111318
-    palette = 1=#ff7b8a
-    palette = 2=#a7f3d0
-    palette = 3=#f6c177
-    palette = 4=#7dd3fc
-    palette = 5=#c4a7e7
-    palette = 6=#67e8f9
-    palette = 7=#e6edf3
-    palette = 8=#667085
-    palette = 9=#ff9aa6
-    palette = 10=#c4f8df
-    palette = 11=#ffd899
-    palette = 12=#a5e4ff
-    palette = 13=#d8b4fe
-    palette = 14=#9bf6ff
-    palette = 15=#ffffff
-  '';
+  home-manager.users.${user.name}.home.file."Library/Application Support/com.mitchellh.ghostty/config".text = lib.concatStringsSep "\n" ([
+      "font-family = ${ghosttyFont}"
+      "font-size = 16"
+      ""
+      "background = ${ghosttyTheme.background}"
+      "foreground = ${ghosttyTheme.foreground}"
+      "cursor-color = ${ghosttyTheme."cursor-color"}"
+      "selection-background = ${ghosttyTheme."selection-background"}"
+      "selection-foreground = ${ghosttyTheme."selection-foreground"}"
+      ""
+    ]
+    ++ paletteLines
+    ++ [""]);
 
   networking = {
     dns = ["1.1.1.1" "1.0.0.1"];
-    knownNetworkServices = ["Wi-Fi"];
+    knownNetworkServices = lib.mkDefault ["Wi-Fi"];
   };
 
   security.pam.services.sudo_local.touchIdAuth = true;

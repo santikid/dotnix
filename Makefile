@@ -1,4 +1,4 @@
-.PHONY: all format rebuild update regenerate-keys upgrade
+.PHONY: all check format rebuild rekey regenerate-keys update upgrade
 
 HOSTNAME := $(shell hostname)
 NIX_REBUILD_FLAGS :=
@@ -11,15 +11,25 @@ endif
 SYS_TYPE := $(shell uname -s)
 
 all:
-	@echo "no command supplied (all/format/rebuild/update/regenerate-keys/upgrade)"
+	@echo "no command supplied (check/format/rebuild/rekey/update/upgrade)"
 
 rekey:
 	gpg --recv-keys 644EFF248A9CA2D269C30A7A6AA809E3B3CCCA64
 	nix-shell -p sops --run "sops updatekeys secrets/*.yaml"
 
+regenerate-keys: rekey
+
 format:
-	nix-shell -p alejandra --run 'alejandra *'
-	nix-shell -p stylua --run 'stylua -g "*.lua" -- .'
+	nix fmt
+	nix develop --command stylua -g "*.lua" -- $(CURDIR)/configs/nvim
+
+check:
+	nix eval .#darwinConfigurations.santibook.system.drvPath --raw
+	nix eval .#darwinConfigurations.lisbon.system.drvPath --raw
+	nix eval .#nixosConfigurations.obsidian.config.system.build.toplevel.drvPath --raw
+	nix eval .#nixosConfigurations.ruby.config.system.build.toplevel.drvPath --raw
+	nix eval .#nixosConfigurations.razer.config.system.build.toplevel.drvPath --raw
+	nix eval .#nixosConfigurations.santisasahi.config.networking.hostName --raw
 
 rebuild:
 ifeq ($(SYS_TYPE),Linux)

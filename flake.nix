@@ -39,6 +39,16 @@
     zen-browser,
     ...
   }: let
+    lib = nixpkgs.lib;
+
+    systems = [
+      "aarch64-darwin"
+      "aarch64-linux"
+      "x86_64-linux"
+    ];
+
+    forAllSystems = lib.genAttrs systems;
+
     user = {
       name = "santi";
       description = "Lukas Santner";
@@ -61,11 +71,6 @@
     };
 
     nixosHosts = {
-      copper = {
-        system = "aarch64-linux";
-        extraModules = [./hosts/copper];
-      };
-
       obsidian = {
         system = "x86_64-linux";
         extraModules = [./modules/secrets.nix ./hosts/obsidian ./modules/linux/server.nix];
@@ -80,7 +85,7 @@
         system = "x86_64-linux";
         extraModules = [
           ./hosts/razer
-          ./modules/linux/niri.nix
+          ./modules/linux/desktop/niri
         ];
       };
 
@@ -89,19 +94,16 @@
         extraModules = [
           nixos-apple-silicon.nixosModules.default
           ./hosts/santisasahi
-          ./modules/linux/niri.nix
+          ./modules/linux/desktop/niri
         ];
       };
     };
 
     commonModules = hostName: [
+      ./modules/common/base.nix
       ./modules/home.nix
       ./modules/packages.nix
-      ({pkgs, ...}: {
-        programs.zsh.enable = true;
-        environment.shells = [pkgs.zsh];
-        environment.variables.EDITOR = "nvim";
-        nix.settings.experimental-features = ["nix-command" "flakes"];
+      ({...}: {
         networking.hostName = hostName;
         home-manager.useUserPackages = true;
         home-manager.useGlobalPkgs = true;
@@ -163,5 +165,24 @@
           makeNixOS name host.system host.extraModules
       )
       nixosHosts;
+
+    formatter = forAllSystems (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in
+      pkgs.alejandra);
+
+    devShells = forAllSystems (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in {
+      default = pkgs.mkShell {
+        packages = [
+          pkgs.alejandra
+          pkgs.deadnix
+          pkgs.shellcheck
+          pkgs.statix
+          pkgs.stylua
+        ];
+      };
+    });
   };
 }
