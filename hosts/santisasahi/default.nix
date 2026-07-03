@@ -35,6 +35,7 @@
 in {
   imports = [
     ./hardware-configuration.nix
+    ../../modules/common/npm-global.nix
   ];
 
   boot.kernelPackages = lib.mkForce (asahiPkgs.linuxPackagesFor fairydustKernel);
@@ -117,13 +118,6 @@ in {
   ];
 
   home-manager.users.${user.name} = {
-    home.sessionPath = [
-      "$HOME/.npm-global/bin"
-    ];
-
-    home.sessionVariables = {
-      NPM_CONFIG_PREFIX = "$HOME/.npm-global";
-    };
     programs.zsh.shellAliases = {
       macos = "nix shell nixpkgs#asahi-bless -c sh -c 'sudo \"$(command -v asahi-bless)\" --set-boot-macos --yes && sudo reboot'";
     };

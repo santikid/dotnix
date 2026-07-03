@@ -6,6 +6,7 @@
 }: {
   imports = [
     "${modulesPath}/virtualisation/incus-virtual-machine.nix"
+    ../../modules/common/npm-global.nix
   ];
 
   networking = {
@@ -19,6 +20,10 @@
     };
   };
 
+  services.openssh.openFirewall = false;
+
+  nix.settings.trusted-users = ["root" "@wheel" user.name];
+
   systemd.network = {
     enable = true;
     networks."50-enp5s0" = {
@@ -28,20 +33,6 @@
         IPv6AcceptRA = true;
       };
       linkConfig.RequiredForOnline = "routable";
-    };
-  };
-
-  services.openssh.openFirewall = false;
-
-  nix.settings.trusted-users = ["root" "@wheel" user.name];
-
-  home-manager.users.${user.name} = {
-    home.sessionPath = [
-      "$HOME/.npm-global/bin"
-    ];
-
-    home.sessionVariables = {
-      NPM_CONFIG_PREFIX = "$HOME/.npm-global";
     };
   };
 

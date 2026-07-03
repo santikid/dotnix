@@ -19,22 +19,18 @@
     };
   };
 
-  environment.systemPackages = with pkgs; [
-    coreutils
-    gnumake
-    fd
-
-    curl
-    wget
-
-    zip
-    watch
-
-    gcc
-    clang
-
-    libvterm
-    ghostty
+  environment.systemPackages = [
+    pkgs.coreutils
+    pkgs.gnumake
+    pkgs.fd
+    pkgs.curl
+    pkgs.wget
+    pkgs.zip
+    pkgs.watch
+    pkgs.gcc
+    pkgs.clang
+    pkgs.libvterm
+    pkgs.ghostty
   ];
 
   users.users.${user.name} = {

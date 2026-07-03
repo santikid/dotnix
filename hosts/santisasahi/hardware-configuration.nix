@@ -1,7 +1,4 @@
-{
-  lib,
-  ...
-}: let
+{lib, ...}: let
   nixosDisk = "/dev/disk/by-label/nixos";
 
   btrfsSubvolume = subvol: {
