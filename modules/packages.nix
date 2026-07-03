@@ -14,6 +14,7 @@
     pkgs.mosh
 
     # Development
+    pkgs.python3
     pkgs.cmake
     pkgs.nodejs_24
     pkgs.pnpm_11
