@@ -10,6 +10,8 @@
     ../../modules/common/npm-global.nix
   ];
 
+  boot.loader.systemd-boot.configurationLimit = 5;
+
   networking = {
     dhcpcd.enable = false;
     useDHCP = false;
