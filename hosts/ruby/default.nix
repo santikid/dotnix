@@ -22,6 +22,8 @@
 
   services.openssh.openFirewall = false;
 
+  virtualisation.docker.enable = true;
+
   nix.settings.trusted-users = ["root" "@wheel" user.name];
 
   systemd.network = {
