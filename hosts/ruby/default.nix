@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   modulesPath,
   user,
   ...
@@ -23,6 +24,13 @@
   services.openssh.openFirewall = false;
 
   virtualisation.docker.enable = true;
+  networking.nftables.enable = true;
+  systemd.services.docker.path = [pkgs.nftables];
+  virtualisation.docker.daemon.settings = {
+    "firewall-backend" = "nftables";
+  };
+
+  users.users.${user.name}.extraGroups = ["docker" "incus-admin"];
 
   nix.settings.trusted-users = ["root" "@wheel" user.name];
 
