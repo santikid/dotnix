@@ -9,8 +9,42 @@
       then pkgs.emacs
       else pkgs.emacs-nox;
 
+    starshipPackage =
+      if pkgs.stdenv.isDarwin
+      then
+        pkgs.starship.overrideAttrs (_: {
+          # macOS 27's ld64 crashes in its stubs pass when linking Starship's
+          # optional notification backend. Keep battery support and its tests.
+          cargoBuildNoDefaultFeatures = "1";
+          cargoBuildFeatures = "battery";
+          cargoCheckNoDefaultFeatures = "1";
+          cargoCheckFeatures = "battery";
+        })
+      else pkgs.starship;
+
     link = path:
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/${path}";
+
+    treesitterParsers = pkgs.vimPlugins.nvim-treesitter.withPlugins (parsers: [
+      parsers.bash
+      parsers.css
+      parsers.html
+      parsers.javascript
+      parsers.json
+      parsers.regex
+      parsers.rust
+      parsers.scss
+      parsers.svelte
+      parsers.tsx
+      parsers.typescript
+    ]);
+
+    neovimPackage = pkgs.wrapNeovimUnstable pkgs.neovim-unwrapped {
+      wrapRc = false;
+      plugins = [
+        treesitterParsers
+      ];
+    };
 
     mkEditorLauncher = {
       name,
@@ -20,7 +54,7 @@
         inherit name;
         runtimeInputs = [
           emacsPackage
-          pkgs.neovim
+          neovimPackage
         ];
         text =
           if terminalOnly
@@ -66,7 +100,7 @@
     };
 
     home.packages = [
-      pkgs.neovim
+      neovimPackage
       emacsPackage
       (mkEditorLauncher {name = "e";})
       (mkEditorLauncher {
@@ -175,7 +209,10 @@
       '';
     };
 
-    programs.starship.enable = true;
+    programs.starship = {
+      enable = true;
+      package = starshipPackage;
+    };
     programs.direnv.enable = true;
   };
 }

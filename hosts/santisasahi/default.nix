@@ -109,7 +109,6 @@ in {
     })
     teams-for-linux
     thunderbird
-    opencode-desktop
     brightnessctl
     libinput
     lm_sensors

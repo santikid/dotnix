@@ -1,3 +1,32 @@
+local treesitter_by_filetype = {
+	bash = "bash",
+	css = "css",
+	html = "html",
+	javascript = "javascript",
+	javascriptreact = "javascript",
+	json = "json",
+	jsonc = "json",
+	lua = "lua",
+	markdown = "markdown",
+	regex = "regex",
+	rust = "rust",
+	scss = "scss",
+	sh = "bash",
+	svelte = "svelte",
+	tsx = "tsx",
+	typescript = "typescript",
+	typescriptreact = "tsx",
+}
+
+vim.api.nvim_create_autocmd("FileType", {
+	desc = "Start Treesitter highlighting",
+	pattern = vim.tbl_keys(treesitter_by_filetype),
+	callback = function(event)
+		local filetype = vim.bo[event.buf].filetype
+		pcall(vim.treesitter.start, event.buf, treesitter_by_filetype[filetype])
+	end,
+})
+
 vim.api.nvim_create_autocmd("LspAttach", {
 	desc = "LSP actions",
 	callback = function(event)

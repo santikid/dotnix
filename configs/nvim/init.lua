@@ -30,10 +30,6 @@ vim.opt.undofile = true
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
 
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-vim.opt.foldlevelstart = 99
-
 require("keymaps")
 require("lazy").setup({ spec = { { import = "plugins" } } })
 require("lsp")

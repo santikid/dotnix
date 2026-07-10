@@ -1,4 +1,33 @@
-{pkgs, ...}: {
+{pkgs, ...}: let
+  opencode =
+    if pkgs.stdenv.hostPlatform.isDarwin
+    then
+      pkgs.opencode.overrideAttrs (oldAttrs: {
+        nativeBuildInputs =
+          oldAttrs.nativeBuildInputs
+          ++ [pkgs.darwin.autoSignDarwinBinariesHook];
+
+        # OpenCode tries to execute Bun's generated Mach-O before Nix's Darwin
+        # signing hook runs, so macOS rejects it and kills the smoke test with 137.
+        postPatch =
+          (oldAttrs.postPatch or "")
+          + ''
+            substituteInPlace packages/opencode/script/build.ts \
+              --replace-fail \
+                '  if (item.os === process.platform && item.arch === process.arch && !item.abi) {' \
+                '  if (false && item.os === process.platform && item.arch === process.arch && !item.abi) {'
+          '';
+
+        # Sign the binary and repeat the skipped upstream smoke test.
+        postBuild =
+          (oldAttrs.postBuild or "")
+          + ''
+            signIfRequired dist/opencode-*/bin/opencode
+            dist/opencode-*/bin/opencode --version
+          '';
+      })
+    else pkgs.opencode;
+in {
   environment.systemPackages = [
     # Base tools
     pkgs.age
@@ -16,9 +45,9 @@
     # Development
     pkgs.python3
     pkgs.cmake
-    pkgs.opencode
     pkgs.nodejs_24
     pkgs.pnpm_11
+    opencode
     pkgs.bun
     pkgs.oxlint
     pkgs.prettier
