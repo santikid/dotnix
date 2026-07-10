@@ -30,7 +30,7 @@
     pkgs.gcc
     pkgs.clang
     pkgs.libvterm
-    pkgs.ghostty
+    pkgs.foot
   ];
 
   users.users.${user.name} = {

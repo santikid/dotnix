@@ -26,6 +26,7 @@ in {
   zramSwap.enable = true;
 
   hardware = {
+    asahi.enable = true;
     asahi.extractPeripheralFirmware = true;
     sensor.iio.enable = true;
     bluetooth.enable = true;
