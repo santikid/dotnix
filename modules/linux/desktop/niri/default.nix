@@ -338,7 +338,7 @@ in {
     };
 
     home.pointerCursor = {
-      gtk.enable = true;
+      enable = true;
       package = pkgs.bibata-cursors;
       name = theme.cursor.name;
       inherit (theme.cursor) size;
