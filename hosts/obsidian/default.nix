@@ -51,5 +51,16 @@
 
   services.borgmatic.enable = true;
 
+  services.smartd = {
+    enable = true;
+    autodetect = true;
+  };
+
+  services.btrfs.autoScrub = {
+    enable = true;
+    fileSystems = ["/"];
+    interval = "monthly";
+  };
+
   system.stateVersion = "24.05";
 }
