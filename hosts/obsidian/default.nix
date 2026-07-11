@@ -22,6 +22,7 @@
   systemd.services.docker.path = [pkgs.nftables];
   virtualisation.docker.daemon.settings = {
     "firewall-backend" = "nftables";
+    "live-restore" = false;
   };
 
   users.users.${user.name}.extraGroups = ["docker" "incus-admin"];
