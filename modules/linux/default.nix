@@ -31,6 +31,7 @@
     pkgs.clang
     pkgs.libvterm
     pkgs.foot
+    pkgs.ghostty.terminfo
   ];
 
   users.users.${user.name} = {
