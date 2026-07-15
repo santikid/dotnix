@@ -4,6 +4,11 @@
   user,
   ...
 }: {
+  nix = {
+    gc.dates = "Sun 03:15";
+    optimise.dates = "Sun 04:15";
+  };
+
   networking.nameservers = ["1.1.1.1" "1.0.0.1"];
   networking.networkmanager.dns = "none";
 

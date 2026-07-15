@@ -32,6 +32,23 @@
   };
   paletteLines = map (entry: "palette = ${entry}") ghosttyTheme.palette;
 in {
+  nix = {
+    gc.interval = [
+      {
+        Weekday = 7;
+        Hour = 3;
+        Minute = 15;
+      }
+    ];
+    optimise.interval = [
+      {
+        Weekday = 7;
+        Hour = 4;
+        Minute = 15;
+      }
+    ];
+  };
+
   users.users.${user.name} = {
     description = user.description;
     home = "/Users/${user.name}";
