@@ -10,9 +10,28 @@
 
   networking.useDHCP = true;
 
+  boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.configurationLimit = 5;
   boot.loader.efi.canTouchEfiVariables = true;
+
+  systemd.services.disable-eno1-k1 = {
+    description = "Disable Intel I219 K1 power saving";
+    wantedBy = ["network-pre.target"];
+    before = ["network-pre.target"];
+    wants = ["sys-subsystem-net-devices-eno1.device"];
+    after = ["sys-subsystem-net-devices-eno1.device"];
+    path = [pkgs.ethtool];
+    script = ''
+      ethtool --set-priv-flags eno1 disable-k1 on
+      ethtool --show-priv-flags eno1
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    unitConfig.ConditionKernelVersion = ">= 7.1";
+  };
 
   virtualisation.docker.enable = true;
 
