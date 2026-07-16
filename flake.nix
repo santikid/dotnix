@@ -66,7 +66,7 @@
       };
       lisbon = {
         system = "aarch64-darwin";
-        extraModules = [./modules/secrets.nix ./hosts/lisbon ./modules/darwin/server.nix];
+        extraModules = [./hosts/lisbon ./modules/darwin/server.nix];
       };
     };
 
