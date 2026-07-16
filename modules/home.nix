@@ -158,16 +158,58 @@
       git = true;
     };
 
+    programs.fzf = {
+      enable = true;
+      enableZshIntegration = true;
+      defaultOptions = [
+        "--height=40%"
+        "--layout=reverse"
+        "--border"
+      ];
+    };
+
     programs.zsh = {
       enable = true;
       enableCompletion = true;
+      defaultKeymap = "viins";
+      completionInit = ''
+        # Use a compiled completion dump on normal startups. Refresh it (and
+        # rerun compinit's security check) daily so new Nix completions appear.
+        _cached_compinit() {
+          setopt localoptions extendedglob
+          local zcompdump="''${ZDOTDIR:-$HOME}/.zcompdump"
+
+          if [[ ! -s "$zcompdump" || -n "$zcompdump"(#qN.mh+24) ]]; then
+            compinit -d "$zcompdump"
+          else
+            compinit -C -d "$zcompdump"
+          fi
+
+          if [[ -s "$zcompdump" && (! -s "$zcompdump.zwc" || "$zcompdump" -nt "$zcompdump.zwc") ]]; then
+            zcompile "$zcompdump"
+          fi
+        }
+
+        autoload -Uz compinit
+        _cached_compinit
+        unfunction _cached_compinit
+      '';
       autosuggestion.enable = true;
       syntaxHighlighting.enable = true;
+      history = {
+        size = 100000;
+        save = 100000;
+        expireDuplicatesFirst = true;
+        findNoDups = true;
+        ignoreAllDups = true;
+        ignoreDups = true;
+        ignoreSpace = true;
+        share = true;
+      };
       initContent = ''
-        if [[ -n "''${SSH_CONNECTION:-}''${MOSH_IP:-}''${MOSH_CONNECTION:-}" ]]; then
-          ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=0
-          ZSH_HIGHLIGHT_MAXLENGTH=0
-        fi
+        # Zsh measures this in hundredths of a second. Its 0.4s default makes
+        # Esc-prefixed bindings such as Esc-/ feel noticeably delayed.
+        KEYTIMEOUT=5
 
         # command matching with up/downarrow
         autoload -U up-line-or-beginning-search
@@ -176,12 +218,17 @@
         zle -N down-line-or-beginning-search
         bindkey "^[[A" up-line-or-beginning-search # Up
         bindkey "^[[B" down-line-or-beginning-search # Down
+        bindkey "^[OA" up-line-or-beginning-search  # Up (application mode)
+        bindkey "^[OB" down-line-or-beginning-search # Down (application mode)
+        bindkey "^[[Z" reverse-menu-complete # Shift-Tab
+        bindkey "^G" fzf-cd-widget # Ctrl-G: fuzzy directory picker
+        bindkey -M vicmd "^G" fzf-cd-widget
 
         setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT
         alias d='dirs -v'
         for index ({1..9}) alias "$index"="cd +''${index}"; unset index
 
-        zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+        zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
         zstyle ':completion:*' menu select
         zstyle ':completion:*' insert-unambiguous yes
         zstyle ':completion:*:descriptions' format '%F{green}-- %d --%f'
