@@ -1,14 +1,9 @@
 keys:
-  - &santi_pgp 644EFF248A9CA2D269C30A7A6AA809E3B3CCCA64
   - &santi_age age1lmhxry5p45qz2m3lstvvhepdcjrf884kculesvgy7phvm4pnnsqqs63vfz
-  - &machine_santiserver age1wmscunfntut4fzem9zj0dxx4wpd2farrsj6qheuwg3mzlmep5ewq4fmejw
-  - &machine_santigg age1dhwlqn52rx9fte4kgugkpsdd7f256m38zfp7xaaclej5pm5sgdls906p9j
+  - &machine_obsidian age1dhwlqn52rx9fte4kgugkpsdd7f256m38zfp7xaaclej5pm5sgdls906p9j
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-    - pgp:
-      - *santi_pgp
-      age:
+    - age:
       - *santi_age
-      - *machine_santiserver
-      - *machine_santigg
+      - *machine_obsidian

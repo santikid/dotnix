@@ -50,7 +50,7 @@
     enable = true;
     tunnels = {
       "0fe3d5d3-b10e-41d0-9b95-6520a5ca3ea4" = {
-        credentialsFile = "${config.sops.secrets.cf_tunnel_santi_gg.path}";
+        credentialsFile = "${config.sops.secrets.cf_tunnel_obsidian.path}";
         default = "http_status:404";
       };
     };
