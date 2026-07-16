@@ -1,10 +1,12 @@
 local treesitter_by_filetype = {
+	astro = "astro",
 	bash = "bash",
 	css = "css",
 	html = "html",
 	javascript = "javascript",
 	javascriptreact = "javascript",
 	json = "json",
+	json5 = "json5",
 	jsonc = "json",
 	lua = "lua",
 	markdown = "markdown",

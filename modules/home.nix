@@ -25,26 +25,7 @@
     link = path:
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/${path}";
 
-    treesitterParsers = pkgs.vimPlugins.nvim-treesitter.withPlugins (parsers: [
-      parsers.bash
-      parsers.css
-      parsers.html
-      parsers.javascript
-      parsers.json
-      parsers.regex
-      parsers.rust
-      parsers.scss
-      parsers.svelte
-      parsers.tsx
-      parsers.typescript
-    ]);
-
-    neovimPackage = pkgs.wrapNeovimUnstable pkgs.neovim-unwrapped {
-      wrapRc = false;
-      plugins = [
-        treesitterParsers
-      ];
-    };
+    neovimPackage = pkgs.neovim;
 
     mkEditorLauncher = {
       name,
