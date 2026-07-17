@@ -16,7 +16,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   systemd.services.disable-eno1-k1 = {
-    description = "Disable Intel I219 K1 power saving";
+    description = "Apply Intel I219 stability workarounds";
     wantedBy = ["network-pre.target"];
     before = ["network-pre.target"];
     wants = ["sys-subsystem-net-devices-eno1.device"];
@@ -24,7 +24,9 @@
     path = [pkgs.ethtool];
     script = ''
       ethtool --set-priv-flags eno1 disable-k1 on
+      ethtool -K eno1 tso off gso off
       ethtool --show-priv-flags eno1
+      ethtool -k eno1
     '';
     serviceConfig = {
       Type = "oneshot";
