@@ -1,0 +1,35 @@
+name: Darwin runner test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".forgejo/workflows/darwin.yml"
+      - "flake.nix"
+      - "flake.lock"
+      - "hosts/lisbon/**"
+      - "hosts/santibook/**"
+      - "modules/**"
+      - "configs/**"
+
+jobs:
+  test:
+    runs-on: nix-aarch64-darwin
+    steps:
+      - name: Check out the repository
+        uses: https://data.forgejo.org/actions/checkout@v6
+
+      - name: Verify runner tools
+        run: |
+          node --version
+          nix --version
+          test "$(nix eval --impure --raw --expr 'builtins.currentSystem')" = "aarch64-darwin"
+
+      - name: Evaluate Darwin configurations
+        run: |
+          nix eval --raw .#darwinConfigurations.santibook.system.drvPath
+          printf '\n'
+          nix eval --raw .#darwinConfigurations.lisbon.system.drvPath
+          printf '\n'
