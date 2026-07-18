@@ -4,7 +4,13 @@
   environment.variables.EDITOR = "nvim";
 
   nix = {
-    settings.experimental-features = ["nix-command" "flakes"];
+    settings = {
+      experimental-features = ["nix-command" "flakes"];
+      extra-substituters = ["http://obsidian:8180/dotnix"];
+      extra-trusted-public-keys = [
+        "dotnix:JTkDCW+G8IHsYFIX1dZrZPY1wmZYGiqLEOKhnKxYFdI="
+      ];
+    };
 
     gc = {
       automatic = true;

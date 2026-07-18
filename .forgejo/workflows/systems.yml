@@ -42,6 +42,8 @@ jobs:
     env:
       NIX_CONFIG: |
         experimental-features = nix-command flakes
+        extra-substituters = http://obsidian:8180/dotnix
+        extra-trusted-public-keys = dotnix:JTkDCW+G8IHsYFIX1dZrZPY1wmZYGiqLEOKhnKxYFdI=
     steps:
       - name: Install Node.js for actions
         if: matrix.target.system == 'x86_64-linux'
@@ -58,6 +60,13 @@ jobs:
           nix --version
           test "$(nix eval --impure --raw --expr 'builtins.currentSystem')" = "${{ matrix.target.system }}"
 
+      - name: Configure cache upload
+        env:
+          ATTIC_TOKEN: ${{ secrets.ATTIC_TOKEN }}
+        run: |
+          export XDG_CONFIG_HOME="$PWD/.ci-config"
+          nix run nixpkgs#attic-client -- login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
+
       - name: Evaluate system
         run: |
           nix eval --raw "${{ matrix.target.installable }}.drvPath"
@@ -66,8 +75,13 @@ jobs:
       - name: Build system
         run: |
           nix build \
-            --no-link \
+            --out-link result \
             --print-out-paths \
             --max-jobs 1 \
             --cores 2 \
             "${{ matrix.target.installable }}"
+
+      - name: Upload system closure
+        run: |
+          export XDG_CONFIG_HOME="$PWD/.ci-config"
+          nix run nixpkgs#attic-client -- push forgejo:dotnix result
