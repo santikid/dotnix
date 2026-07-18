@@ -16,8 +16,7 @@
     useDHCP = false;
     useHostResolvConf = false;
     firewall = {
-      enable = true;
-      allowedTCPPorts = [];
+      enable = false;
       trustedInterfaces = ["tailscale0"];
     };
   };
