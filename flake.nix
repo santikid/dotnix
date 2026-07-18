@@ -65,7 +65,11 @@
     darwinHosts = {
       santibook = {
         system = "aarch64-darwin";
-        extraModules = [./hosts/santibook ./modules/darwin/desktop.nix];
+        extraModules = [
+          ./hosts/santibook
+          ./modules/darwin/desktop.nix
+          ./modules/coding-agents.nix
+        ];
       };
       lisbon = {
         system = "aarch64-darwin";
@@ -81,7 +85,11 @@
 
       ruby = {
         system = "x86_64-linux";
-        extraModules = [./hosts/ruby ./modules/linux/server.nix];
+        extraModules = [
+          ./hosts/ruby
+          ./modules/linux/server.nix
+          ./modules/coding-agents.nix
+        ];
       };
 
       santisasahi = {
@@ -90,6 +98,7 @@
           nixos-apple-silicon.nixosModules.default
           ./hosts/santisasahi
           ./modules/linux/desktop/niri
+          ./modules/coding-agents.nix
         ];
       };
     };

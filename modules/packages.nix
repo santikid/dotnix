@@ -1,10 +1,4 @@
-{
-  inputs,
-  pkgs,
-  ...
-}: let
-  llmAgents = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
-in {
+{pkgs, ...}: {
   environment.systemPackages = [
     # Base tools
     pkgs.age
@@ -25,9 +19,6 @@ in {
     pkgs.tree-sitter
     pkgs.nodejs_24
     pkgs.pnpm_11
-    llmAgents.codex
-    llmAgents.kimi-code
-    llmAgents.opencode
     pkgs.bun
     pkgs.oxlint
     pkgs.prettier
