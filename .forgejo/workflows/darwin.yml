@@ -1,4 +1,4 @@
-name: Darwin runner test
+name: Systems CI
 
 on:
   workflow_dispatch:
@@ -10,14 +10,42 @@ on:
       - "flake.nix"
       - "flake.lock"
       - "hosts/lisbon/**"
+      - "hosts/obsidian/**"
+      - "hosts/ruby/**"
       - "hosts/santibook/**"
       - "modules/**"
       - "configs/**"
 
 jobs:
-  test:
-    runs-on: nix-aarch64-darwin
+  build:
+    name: Build ${{ matrix.target.name }}
+    strategy:
+      matrix:
+        target:
+          - name: santibook
+            runner: nix-aarch64-darwin
+            system: aarch64-darwin
+            installable: .#darwinConfigurations.santibook.system
+          - name: lisbon
+            runner: nix-aarch64-darwin
+            system: aarch64-darwin
+            installable: .#darwinConfigurations.lisbon.system
+          - name: obsidian
+            runner: nix-x86_64-linux
+            system: x86_64-linux
+            installable: .#nixosConfigurations.obsidian.config.system.build.toplevel
+          - name: ruby
+            runner: nix-x86_64-linux
+            system: x86_64-linux
+            installable: .#nixosConfigurations.ruby.config.system.build.toplevel
+    runs-on: ${{ matrix.target.runner }}
     steps:
+      - name: Install Node.js for actions
+        if: matrix.target.system == 'x86_64-linux'
+        run: |
+          nix profile install nixpkgs#nodejs_24
+          printf '%s\n' /root/.nix-profile/bin >> "$FORGEJO_PATH"
+
       - name: Check out the repository
         uses: https://data.forgejo.org/actions/checkout@v6
 
@@ -25,11 +53,18 @@ jobs:
         run: |
           node --version
           nix --version
-          test "$(nix eval --impure --raw --expr 'builtins.currentSystem')" = "aarch64-darwin"
+          test "$(nix eval --impure --raw --expr 'builtins.currentSystem')" = "${{ matrix.target.system }}"
 
-      - name: Evaluate Darwin configurations
+      - name: Evaluate ${{ matrix.target.name }}
         run: |
-          nix eval --raw .#darwinConfigurations.santibook.system.drvPath
+          nix eval --raw "${{ matrix.target.installable }}.drvPath"
           printf '\n'
-          nix eval --raw .#darwinConfigurations.lisbon.system.drvPath
-          printf '\n'
+
+      - name: Build ${{ matrix.target.name }}
+        run: |
+          nix build \
+            --no-link \
+            --print-out-paths \
+            --max-jobs 1 \
+            --cores 2 \
+            "${{ matrix.target.installable }}"
