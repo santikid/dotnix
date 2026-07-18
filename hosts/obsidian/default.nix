@@ -58,6 +58,30 @@
     };
   };
 
+  services.atticd = {
+    enable = true;
+    environmentFile = config.sops.templates."atticd.env".path;
+    settings = {
+      listen = "[::]:8180";
+      "api-endpoint" = "http://obsidian:8180/";
+      "allowed-hosts" = [
+        "obsidian:8180"
+        "localhost:8180"
+        "127.0.0.1:8180"
+      ];
+      storage = {
+        type = "s3";
+        region = "eu-central-003";
+        bucket = "dotnix-cache";
+        endpoint = "https://s3.eu-central-003.backblazeb2.com";
+      };
+      "garbage-collection" = {
+        interval = "12 hours";
+        "default-retention-period" = "90 days";
+      };
+    };
+  };
+
   services.cron = {
     enable = true;
     systemCronJobs = [
