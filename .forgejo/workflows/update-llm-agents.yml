@@ -1,0 +1,54 @@
+name: Update llm-agents
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 1,3,5"
+      timezone: Europe/Vienna
+
+concurrency:
+  group: flake-lock-updates
+  cancel-in-progress: false
+
+env:
+  NIX_CONFIG: |
+    experimental-features = nix-command flakes
+    extra-substituters = http://obsidian:8180/dotnix
+    extra-trusted-public-keys = dotnix:JTkDCW+G8IHsYFIX1dZrZPY1wmZYGiqLEOKhnKxYFdI=
+
+jobs:
+  update:
+    runs-on: nix-x86_64-linux
+    steps:
+      - name: Install Node.js for actions
+        run: |
+          nix profile install nixpkgs#nodejs_24
+          printf '%s\n' /root/.nix-profile/bin >> "$FORGEJO_PATH"
+
+      - name: Check out the repository
+        uses: https://data.forgejo.org/actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+          token: ${{ secrets.UPDATER_TOKEN }}
+
+      - name: Update llm-agents
+        run: nix flake update llm-agents
+
+      - name: Commit and open pull request
+        run: |
+          if git diff --quiet -- flake.lock; then
+            echo "flake.lock is already up to date."
+            exit 0
+          fi
+
+          git config user.name "dotnix updater"
+          git config user.email "dotnix-updater@forge.santi.cloud"
+          git add flake.lock
+          git commit --message "flake: update llm-agents"
+
+          # Forgejo's AGit ref creates a PR, or replaces the existing PR for this topic.
+          git push origin HEAD:refs/for/main/automation-llm-agents \
+            -o force-push=true \
+            -o title="flake: update llm-agents" \
+            -o description="Automated llm-agents update; merges after all system builds succeed."

@@ -2,6 +2,19 @@ name: Systems CI
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".forgejo/workflows/systems.yml"
+      - "flake.nix"
+      - "flake.lock"
+      - "hosts/lisbon/**"
+      - "hosts/obsidian/**"
+      - "hosts/ruby/**"
+      - "hosts/santibook/**"
+      - "modules/**"
+      - "configs/**"
   push:
     branches:
       - main
@@ -15,6 +28,12 @@ on:
       - "hosts/santibook/**"
       - "modules/**"
       - "configs/**"
+
+env:
+  NIX_CONFIG: |
+    experimental-features = nix-command flakes
+    extra-substituters = http://obsidian:8180/dotnix
+    extra-trusted-public-keys = dotnix:JTkDCW+G8IHsYFIX1dZrZPY1wmZYGiqLEOKhnKxYFdI=
 
 jobs:
   build:
@@ -39,11 +58,6 @@ jobs:
             system: x86_64-linux
             installable: .#nixosConfigurations.ruby.config.system.build.toplevel
     runs-on: ${{ matrix.target.runner }}
-    env:
-      NIX_CONFIG: |
-        experimental-features = nix-command flakes
-        extra-substituters = http://obsidian:8180/dotnix
-        extra-trusted-public-keys = dotnix:JTkDCW+G8IHsYFIX1dZrZPY1wmZYGiqLEOKhnKxYFdI=
     steps:
       - name: Install Node.js for actions
         if: matrix.target.system == 'x86_64-linux'
@@ -60,13 +74,6 @@ jobs:
           nix --version
           test "$(nix eval --impure --raw --expr 'builtins.currentSystem')" = "${{ matrix.target.system }}"
 
-      - name: Configure cache upload
-        env:
-          ATTIC_TOKEN: ${{ secrets.ATTIC_TOKEN }}
-        run: |
-          export XDG_CONFIG_HOME="$PWD/.ci-config"
-          nix run nixpkgs#attic-client -- login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
-
       - name: Evaluate system
         run: |
           nix eval --raw "${{ matrix.target.installable }}.drvPath"
@@ -81,7 +88,48 @@ jobs:
             --cores 2 \
             "${{ matrix.target.installable }}"
 
-      - name: Upload system closure
+      - name: Publish system closure
+        # Ordinary PRs may read the cache, but only trusted runs may write to it.
+        if: >-
+          forgejo.event_name != 'pull_request' ||
+          (forgejo.event.pull_request.head.repo.full_name == forgejo.repository &&
+          forgejo.event.pull_request.user.login == forgejo.repository_owner &&
+          (forgejo.event.pull_request.title == 'flake: update llm-agents' ||
+          forgejo.event.pull_request.title == 'flake: update all inputs'))
+        env:
+          ATTIC_TOKEN: ${{ secrets.ATTIC_TOKEN }}
         run: |
           export XDG_CONFIG_HOME="$PWD/.ci-config"
+          nix run nixpkgs#attic-client -- login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
           nix run nixpkgs#attic-client -- push forgejo:dotnix result
+
+  merge-update:
+    name: Merge scheduled update
+    if: >-
+      forgejo.event_name == 'pull_request' &&
+      forgejo.event.pull_request.head.repo.full_name == forgejo.repository &&
+      forgejo.event.pull_request.user.login == forgejo.repository_owner &&
+      (forgejo.event.pull_request.title == 'flake: update llm-agents' ||
+      forgejo.event.pull_request.title == 'flake: update all inputs')
+    needs: build
+    runs-on: nix-x86_64-linux
+    steps:
+      - name: Install curl
+        run: |
+          nix profile install nixpkgs#curl
+          printf '%s\n' /root/.nix-profile/bin >> "$FORGEJO_PATH"
+
+      - name: Merge update
+        env:
+          API_URL: ${{ forgejo.api_url }}
+          PR_HEAD_SHA: ${{ forgejo.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ forgejo.event.pull_request.number }}
+          REPOSITORY: ${{ forgejo.repository }}
+          UPDATER_TOKEN: ${{ secrets.UPDATER_TOKEN }}
+        run: |
+          curl --fail --silent --show-error \
+            --request POST \
+            --header "Authorization: token $UPDATER_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data "{\"Do\":\"rebase\",\"delete_branch_after_merge\":true,\"head_commit_id\":\"$PR_HEAD_SHA\"}" \
+            "$API_URL/repos/$REPOSITORY/pulls/$PR_NUMBER/merge"
