@@ -39,6 +39,9 @@ jobs:
             system: x86_64-linux
             installable: .#nixosConfigurations.ruby.config.system.build.toplevel
     runs-on: ${{ matrix.target.runner }}
+    env:
+      NIX_CONFIG: |
+        experimental-features = nix-command flakes
     steps:
       - name: Install Node.js for actions
         if: matrix.target.system == 'x86_64-linux'
