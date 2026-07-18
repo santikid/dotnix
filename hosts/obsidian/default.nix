@@ -95,8 +95,6 @@
     allowedTCPPorts = [80 443];
   };
 
-  services.borgmatic.enable = true;
-
   services.smartd = {
     enable = true;
     autodetect = true;
