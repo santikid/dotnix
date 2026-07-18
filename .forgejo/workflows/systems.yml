@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - ".forgejo/workflows/darwin.yml"
+      - ".forgejo/workflows/systems.yml"
       - "flake.nix"
       - "flake.lock"
       - "hosts/lisbon/**"
