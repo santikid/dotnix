@@ -7,7 +7,6 @@
 }: {
   imports = [
     "${modulesPath}/virtualisation/incus-virtual-machine.nix"
-    ../../modules/common/npm-global.nix
   ];
 
   boot.loader.systemd-boot.configurationLimit = 5;

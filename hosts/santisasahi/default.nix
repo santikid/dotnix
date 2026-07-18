@@ -35,7 +35,6 @@
 in {
   imports = [
     ./hardware-configuration.nix
-    ../../modules/common/npm-global.nix
   ];
 
   boot.kernelPackages = lib.mkForce (asahiPkgs.linuxPackagesFor fairydustKernel);
