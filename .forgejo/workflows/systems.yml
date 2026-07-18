@@ -58,12 +58,12 @@ jobs:
           nix --version
           test "$(nix eval --impure --raw --expr 'builtins.currentSystem')" = "${{ matrix.target.system }}"
 
-      - name: Evaluate ${{ matrix.target.name }}
+      - name: Evaluate system
         run: |
           nix eval --raw "${{ matrix.target.installable }}.drvPath"
           printf '\n'
 
-      - name: Build ${{ matrix.target.name }}
+      - name: Build system
         run: |
           nix build \
             --no-link \
