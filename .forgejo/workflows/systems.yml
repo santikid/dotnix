@@ -150,12 +150,31 @@ jobs:
             "$API_URL/repos/$REPOSITORY/pulls/$PR_NUMBER/merge"
 
   notify:
-    name: Notify successful build
-    if: forgejo.event_name == 'push'
+    name: Notify build result
+    if: >-
+      forgejo.event_name == 'push' &&
+      (success() || failure())
     needs: build
     runs-on: nix-x86_64-linux
     steps:
+      - name: Configure successful notification
+        if: success()
+        run: |
+          printf '%s\n' \
+            'NTFY_TITLE=dotnix CI succeeded' \
+            'NTFY_TAGS=heavy_check_mark,computer' \
+            >> "$FORGEJO_ENV"
+
+      - name: Configure failed notification
+        if: failure()
+        run: |
+          printf '%s\n' \
+            'NTFY_TITLE=dotnix CI failed' \
+            'NTFY_TAGS=x,computer' \
+            >> "$FORGEJO_ENV"
+
       - name: Send notification
+        if: success() || failure()
         continue-on-error: true
         env:
           COMMITS_JSON: ${{ toJSON(forgejo.event.commits) }}
@@ -173,8 +192,8 @@ jobs:
             --silent \
             --show-error \
             --retry 3 \
-            --header 'Title: dotnix CI succeeded' \
-            --header 'Tags: heavy_check_mark,computer' \
+            --header "Title: $NTFY_TITLE" \
+            --header "Tags: $NTFY_TAGS" \
             --header "Click: $COMPARE_URL" \
             --data "$commit_titles" \
             "$NTFY_URL"
