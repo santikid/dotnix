@@ -125,11 +125,6 @@ jobs:
     needs: build
     runs-on: nix-x86_64-linux
     steps:
-      - name: Install curl
-        run: |
-          nix profile install nixpkgs#curl
-          printf '%s\n' /root/.nix-profile/bin >> "$FORGEJO_PATH"
-
       - name: Merge update
         env:
           API_URL: ${{ forgejo.api_url }}
@@ -139,7 +134,7 @@ jobs:
           UPDATER_TOKEN: ${{ secrets.UPDATER_TOKEN }}
         run: |
           : "${UPDATER_TOKEN:?UPDATER_TOKEN is unavailable in this workflow}"
-          curl --fail --silent --show-error \
+          nix shell nixpkgs#curl --command curl --fail --silent --show-error \
             --request POST \
             --header "Authorization: token $UPDATER_TOKEN" \
             --header 'Content-Type: application/json' \
