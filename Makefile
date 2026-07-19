@@ -1,7 +1,12 @@
-.PHONY: all check format rebuild rekey regenerate-keys update upgrade
+.PHONY: all bootstrap check format rebuild rekey regenerate-keys update upgrade
 
 HOSTNAME := $(shell hostname)
 NIX_REBUILD_FLAGS :=
+ATTIC_URL := http://obsidian:8180/dotnix
+ATTIC_PUBLIC_KEY := dotnix:JTkDCW+G8IHsYFIX1dZrZPY1wmZYGiqLEOKhnKxYFdI=
+ATTIC_BOOTSTRAP_FLAGS := \
+	--option extra-substituters $(ATTIC_URL) \
+	--option extra-trusted-public-keys $(ATTIC_PUBLIC_KEY)
 
 ifeq ($(HOSTNAME),santisasahi)
 	NIX_REBUILD_FLAGS += --impure
@@ -11,7 +16,7 @@ endif
 SYS_TYPE := $(shell uname -s)
 
 all:
-	@echo "no command supplied (check/format/rebuild/rekey/update/upgrade)"
+	@echo "no command supplied (bootstrap/check/format/rebuild/rekey/update/upgrade)"
 
 rekey:
 	gpg --recv-keys 644EFF248A9CA2D269C30A7A6AA809E3B3CCCA64
@@ -37,8 +42,11 @@ ifeq ($(SYS_TYPE),Linux)
 endif
 ifeq ($(SYS_TYPE),Darwin)
 	@echo "Rebuilding Darwin configuration..."
-	sudo darwin-rebuild switch --flake .#$(HOSTNAME)
+	sudo darwin-rebuild switch --flake .#$(HOSTNAME) $(NIX_REBUILD_FLAGS)
 endif
+
+bootstrap: NIX_REBUILD_FLAGS += $(ATTIC_BOOTSTRAP_FLAGS)
+bootstrap: rebuild
 
 update:
 	nix flake update
