@@ -148,3 +148,33 @@ jobs:
             --header 'Content-Type: application/json' \
             --data "{\"Do\":\"rebase\",\"head_commit_id\":\"$PR_HEAD_SHA\"}" \
             "$API_URL/repos/$REPOSITORY/pulls/$PR_NUMBER/merge"
+
+  notify:
+    name: Notify successful build
+    if: forgejo.event_name == 'push'
+    needs: build
+    runs-on: nix-x86_64-linux
+    steps:
+      - name: Send notification
+        continue-on-error: true
+        env:
+          COMMITS_JSON: ${{ toJSON(forgejo.event.commits) }}
+          COMPARE_URL: ${{ forgejo.event.compare_url }}
+          NTFY_URL: ${{ secrets.NTFY_URL }}
+        run: |
+          : "${NTFY_URL:?NTFY_URL is unavailable in this workflow}"
+          commit_titles="$(
+            printf '%s' "$COMMITS_JSON" |
+              nix run nixpkgs#jq -- --raw-output '.[].message | split("\n")[0]'
+          )"
+
+          nix shell nixpkgs#curl --command curl \
+            --fail \
+            --silent \
+            --show-error \
+            --retry 3 \
+            --header 'Title: dotnix CI succeeded' \
+            --header 'Tags: heavy_check_mark,computer' \
+            --header "Click: $COMPARE_URL" \
+            --data "$commit_titles" \
+            "$NTFY_URL"
