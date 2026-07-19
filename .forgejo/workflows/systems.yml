@@ -44,18 +44,26 @@ jobs:
           - name: santibook
             runner: nix-aarch64-darwin
             system: aarch64-darwin
+            max_jobs: 2
+            cores: 2
             installable: .#darwinConfigurations.santibook.system
           - name: lisbon
             runner: nix-aarch64-darwin
             system: aarch64-darwin
+            max_jobs: 2
+            cores: 2
             installable: .#darwinConfigurations.lisbon.system
           - name: obsidian
             runner: nix-x86_64-linux
             system: x86_64-linux
+            max_jobs: 4
+            cores: 2
             installable: .#nixosConfigurations.obsidian.config.system.build.toplevel
           - name: ruby
             runner: nix-x86_64-linux
             system: x86_64-linux
+            max_jobs: 4
+            cores: 2
             installable: .#nixosConfigurations.ruby.config.system.build.toplevel
     runs-on: ${{ matrix.target.runner }}
     steps:
@@ -94,8 +102,8 @@ jobs:
           nix build \
             --out-link result \
             --print-out-paths \
-            --max-jobs 1 \
-            --cores 2 \
+            --max-jobs "${{ matrix.target.max_jobs }}" \
+            --cores "${{ matrix.target.cores }}" \
             "${{ matrix.target.installable }}"
 
       - name: Publish system closure
