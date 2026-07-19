@@ -3,7 +3,7 @@
 HOSTNAME := $(shell hostname)
 NIX_REBUILD_FLAGS :=
 ATTIC_URL := http://obsidian:8180/dotnix
-ATTIC_PUBLIC_KEY := dotnix:JTkDCW+G8IHsYFIX1dZrZPY1wmZYGiqLEOKhnKxYFdI=
+ATTIC_PUBLIC_KEY := dotnix:l60JA9kCmi7QH4e9UONJagnC7aqyJkJc++qsiKCYU6M=
 ATTIC_BOOTSTRAP_FLAGS := \
 	--option extra-substituters $(ATTIC_URL) \
 	--option extra-trusted-public-keys $(ATTIC_PUBLIC_KEY)

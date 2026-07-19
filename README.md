@@ -86,7 +86,7 @@ Clone and install. When `obsidian` is reachable, supply the cache settings expli
 git clone https://github.com/santikid/dotnix /mnt/.nix
 nixos-install --flake /mnt/.nix#<machine> \
   --option extra-substituters http://obsidian:8180/dotnix \
-  --option extra-trusted-public-keys 'dotnix:JTkDCW+G8IHsYFIX1dZrZPY1wmZYGiqLEOKhnKxYFdI='
+  --option extra-trusted-public-keys 'dotnix:l60JA9kCmi7QH4e9UONJagnC7aqyJkJc++qsiKCYU6M='
 ```
 
 ## Installing Asahi NixOS
