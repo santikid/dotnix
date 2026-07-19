@@ -2,7 +2,7 @@ name: Systems CI
 
 on:
   workflow_dispatch:
-  pull_request:
+  pull_request_target:
     branches:
       - main
     paths:
@@ -65,8 +65,18 @@ jobs:
           nix profile install nixpkgs#nodejs_24
           printf '%s\n' /root/.nix-profile/bin >> "$FORGEJO_PATH"
 
-      - name: Check out the repository
+      - name: Check out the pull request
+        if: forgejo.event_name == 'pull_request_target'
         uses: https://data.forgejo.org/actions/checkout@v6
+        with:
+          ref: ${{ forgejo.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Check out the repository
+        if: forgejo.event_name != 'pull_request_target'
+        uses: https://data.forgejo.org/actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Verify runner tools
         run: |
@@ -89,9 +99,9 @@ jobs:
             "${{ matrix.target.installable }}"
 
       - name: Publish system closure
-        # Ordinary PRs may read the cache, but only trusted runs may write to it.
+        # Only pushes, manual runs, and same-repository update PRs may write.
         if: >-
-          forgejo.event_name != 'pull_request' ||
+          forgejo.event_name != 'pull_request_target' ||
           (forgejo.event.pull_request.head.repo.full_name == forgejo.repository &&
           forgejo.event.pull_request.user.login == forgejo.repository_owner &&
           (forgejo.event.pull_request.title == 'flake: update llm-agents' ||
@@ -99,6 +109,7 @@ jobs:
         env:
           ATTIC_TOKEN: ${{ secrets.ATTIC_TOKEN }}
         run: |
+          : "${ATTIC_TOKEN:?ATTIC_TOKEN is unavailable in this workflow}"
           export XDG_CONFIG_HOME="$PWD/.ci-config"
           nix run nixpkgs#attic-client -- login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
           nix run nixpkgs#attic-client -- push forgejo:dotnix result
@@ -106,7 +117,7 @@ jobs:
   merge-update:
     name: Merge scheduled update
     if: >-
-      forgejo.event_name == 'pull_request' &&
+      forgejo.event_name == 'pull_request_target' &&
       forgejo.event.pull_request.head.repo.full_name == forgejo.repository &&
       forgejo.event.pull_request.user.login == forgejo.repository_owner &&
       (forgejo.event.pull_request.title == 'flake: update llm-agents' ||
@@ -127,6 +138,7 @@ jobs:
           REPOSITORY: ${{ forgejo.repository }}
           UPDATER_TOKEN: ${{ secrets.UPDATER_TOKEN }}
         run: |
+          : "${UPDATER_TOKEN:?UPDATER_TOKEN is unavailable in this workflow}"
           curl --fail --silent --show-error \
             --request POST \
             --header "Authorization: token $UPDATER_TOKEN" \
