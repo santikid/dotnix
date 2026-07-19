@@ -1,4 +1,4 @@
-.PHONY: all bootstrap check format rebuild rekey regenerate-keys update upgrade
+.PHONY: all bootstrap check format rebuild rekey regenerate-keys sync update upgrade
 
 HOSTNAME := $(shell hostname)
 NIX_REBUILD_FLAGS :=
@@ -45,10 +45,13 @@ ifeq ($(SYS_TYPE),Darwin)
 	sudo darwin-rebuild switch --flake .#$(HOSTNAME) $(NIX_REBUILD_FLAGS)
 endif
 
+sync:
+	git pull
+
 bootstrap: NIX_REBUILD_FLAGS += $(ATTIC_BOOTSTRAP_FLAGS)
 bootstrap: rebuild
 
 update:
 	nix flake update
 
-upgrade: update rebuild
+upgrade: sync rebuild
