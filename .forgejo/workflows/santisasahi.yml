@@ -1,0 +1,68 @@
+name: santisasahi CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".forgejo/workflows/santisasahi.yml"
+      - "flake.nix"
+      - "flake.lock"
+      - "hosts/santisasahi/**"
+      - "modules/**"
+      - "configs/**"
+
+concurrency:
+  group: santisasahi
+  cancel-in-progress: true
+
+env:
+  SANTISASAHI_FIRMWARELESS_CI: "1"
+  NIX_CONFIG: |
+    experimental-features = nix-command flakes
+    extra-substituters = http://obsidian:8180/dotnix
+    extra-trusted-public-keys = dotnix:l60JA9kCmi7QH4e9UONJagnC7aqyJkJc++qsiKCYU6M=
+
+jobs:
+  build:
+    name: Build santisasahi without peripheral firmware
+    runs-on: nix-aarch64-linux
+    steps:
+      - name: Check out the repository
+        uses: https://data.forgejo.org/actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Verify runner tools
+        run: |
+          node --version
+          nix --version
+          test "$SANTISASAHI_FIRMWARELESS_CI" = 1
+          test "$(nix eval --impure --raw --expr 'builtins.currentSystem')" = aarch64-linux
+
+      - name: Evaluate firmware-free system
+        run: |
+          nix eval \
+            --impure \
+            --raw \
+            .#nixosConfigurations.santisasahi.config.system.build.toplevel.drvPath
+          printf '\n'
+
+      - name: Build firmware-free system
+        run: |
+          nix build \
+            --impure \
+            --out-link result \
+            --print-out-paths \
+            --max-jobs 1 \
+            --cores 2 \
+            .#nixosConfigurations.santisasahi.config.system.build.toplevel
+
+      - name: Publish firmware-free system closure
+        env:
+          ATTIC_TOKEN: ${{ secrets.ATTIC_TOKEN }}
+        run: |
+          : "${ATTIC_TOKEN:?ATTIC_TOKEN is unavailable in this workflow}"
+          export XDG_CONFIG_HOME="$PWD/.ci-config"
+          nix run nixpkgs#attic-client -- login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
+          nix run nixpkgs#attic-client -- push forgejo:dotnix result
