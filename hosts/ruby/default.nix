@@ -32,6 +32,11 @@
 
   users.users.${user.name}.extraGroups = ["docker" "incus-admin"];
 
+  services.prometheus.exporters.node = {
+    enable = true;
+    port = 9100;
+  };
+
   nix.settings.trusted-users = ["root" "@wheel" user.name];
 
   systemd.network = {

@@ -49,6 +49,17 @@
 
   users.users.${user.name}.extraGroups = ["docker" "incus-admin"];
 
+  services.prometheus.exporters.node = {
+    enable = true;
+    port = 9100;
+  };
+
+  services.peerHealthcheck = {
+    enable = true;
+    topicFile = config.sops.secrets.ntfy_maintenance_topic.path;
+    targets.lisbon = "http://lisbon:9100/";
+  };
+
   services.cloudflared = {
     enable = true;
     tunnels = {
