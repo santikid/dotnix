@@ -75,6 +75,12 @@
         bucket = "dotnix-cache";
         endpoint = "https://s3.eu-central-003.backblazeb2.com";
       };
+      chunking = {
+        "nar-size-threshold" = 0;
+        "min-size" = 65536;
+        "avg-size" = 131072;
+        "max-size" = 262144;
+      };
       "garbage-collection" = {
         interval = "12 hours";
         "default-retention-period" = "90 days";
