@@ -2,8 +2,13 @@ keys:
   - &santi_age age1lmhxry5p45qz2m3lstvvhepdcjrf884kculesvgy7phvm4pnnsqqs63vfz
   - &machine_obsidian age1dhwlqn52rx9fte4kgugkpsdd7f256m38zfp7xaaclej5pm5sgdls906p9j
 creation_rules:
-  - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
+  - path_regex: ^secrets/obsidian\.yaml$
     key_groups:
-    - age:
-      - *santi_age
-      - *machine_obsidian
+      - age:
+          - *santi_age
+          - *machine_obsidian
+  - path_regex: ^secrets/ntfy\.yaml$
+    key_groups:
+      - age:
+          - *santi_age
+          - *machine_obsidian

@@ -80,7 +80,11 @@
     nixosHosts = {
       obsidian = {
         system = "x86_64-linux";
-        extraModules = [./modules/secrets.nix ./hosts/obsidian ./modules/linux/server.nix];
+        extraModules = [
+          ./hosts/obsidian
+          ./modules/linux/server.nix
+          ./modules/secrets/ntfy.nix
+        ];
       };
 
       ruby = {

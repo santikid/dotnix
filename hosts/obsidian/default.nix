@@ -6,6 +6,7 @@
 }: {
   imports = [
     ./hardware-configuration.nix
+    ./secrets.nix
   ];
 
   networking.useDHCP = true;

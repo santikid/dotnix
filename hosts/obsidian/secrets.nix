@@ -1,7 +1,7 @@
 {config, ...}: {
   sops = {
     age.generateKey = false;
-    defaultSopsFile = ../secrets/secrets.yaml;
+    defaultSopsFile = ../../secrets/obsidian.yaml;
     secrets = {
       cf_tunnel_obsidian = {};
       attic_jwt_secret = {};
