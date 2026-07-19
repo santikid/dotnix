@@ -1,14 +1,16 @@
 keys:
-  - &santi_age age1lmhxry5p45qz2m3lstvvhepdcjrf884kculesvgy7phvm4pnnsqqs63vfz
-  - &machine_obsidian age1dhwlqn52rx9fte4kgugkpsdd7f256m38zfp7xaaclej5pm5sgdls906p9j
+  - &santi age1lmhxry5p45qz2m3lstvvhepdcjrf884kculesvgy7phvm4pnnsqqs63vfz
+  - &obsidian age1dhwlqn52rx9fte4kgugkpsdd7f256m38zfp7xaaclej5pm5sgdls906p9j
+  - &lisbon age1wmscunfntut4fzem9zj0dxx4wpd2farrsj6qheuwg3mzlmep5ewq4fmejw
 creation_rules:
   - path_regex: ^secrets/obsidian\.yaml$
     key_groups:
       - age:
-          - *santi_age
-          - *machine_obsidian
+          - *santi
+          - *obsidian
   - path_regex: ^secrets/ntfy\.yaml$
     key_groups:
       - age:
-          - *santi_age
-          - *machine_obsidian
+          - *santi
+          - *obsidian
+          - *lisbon

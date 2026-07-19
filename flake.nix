@@ -73,7 +73,7 @@
       };
       lisbon = {
         system = "aarch64-darwin";
-        extraModules = [./hosts/lisbon ./modules/darwin/server.nix];
+        extraModules = [./hosts/lisbon ./modules/darwin/server.nix ./modules/secrets/ntfy.nix];
       };
     };
 
@@ -83,6 +83,7 @@
         extraModules = [
           ./hosts/obsidian
           ./modules/linux/server.nix
+          ./modules/linux/ntfy-maintenance-alerts.nix
           ./modules/secrets/ntfy.nix
         ];
       };

@@ -113,5 +113,15 @@
     interval = "monthly";
   };
 
+  services.ntfy-maintenance-alerts = {
+    enable = true;
+    topicFile = config.sops.secrets.ntfy_maintenance_topic.path;
+    systemdServices = [
+      "btrfs-scrub--"
+      "smartd"
+    ];
+    smartd.enable = true;
+  };
+
   system.stateVersion = "24.05";
 }

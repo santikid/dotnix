@@ -19,7 +19,6 @@ all:
 	@echo "no command supplied (bootstrap/check/format/rebuild/rekey/update/upgrade)"
 
 rekey:
-	gpg --recv-keys 644EFF248A9CA2D269C30A7A6AA809E3B3CCCA64
 	nix-shell -p sops --run "sops updatekeys secrets/*.yaml"
 
 regenerate-keys: rekey
