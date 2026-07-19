@@ -138,5 +138,5 @@ jobs:
             --request POST \
             --header "Authorization: token $UPDATER_TOKEN" \
             --header 'Content-Type: application/json' \
-            --data "{\"Do\":\"rebase\",\"delete_branch_after_merge\":true,\"head_commit_id\":\"$PR_HEAD_SHA\"}" \
+            --data "{\"Do\":\"rebase\",\"head_commit_id\":\"$PR_HEAD_SHA\"}" \
             "$API_URL/repos/$REPOSITORY/pulls/$PR_NUMBER/merge"
