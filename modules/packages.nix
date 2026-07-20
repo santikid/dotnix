@@ -12,7 +12,6 @@
     pkgs.htop
     pkgs.btop
     pkgs.mosh
-    pkgs.herdr
 
     # Development
     pkgs.python3

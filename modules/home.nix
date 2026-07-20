@@ -107,6 +107,15 @@
       };
     };
 
+    programs.herdr = {
+      enable = true;
+      settings = {
+        onboarding = false;
+        keys.prefix = "ctrl+a";
+        theme.name = "terminal";
+      };
+    };
+
     programs.tmux = {
       enable = true;
       prefix = "C-a";
