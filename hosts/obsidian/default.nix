@@ -5,6 +5,7 @@
   ...
 }: {
   imports = [
+    ./deploy.nix
     ./hardware-configuration.nix
     ./secrets.nix
   ];
