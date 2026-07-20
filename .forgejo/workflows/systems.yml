@@ -92,6 +92,18 @@ jobs:
           nix --version
           test "$(nix eval --impure --raw --expr 'builtins.currentSystem')" = "${{ matrix.target.system }}"
 
+      - name: Prepare Attic client
+        run: |
+          case "${{ matrix.target.system }}" in
+            *-darwin) configurations=darwinConfigurations ;;
+            *-linux) configurations=nixosConfigurations ;;
+            *) echo 'Unsupported runner system' >&2; exit 1 ;;
+          esac
+
+          nix build \
+            --out-link attic-client \
+            ".#$configurations.${{ matrix.target.name }}.pkgs.attic-client"
+
       - name: Evaluate system
         run: |
           nix eval --raw "${{ matrix.target.installable }}.drvPath"
@@ -119,8 +131,8 @@ jobs:
         run: |
           : "${ATTIC_TOKEN:?ATTIC_TOKEN is unavailable in this workflow}"
           export XDG_CONFIG_HOME="$PWD/.ci-config"
-          nix run nixpkgs#attic-client -- login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
-          nix run nixpkgs#attic-client -- push forgejo:dotnix result
+          ./attic-client/bin/attic login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
+          ./attic-client/bin/attic push forgejo:dotnix result
 
   merge-update:
     name: Merge scheduled update
@@ -153,35 +165,35 @@ jobs:
     name: Notify build result
     if: >-
       forgejo.event_name == 'push' &&
-      (success() || failure())
+      always()
     needs: build
     runs-on: nix-x86_64-linux
     steps:
-      - name: Configure successful notification
-        if: success()
-        run: |
-          printf '%s\n' \
-            'NTFY_TITLE=dotnix CI succeeded' \
-            'NTFY_TAGS=heavy_check_mark,computer' \
-            >> "$FORGEJO_ENV"
-
-      - name: Configure failed notification
-        if: failure()
-        run: |
-          printf '%s\n' \
-            'NTFY_TITLE=dotnix CI failed' \
-            'NTFY_TAGS=x,computer' \
-            >> "$FORGEJO_ENV"
-
       - name: Send notification
-        if: success() || failure()
+        if: always()
         continue-on-error: true
         env:
+          BUILD_RESULT: ${{ needs.build.result }}
           COMMITS_JSON: ${{ toJSON(forgejo.event.commits) }}
           COMPARE_URL: ${{ forgejo.event.compare_url }}
           NTFY_URL: ${{ secrets.NTFY_URL }}
         run: |
           : "${NTFY_URL:?NTFY_URL is unavailable in this workflow}"
+          case "$BUILD_RESULT" in
+            success)
+              ntfy_title='dotnix CI succeeded'
+              ntfy_tags='heavy_check_mark,computer'
+              ;;
+            cancelled)
+              ntfy_title='dotnix CI cancelled'
+              ntfy_tags='warning,computer'
+              ;;
+            *)
+              ntfy_title='dotnix CI failed'
+              ntfy_tags='x,computer'
+              ;;
+          esac
+
           commit_titles="$(
             printf '%s' "$COMMITS_JSON" |
               nix run nixpkgs#jq -- --raw-output '.[].message | split("\n")[0]'
@@ -192,8 +204,8 @@ jobs:
             --silent \
             --show-error \
             --retry 3 \
-            --header "Title: $NTFY_TITLE" \
-            --header "Tags: $NTFY_TAGS" \
+            --header "Title: $ntfy_title" \
+            --header "Tags: $ntfy_tags" \
             --header "Click: $COMPARE_URL" \
             --data "$commit_titles" \
             "$NTFY_URL"

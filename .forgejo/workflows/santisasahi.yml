@@ -78,35 +78,35 @@ jobs:
 
   notify:
     name: Notify santisasahi build result
-    if: success() || failure()
+    if: always()
     needs: build
     runs-on: nix-x86_64-linux
     steps:
-      - name: Configure successful notification
-        if: success()
-        run: |
-          printf '%s\n' \
-            'NTFY_TITLE=santisasahi CI succeeded' \
-            'NTFY_TAGS=heavy_check_mark,computer' \
-            >> "$FORGEJO_ENV"
-
-      - name: Configure failed notification
-        if: failure()
-        run: |
-          printf '%s\n' \
-            'NTFY_TITLE=santisasahi CI failed' \
-            'NTFY_TAGS=x,computer' \
-            >> "$FORGEJO_ENV"
-
       - name: Send notification
-        if: success() || failure()
+        if: always()
         continue-on-error: true
         env:
+          BUILD_RESULT: ${{ needs.build.result }}
           COMMITS_JSON: ${{ toJSON(forgejo.event.commits) }}
           COMPARE_URL: ${{ forgejo.event.compare_url }}
           NTFY_URL: ${{ secrets.NTFY_URL }}
         run: |
           : "${NTFY_URL:?NTFY_URL is unavailable in this workflow}"
+          case "$BUILD_RESULT" in
+            success)
+              ntfy_title='santisasahi CI succeeded'
+              ntfy_tags='heavy_check_mark,computer'
+              ;;
+            cancelled)
+              ntfy_title='santisasahi CI cancelled'
+              ntfy_tags='warning,computer'
+              ;;
+            *)
+              ntfy_title='santisasahi CI failed'
+              ntfy_tags='x,computer'
+              ;;
+          esac
+
           commit_titles="$(
             printf '%s' "$COMMITS_JSON" |
               nix run nixpkgs#jq -- --raw-output '.[].message | split("\n")[0]'
@@ -117,8 +117,8 @@ jobs:
             --silent \
             --show-error \
             --retry 3 \
-            --header "Title: $NTFY_TITLE" \
-            --header "Tags: $NTFY_TAGS" \
+            --header "Title: $ntfy_title" \
+            --header "Tags: $ntfy_tags" \
             --header "Click: $COMPARE_URL" \
             --data "$commit_titles" \
             "$NTFY_URL"
