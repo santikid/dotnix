@@ -41,6 +41,13 @@ jobs:
           test "$SANTISASAHI_FIRMWARELESS_CI" = 1
           test "$(nix eval --impure --raw --expr 'builtins.currentSystem')" = aarch64-linux
 
+      - name: Prepare Attic client
+        run: |
+          nix build \
+            --impure \
+            --out-link attic-client \
+            .#nixosConfigurations.santisasahi.pkgs.attic-client
+
       - name: Evaluate firmware-free system
         run: |
           nix eval \
@@ -66,8 +73,8 @@ jobs:
         run: |
           : "${ATTIC_TOKEN:?ATTIC_TOKEN is unavailable in this workflow}"
           export XDG_CONFIG_HOME="$PWD/.ci-config"
-          nix run nixpkgs#attic-client -- login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
-          nix run nixpkgs#attic-client -- push forgejo:dotnix result
+          ./attic-client/bin/attic login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
+          ./attic-client/bin/attic push forgejo:dotnix result
 
   notify:
     name: Notify santisasahi build result
