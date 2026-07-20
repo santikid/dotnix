@@ -18,11 +18,14 @@ Personal Nix flake for macOS, NixOS, Linux containers, and Asahi NixOS hosts.
 ```bash
 make format
 make check
+make bootstrap
 make rebuild
 make update
 make upgrade
 make rekey
 ```
+
+`make bootstrap` performs the first rebuild with the Attic substituter supplied explicitly. Once that configuration is active, regular `make rebuild` invocations use the cache automatically.
 
 `santisasahi` rebuilds use `--impure` because the Apple Silicon firmware lives outside the flake.
 
@@ -78,11 +81,13 @@ For a new host, generate hardware config:
 nixos-generate-config --root /mnt
 ```
 
-Clone and install:
+Clone and install. When `obsidian` is reachable, supply the cache settings explicitly so the initial installation can reuse CI artifacts before the installed configuration takes effect:
 
 ```bash
 git clone https://github.com/santikid/dotnix /mnt/.nix
-nixos-install --flake /mnt/.nix#<machine>
+nixos-install --flake /mnt/.nix#<machine> \
+  --option extra-substituters http://obsidian:8180/dotnix \
+  --option extra-trusted-public-keys 'dotnix:l60JA9kCmi7QH4e9UONJagnC7aqyJkJc++qsiKCYU6M='
 ```
 
 ## Installing Asahi NixOS

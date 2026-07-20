@@ -1,0 +1,199 @@
+name: Systems CI
+
+on:
+  workflow_dispatch:
+  pull_request_target:
+    branches:
+      - main
+    paths:
+      - ".forgejo/workflows/systems.yml"
+      - "flake.nix"
+      - "flake.lock"
+      - "hosts/lisbon/**"
+      - "hosts/obsidian/**"
+      - "hosts/ruby/**"
+      - "hosts/santibook/**"
+      - "modules/**"
+      - "configs/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".forgejo/workflows/systems.yml"
+      - "flake.nix"
+      - "flake.lock"
+      - "hosts/lisbon/**"
+      - "hosts/obsidian/**"
+      - "hosts/ruby/**"
+      - "hosts/santibook/**"
+      - "modules/**"
+      - "configs/**"
+
+env:
+  NIX_CONFIG: |
+    experimental-features = nix-command flakes
+    extra-substituters = http://obsidian:8180/dotnix
+    extra-trusted-public-keys = dotnix:l60JA9kCmi7QH4e9UONJagnC7aqyJkJc++qsiKCYU6M=
+
+jobs:
+  build:
+    name: Build ${{ matrix.target.name }}
+    strategy:
+      matrix:
+        target:
+          - name: santibook
+            runner: nix-aarch64-darwin
+            system: aarch64-darwin
+            max_jobs: 2
+            cores: 2
+            installable: .#darwinConfigurations.santibook.system
+          - name: lisbon
+            runner: nix-aarch64-darwin
+            system: aarch64-darwin
+            max_jobs: 2
+            cores: 2
+            installable: .#darwinConfigurations.lisbon.system
+          - name: obsidian
+            runner: nix-x86_64-linux
+            system: x86_64-linux
+            max_jobs: 4
+            cores: 2
+            installable: .#nixosConfigurations.obsidian.config.system.build.toplevel
+          - name: ruby
+            runner: nix-x86_64-linux
+            system: x86_64-linux
+            max_jobs: 4
+            cores: 2
+            installable: .#nixosConfigurations.ruby.config.system.build.toplevel
+    runs-on: ${{ matrix.target.runner }}
+    steps:
+      - name: Install Node.js for actions
+        if: matrix.target.system == 'x86_64-linux'
+        run: |
+          nix profile install nixpkgs#nodejs_24
+          printf '%s\n' /root/.nix-profile/bin >> "$FORGEJO_PATH"
+
+      - name: Check out the pull request
+        if: forgejo.event_name == 'pull_request_target'
+        uses: https://data.forgejo.org/actions/checkout@v6
+        with:
+          ref: ${{ forgejo.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Check out the repository
+        if: forgejo.event_name != 'pull_request_target'
+        uses: https://data.forgejo.org/actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Verify runner tools
+        run: |
+          node --version
+          nix --version
+          test "$(nix eval --impure --raw --expr 'builtins.currentSystem')" = "${{ matrix.target.system }}"
+
+      - name: Evaluate system
+        run: |
+          nix eval --raw "${{ matrix.target.installable }}.drvPath"
+          printf '\n'
+
+      - name: Build system
+        run: |
+          nix build \
+            --out-link result \
+            --print-out-paths \
+            --max-jobs "${{ matrix.target.max_jobs }}" \
+            --cores "${{ matrix.target.cores }}" \
+            "${{ matrix.target.installable }}"
+
+      - name: Publish system closure
+        # Only pushes, manual runs, and same-repository update PRs may write.
+        if: >-
+          forgejo.event_name != 'pull_request_target' ||
+          (forgejo.event.pull_request.head.repo.full_name == forgejo.repository &&
+          forgejo.event.pull_request.user.login == forgejo.repository_owner &&
+          (forgejo.event.pull_request.title == 'flake: update llm-agents' ||
+          forgejo.event.pull_request.title == 'flake: update all inputs'))
+        env:
+          ATTIC_TOKEN: ${{ secrets.ATTIC_TOKEN }}
+        run: |
+          : "${ATTIC_TOKEN:?ATTIC_TOKEN is unavailable in this workflow}"
+          export XDG_CONFIG_HOME="$PWD/.ci-config"
+          nix run nixpkgs#attic-client -- login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
+          nix run nixpkgs#attic-client -- push forgejo:dotnix result
+
+  merge-update:
+    name: Merge scheduled update
+    if: >-
+      forgejo.event_name == 'pull_request_target' &&
+      forgejo.event.pull_request.head.repo.full_name == forgejo.repository &&
+      forgejo.event.pull_request.user.login == forgejo.repository_owner &&
+      (forgejo.event.pull_request.title == 'flake: update llm-agents' ||
+      forgejo.event.pull_request.title == 'flake: update all inputs')
+    needs: build
+    runs-on: nix-x86_64-linux
+    steps:
+      - name: Merge update
+        env:
+          API_URL: ${{ forgejo.api_url }}
+          PR_HEAD_SHA: ${{ forgejo.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ forgejo.event.pull_request.number }}
+          REPOSITORY: ${{ forgejo.repository }}
+          UPDATER_TOKEN: ${{ secrets.UPDATER_TOKEN }}
+        run: |
+          : "${UPDATER_TOKEN:?UPDATER_TOKEN is unavailable in this workflow}"
+          nix shell nixpkgs#curl --command curl --fail --silent --show-error \
+            --request POST \
+            --header "Authorization: token $UPDATER_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data "{\"Do\":\"rebase\",\"head_commit_id\":\"$PR_HEAD_SHA\"}" \
+            "$API_URL/repos/$REPOSITORY/pulls/$PR_NUMBER/merge"
+
+  notify:
+    name: Notify build result
+    if: >-
+      forgejo.event_name == 'push' &&
+      (success() || failure())
+    needs: build
+    runs-on: nix-x86_64-linux
+    steps:
+      - name: Configure successful notification
+        if: success()
+        run: |
+          printf '%s\n' \
+            'NTFY_TITLE=dotnix CI succeeded' \
+            'NTFY_TAGS=heavy_check_mark,computer' \
+            >> "$FORGEJO_ENV"
+
+      - name: Configure failed notification
+        if: failure()
+        run: |
+          printf '%s\n' \
+            'NTFY_TITLE=dotnix CI failed' \
+            'NTFY_TAGS=x,computer' \
+            >> "$FORGEJO_ENV"
+
+      - name: Send notification
+        if: success() || failure()
+        continue-on-error: true
+        env:
+          COMMITS_JSON: ${{ toJSON(forgejo.event.commits) }}
+          COMPARE_URL: ${{ forgejo.event.compare_url }}
+          NTFY_URL: ${{ secrets.NTFY_URL }}
+        run: |
+          : "${NTFY_URL:?NTFY_URL is unavailable in this workflow}"
+          commit_titles="$(
+            printf '%s' "$COMMITS_JSON" |
+              nix run nixpkgs#jq -- --raw-output '.[].message | split("\n")[0]'
+          )"
+
+          nix shell nixpkgs#curl --command curl \
+            --fail \
+            --silent \
+            --show-error \
+            --retry 3 \
+            --header "Title: $NTFY_TITLE" \
+            --header "Tags: $NTFY_TAGS" \
+            --header "Click: $COMPARE_URL" \
+            --data "$commit_titles" \
+            "$NTFY_URL"

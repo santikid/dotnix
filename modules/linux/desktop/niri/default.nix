@@ -6,7 +6,7 @@
   user,
   ...
 }: let
-  ghosttyPalette = [
+  footPalette = [
     "0=#111318"
     "1=#ff7b8a"
     "2=#a7f3d0"
@@ -67,16 +67,13 @@
         default = "";
       };
     };
-    ghostty = {
-      themeName = "graphite-night";
-      theme = {
-        palette = ghosttyPalette;
-        background = "111318";
-        foreground = "f4f7fb";
-        cursor-color = "7dd3fc";
-        selection-background = "2d3443";
-        selection-foreground = "ffffff";
-      };
+    foot = {
+      palette = footPalette;
+      background = "111318";
+      foreground = "f4f7fb";
+      cursor-color = "7dd3fc";
+      selection-background = "2d3443";
+      selection-foreground = "ffffff";
     };
   };
   scripts = import ./lib/scripts.nix {
@@ -145,7 +142,7 @@ in {
     NIXOS_OZONE_WL = "1";
     QT_QPA_PLATFORM = "wayland";
     QT_QPA_PLATFORMTHEME = "gtk3";
-    TERMINAL = "ghostty";
+    TERMINAL = "foot";
     XDG_CURRENT_DESKTOP = "niri";
     XCURSOR_SIZE = toString niri.cursor.size;
     XCURSOR_THEME = niri.cursor.name;
@@ -255,18 +252,19 @@ in {
       };
     };
 
-    programs.ghostty = {
+    programs.foot = {
       enable = true;
-      enableZshIntegration = true;
       settings = {
-        theme = theme.ghostty.themeName;
-        "font-family" = theme.fonts.mono;
-        "font-size" = 12;
-        "window-padding-x" = 12;
-        "window-padding-y" = 10;
-      };
-      themes = {
-        ${theme.ghostty.themeName} = theme.ghostty.theme;
+        main = {
+          font = "${theme.fonts.mono}:size=12";
+          pad = "12x10";
+          term = "foot";
+        };
+        colors = {
+          background = theme.foot.background;
+          foreground = theme.foot.foreground;
+          palette = lib.concatStringsSep ";" theme.foot.palette;
+        };
       };
     };
 
@@ -340,7 +338,7 @@ in {
     };
 
     home.pointerCursor = {
-      gtk.enable = true;
+      enable = true;
       package = pkgs.bibata-cursors;
       name = theme.cursor.name;
       inherit (theme.cursor) size;

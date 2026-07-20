@@ -1,53 +1,37 @@
+local parsers = {
+	"astro",
+	"bash",
+	"css",
+	"html",
+	"javascript",
+	"json",
+	"json5",
+	"lua",
+	"markdown",
+	"markdown_inline",
+	"regex",
+	"rust",
+	"scss",
+	"svelte",
+	"tsx",
+	"typescript",
+}
+
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
+		branch = "main",
+		build = ":TSUpdate",
+		lazy = false,
 		config = function()
-			require("nvim-treesitter.configs").setup({
-				ensure_installed = {
-					"rust",
-					"javascript",
-					"typescript",
-					"tsx",
-					"json",
-					"json5",
-					"css",
-					"scss",
-					"html",
-					"astro",
-					"svelte",
-					"lua",
-					"regex",
-					"bash",
-					"markdown",
-					"markdown_inline",
-				},
+			local installed = require("nvim-treesitter.config").get_installed()
+			local missing = vim.tbl_filter(function(parser)
+				return not vim.list_contains(installed, parser)
+			end, parsers)
 
-				ignore_install = {},
-
-				modules = {},
-
-				auto_install = true,
-
-				-- Install parsers synchronously (only applied to `ensure_installed`)
-				sync_install = false,
-
-				highlight = {
-					-- `false` will disable the whole extension
-					enable = true,
-
-					additional_vim_regex_highlighting = false,
-				},
-
-				incremental_selection = {
-					enable = true,
-					keymaps = {
-						init_selection = "<CR>",
-						node_incremental = "<CR>",
-						scope_incremental = false,
-						node_decremental = "<BS>",
-					},
-				},
-			})
+			if #missing > 0 then
+				require("nvim-treesitter").install(missing)
+			end
 		end,
 	},
 	{

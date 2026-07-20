@@ -267,7 +267,7 @@
     sessionMenu = lib.getExe sessionMenu;
     swayidle = lib.getExe pkgs.swayidle;
     tailscale = lib.getExe pkgs.tailscale;
-    terminal = lib.getExe pkgs.ghostty;
+    terminal = lib.getExe' pkgs.foot "foot";
     waybar = lib.getExe pkgs.waybar;
     waybarBattery = lib.getExe waybarBattery;
     wlPaste = lib.getExe' pkgs.wl-clipboard "wl-paste";

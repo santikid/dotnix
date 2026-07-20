@@ -1,4 +1,7 @@
 {lib, ...}: let
+  firmwarelessCI =
+    builtins.getEnv "SANTISASAHI_FIRMWARELESS_CI" == "1";
+
   nixosDisk = "/dev/disk/by-label/nixos";
 
   btrfsSubvolume = subvol: {
@@ -26,7 +29,14 @@ in {
   zramSwap.enable = true;
 
   hardware = {
-    asahi.extractPeripheralFirmware = true;
+    asahi =
+      {
+        enable = true;
+        extractPeripheralFirmware = !firmwarelessCI;
+      }
+      // lib.optionalAttrs firmwarelessCI {
+        peripheralFirmwareDirectory = null;
+      };
     sensor.iio.enable = true;
     bluetooth.enable = true;
   };

@@ -1,7 +1,10 @@
 {
   description = "my nix flake";
+
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    llm-agents.url = "github:numtide/llm-agents.nix";
 
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -62,23 +65,42 @@
     darwinHosts = {
       santibook = {
         system = "aarch64-darwin";
-        extraModules = [./hosts/santibook ./modules/darwin/desktop.nix];
+        extraModules = [
+          ./hosts/santibook
+          ./modules/darwin/desktop.nix
+          ./modules/coding-agents.nix
+        ];
       };
       lisbon = {
         system = "aarch64-darwin";
-        extraModules = [./modules/secrets.nix ./hosts/lisbon ./modules/darwin/server.nix];
+        extraModules = [
+          ./hosts/lisbon
+          ./modules/darwin/server.nix
+          ./modules/healthchecks.nix
+          ./modules/secrets/ntfy.nix
+        ];
       };
     };
 
     nixosHosts = {
       obsidian = {
         system = "x86_64-linux";
-        extraModules = [./modules/secrets.nix ./hosts/obsidian ./modules/linux/server.nix];
+        extraModules = [
+          ./hosts/obsidian
+          ./modules/linux/server.nix
+          ./modules/healthchecks.nix
+          ./modules/linux/ntfy-maintenance-alerts.nix
+          ./modules/secrets/ntfy.nix
+        ];
       };
 
       ruby = {
         system = "x86_64-linux";
-        extraModules = [./hosts/ruby ./modules/linux/server.nix];
+        extraModules = [
+          ./hosts/ruby
+          ./modules/linux/server.nix
+          ./modules/coding-agents.nix
+        ];
       };
 
       razer = {
@@ -95,6 +117,7 @@
           nixos-apple-silicon.nixosModules.default
           ./hosts/santisasahi
           ./modules/linux/desktop/niri
+          ./modules/coding-agents.nix
         ];
       };
     };

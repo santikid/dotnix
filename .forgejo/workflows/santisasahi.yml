@@ -1,0 +1,117 @@
+name: santisasahi CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".forgejo/workflows/santisasahi.yml"
+      - "flake.nix"
+      - "flake.lock"
+      - "hosts/santisasahi/**"
+      - "modules/**"
+      - "configs/**"
+
+concurrency:
+  group: santisasahi
+  cancel-in-progress: true
+
+env:
+  SANTISASAHI_FIRMWARELESS_CI: "1"
+  NIX_CONFIG: |
+    experimental-features = nix-command flakes
+    extra-substituters = http://obsidian:8180/dotnix
+    extra-trusted-public-keys = dotnix:l60JA9kCmi7QH4e9UONJagnC7aqyJkJc++qsiKCYU6M=
+
+jobs:
+  build:
+    name: Build santisasahi without peripheral firmware
+    runs-on: nix-aarch64-linux
+    steps:
+      - name: Check out the repository
+        uses: https://data.forgejo.org/actions/checkout@v6
+        with:
+          token: ${{ forgejo.token }}
+          persist-credentials: false
+
+      - name: Verify runner tools
+        run: |
+          node --version
+          nix --version
+          test "$SANTISASAHI_FIRMWARELESS_CI" = 1
+          test "$(nix eval --impure --raw --expr 'builtins.currentSystem')" = aarch64-linux
+
+      - name: Evaluate firmware-free system
+        run: |
+          nix eval \
+            --impure \
+            --raw \
+            .#nixosConfigurations.santisasahi.config.system.build.toplevel.drvPath
+          printf '\n'
+
+      - name: Build firmware-free system
+        run: |
+          nix build \
+            --print-build-logs \
+            --impure \
+            --out-link result \
+            --print-out-paths \
+            --max-jobs 1 \
+            --cores 2 \
+            .#nixosConfigurations.santisasahi.config.system.build.toplevel
+
+      - name: Publish firmware-free system closure
+        env:
+          ATTIC_TOKEN: ${{ secrets.ATTIC_TOKEN }}
+        run: |
+          : "${ATTIC_TOKEN:?ATTIC_TOKEN is unavailable in this workflow}"
+          export XDG_CONFIG_HOME="$PWD/.ci-config"
+          nix run nixpkgs#attic-client -- login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
+          nix run nixpkgs#attic-client -- push forgejo:dotnix result
+
+  notify:
+    name: Notify santisasahi build result
+    if: success() || failure()
+    needs: build
+    runs-on: nix-x86_64-linux
+    steps:
+      - name: Configure successful notification
+        if: success()
+        run: |
+          printf '%s\n' \
+            'NTFY_TITLE=santisasahi CI succeeded' \
+            'NTFY_TAGS=heavy_check_mark,computer' \
+            >> "$FORGEJO_ENV"
+
+      - name: Configure failed notification
+        if: failure()
+        run: |
+          printf '%s\n' \
+            'NTFY_TITLE=santisasahi CI failed' \
+            'NTFY_TAGS=x,computer' \
+            >> "$FORGEJO_ENV"
+
+      - name: Send notification
+        if: success() || failure()
+        continue-on-error: true
+        env:
+          COMMITS_JSON: ${{ toJSON(forgejo.event.commits) }}
+          COMPARE_URL: ${{ forgejo.event.compare_url }}
+          NTFY_URL: ${{ secrets.NTFY_URL }}
+        run: |
+          : "${NTFY_URL:?NTFY_URL is unavailable in this workflow}"
+          commit_titles="$(
+            printf '%s' "$COMMITS_JSON" |
+              nix run nixpkgs#jq -- --raw-output '.[].message | split("\n")[0]'
+          )"
+
+          nix shell nixpkgs#curl --command curl \
+            --fail \
+            --silent \
+            --show-error \
+            --retry 3 \
+            --header "Title: $NTFY_TITLE" \
+            --header "Tags: $NTFY_TAGS" \
+            --header "Click: $COMPARE_URL" \
+            --data "$commit_titles" \
+            "$NTFY_URL"

@@ -1,26 +1,41 @@
 {
   lib,
+  pkgs,
   modulesPath,
   user,
   ...
 }: {
   imports = [
     "${modulesPath}/virtualisation/incus-virtual-machine.nix"
-    ../../modules/common/npm-global.nix
   ];
+
+  boot.loader.systemd-boot.configurationLimit = 5;
 
   networking = {
     dhcpcd.enable = false;
     useDHCP = false;
     useHostResolvConf = false;
     firewall = {
-      enable = true;
-      allowedTCPPorts = [];
+      enable = false;
       trustedInterfaces = ["tailscale0"];
     };
   };
 
   services.openssh.openFirewall = false;
+
+  virtualisation.docker.enable = true;
+  networking.nftables.enable = true;
+  systemd.services.docker.path = [pkgs.nftables];
+  virtualisation.docker.daemon.settings = {
+    "firewall-backend" = "nftables";
+  };
+
+  users.users.${user.name}.extraGroups = ["docker" "incus-admin"];
+
+  services.prometheus.exporters.node = {
+    enable = true;
+    port = 9100;
+  };
 
   nix.settings.trusted-users = ["root" "@wheel" user.name];
 
