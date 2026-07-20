@@ -8,7 +8,6 @@
 }: {
   imports = [
     ./hardware-configuration.nix
-    ../../modules/common/npm-global.nix
   ];
 
   nixpkgs.config.allowUnfreePredicate = pkg:
