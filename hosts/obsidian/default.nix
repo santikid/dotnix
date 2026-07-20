@@ -49,6 +49,10 @@
 
   users.users.${user.name}.extraGroups = ["docker" "incus-admin"];
 
+  home-manager.users.${user.name}.programs.zsh.shellAliases = {
+    repo = "git --git-dir=/srv/Repo --work-tree=/srv";
+  };
+
   services.prometheus.exporters.node = {
     enable = true;
     port = 9100;
