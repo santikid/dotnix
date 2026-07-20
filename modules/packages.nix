@@ -85,5 +85,51 @@
         tmux switch-client -t "$selected_name"
       '';
     })
+
+    (pkgs.writeShellApplication {
+      name = "hs";
+      runtimeInputs = [
+        pkgs.coreutils
+        pkgs.findutils
+        pkgs.fzf
+        pkgs.herdr
+        pkgs.jq
+      ];
+      text = ''
+        selected=''${1:-$(find ~/Projects/co ~/Projects/p ~/Projects/w -mindepth 1 -maxdepth 1 -type d | fzf)} || exit 0
+        [[ -n $selected ]] || exit 0
+
+        cd "$selected"
+        selected=$PWD
+        selected_name=''${selected##*/}
+
+        if ! workspaces=$(herdr workspace list 2>/dev/null); then
+          nohup herdr server </dev/null >/dev/null 2>&1 &
+          for ((attempt = 0; attempt < 50; attempt++)); do
+            workspaces=$(herdr workspace list 2>/dev/null) && break
+            sleep 0.1
+          done
+        fi
+
+        workspace_id=$(
+          jq -r --arg label "$selected_name" '
+            .result.workspaces
+            | map(select(.label == $label))
+            | first
+            | .workspace_id // empty
+          ' <<<"$workspaces"
+        )
+
+        if [[ -n $workspace_id ]]; then
+          herdr workspace focus "$workspace_id" >/dev/null
+        else
+          herdr workspace create --cwd "$selected" --label "$selected_name" --focus >/dev/null
+        fi
+
+        if [[ -z "''${HERDR_PANE_ID:-}" ]]; then
+          exec herdr
+        fi
+      '';
+    })
   ];
 }

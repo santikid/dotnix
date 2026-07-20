@@ -117,6 +117,7 @@
           previous_workspace = "prefix+i";
           switch_workspace = "prefix+shift+1..9";
         };
+        terminal.default_shell = "${pkgs.zsh}/bin/zsh";
         theme.name = "terminal";
       };
     };
