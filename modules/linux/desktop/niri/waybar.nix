@@ -8,20 +8,36 @@
     settings.mainBar = {
       layer = "top";
       position = "top";
-      height = 40;
-      spacing = 7;
+      height = 42;
+      spacing = 0;
       "modules-left" = niri.waybarModules.left;
       "modules-center" = niri.waybarModules.center;
       "modules-right" = niri.waybarModules.right;
 
-      "niri/workspaces" = {
-        format = "{icon}";
-        "format-icons" = theme.icons.workspace;
+      "group/status" = {
+        orientation = "horizontal";
+        modules = [
+          "tray"
+          "custom/clipboard"
+          "idle_inhibitor"
+        ];
       };
-      "custom/overview" = {
-        format = theme.icons.overview;
-        tooltip = false;
-        "on-click" = "${niri.commands.niri} msg action toggle-overview";
+      "group/controls" = {
+        orientation = "horizontal";
+        modules = [
+          "custom/power-profile"
+          "backlight"
+          "pulseaudio"
+          "custom/battery"
+        ];
+      };
+      "group/clock" = {
+        orientation = "horizontal";
+        modules = ["clock#date" "clock#time"];
+      };
+
+      "niri/workspaces" = {
+        format = "{index}";
       };
       tray = {
         spacing = 10;
@@ -40,25 +56,27 @@
         };
       };
       "custom/power-profile" = {
-        exec = "${niri.commands.powerprofilesctl} get";
-        format = "${theme.icons.power} {}";
+        exec = niri.commands.waybarPowerProfile;
+        format = "{text}";
         interval = 30;
+        "return-type" = "json";
         tooltip = true;
-        "tooltip-format" = "Power profile";
         "on-click" = niri.commands.powerProfileMenu;
       };
       backlight = {
-        format = "{icon} {percent}%";
+        format = "{icon}  {percent}%";
         "format-icons" = theme.icons.brightness;
         "on-scroll-up" = "${niri.commands.brightnessctl} set +5%";
         "on-scroll-down" = "${niri.commands.brightnessctl} set 5%-";
       };
       pulseaudio = {
-        format = "{icon} {volume}%";
+        format = "{icon}  {volume}%";
         "format-muted" = theme.icons.volumeMuted;
         "format-icons".default = theme.icons.volume;
-        "on-click" = niri.commands.pavucontrol;
-        "on-click-right" = "${niri.commands.wpctl} set-mute @DEFAULT_AUDIO_SINK@ toggle";
+        "tooltip-format" = "{desc} · {volume}%\nClick: audio controls · Right click: advanced mixer";
+        "on-click" = niri.commands.audioMenu;
+        "on-click-middle" = niri.commands.pavucontrol;
+        "on-click-right" = niri.commands.pavucontrol;
         "on-scroll-up" = "${niri.commands.wpctl} set-volume @DEFAULT_AUDIO_SINK@ 0.05+ -l 1.0";
         "on-scroll-down" = "${niri.commands.wpctl} set-volume @DEFAULT_AUDIO_SINK@ 0.05-";
       };
@@ -68,87 +86,161 @@
         "return-type" = "json";
         "on-click" = niri.commands.powerProfileMenu;
       };
-      clock = {
-        format = "{:%a %b %d  %H:%M}";
+      "clock#date" = {
+        format = "{:%a, %d %b}";
+        "tooltip-format" = "{:%A, %B %d, %Y}";
+      };
+      "clock#time" = {
+        format = "{:%H:%M}";
         "tooltip-format" = "{:%A, %B %d, %Y}";
       };
     };
 
     style = ''
-            * {
-              border: none;
-              font-family: ${theme.fonts.ui}, "Symbols Nerd Font", "Symbols Nerd Font Mono", sans-serif;
-              font-size: 12px;
-              font-weight: 600;
-              min-height: 0;
-            }
+      * {
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        text-shadow: none;
+        font-family: ${theme.fonts.ui}, "Symbols Nerd Font", "Symbols Nerd Font Mono", sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        min-height: 0;
+      }
 
-            window#waybar {
-              background: ${theme.colors.bar};
-              border-bottom: 1px solid ${theme.colors.barBorder};
-              color: ${theme.colors.text};
-              padding: 0 12px;
-            }
+      window#waybar {
+        background: ${theme.colors.bar};
+        border-bottom: 1px solid ${theme.colors.barBorder};
+        color: ${theme.colors.text};
+      }
 
-      ${niri.cssSelector niri.waybarStyledSelectors} {
-              margin: 6px 0;
-              padding: 0 12px;
-              border-radius: 8px;
-              background: ${theme.colors.surface};
-            }
+      tooltip {
+        background: ${theme.colors.bar};
+        border: 1px solid ${theme.colors.barBorder};
+        border-radius: 9px;
+      }
 
-            #custom-overview:hover,
-            #custom-clipboard:hover,
-            #custom-power-profile:hover,
-            #idle_inhibitor:hover,
-            #backlight:hover,
-            #workspaces button:hover {
-              background: ${theme.colors.surfaceHover};
-            }
+      tooltip label {
+        color: ${theme.colors.text};
+        padding: 2px 4px;
+      }
 
-            #custom-overview,
-            #custom-clipboard,
-            #idle_inhibitor {
-              min-width: 24px;
-              padding-left: 8px;
-              padding-right: 8px;
-            }
+      #group-status,
+      #group-controls,
+      #group-clock {
+        background: transparent;
+      }
 
-            #workspaces button {
-              min-width: 24px;
-              margin: 0 1px;
-              padding: 0 6px;
-              border-radius: 7px;
-              color: ${theme.colors.muted};
-            }
+      #group-controls,
+      #group-clock {
+        margin-left: 6px;
+        border-left: 1px solid ${theme.colors.barBorder};
+      }
 
-            #workspaces button.active {
-              background: ${theme.colors.selected};
-              color: ${theme.colors.selectedText};
-            }
+      #custom-clipboard,
+      #idle_inhibitor,
+      #custom-power-profile,
+      #backlight,
+      #pulseaudio,
+      #custom-battery,
+      #clock.date,
+      #clock.time {
+        min-height: 42px;
+      }
 
-            #idle_inhibitor,
-            #tray {
-              color: ${theme.colors.muted};
-            }
+      #workspaces {
+        margin-left: 32px;
+        padding: 0;
+      }
 
-            #idle_inhibitor.activated,
-            #custom-power-profile {
-              color: ${theme.colors.accent};
-            }
+      #workspaces button {
+        min-width: 17px;
+        margin: 0;
+        padding: 0 8px;
+        border-bottom: 2px solid transparent;
+        background: transparent;
+        color: ${theme.colors.dim};
+        font-weight: 600;
+        transition: background-color 120ms ease, color 120ms ease;
+      }
 
-            #clock {
-              min-width: 112px;
-            }
+      #workspaces button.active {
+        border-bottom-color: ${theme.colors.accent};
+        color: ${theme.colors.text};
+        font-weight: 700;
+      }
 
-            #pulseaudio.muted,
-            #custom-battery.warning {
-              color: ${theme.colors.warning};
-            }
+      #workspaces button.urgent {
+        border-bottom-color: ${theme.colors.critical};
+        color: ${theme.colors.critical};
+      }
 
-            #custom-battery.critical {
-              color: ${theme.colors.critical};
-            }
+      #custom-clipboard:hover,
+      #custom-power-profile:hover,
+      #idle_inhibitor:hover,
+      #backlight:hover,
+      #pulseaudio:hover,
+      #custom-battery:hover,
+      #workspaces button:hover {
+        background: ${theme.colors.surfaceHover};
+      }
+
+      #custom-clipboard,
+      #idle_inhibitor,
+      #custom-power-profile {
+        min-width: 18px;
+        padding: 0 10px;
+      }
+
+      #idle_inhibitor,
+      #tray {
+        color: ${theme.colors.muted};
+      }
+
+      #tray {
+        padding: 0 10px;
+      }
+
+      #backlight,
+      #pulseaudio,
+      #custom-battery {
+        padding: 0 10px;
+      }
+
+      #idle_inhibitor.activated,
+      #custom-power-profile.power-saver,
+      #custom-battery.charging,
+      #custom-battery.plugged {
+        color: ${theme.colors.accent};
+      }
+
+      #custom-power-profile.balanced {
+        color: ${theme.colors.muted};
+      }
+
+      #custom-power-profile.performance,
+      #pulseaudio.muted,
+      #custom-battery.warning {
+        color: ${theme.colors.warning};
+      }
+
+      #custom-battery.critical {
+        color: ${theme.colors.critical};
+      }
+
+      #clock.date {
+        padding: 0 5px 0 12px;
+        color: ${theme.colors.muted};
+        font-weight: 500;
+      }
+
+      #clock.time {
+        min-width: 34px;
+        margin-right: 32px;
+        padding: 0 0 0 8px;
+        color: ${theme.colors.text};
+        font-weight: 700;
+      }
     '';
   };
 }
