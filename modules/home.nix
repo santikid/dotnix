@@ -111,7 +111,12 @@
       enable = true;
       settings = {
         onboarding = false;
-        keys.prefix = "ctrl+a";
+        keys = {
+          prefix = "ctrl+a";
+          next_workspace = "prefix+u";
+          previous_workspace = "prefix+i";
+          switch_workspace = "prefix+shift+1..9";
+        };
         theme.name = "terminal";
       };
     };
