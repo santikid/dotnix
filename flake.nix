@@ -100,6 +100,7 @@
           ./hosts/ruby
           ./modules/linux/server.nix
           ./modules/coding-agents.nix
+          ./modules/pi.nix
         ];
       };
 

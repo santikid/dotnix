@@ -1,0 +1,31 @@
+{
+  "permission": {
+    "*": "allow",
+    "path": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow",
+      "~/.aws/*": "deny",
+      "~/.config/gh/hosts.yml": "deny",
+      "~/.gnupg/*": "deny",
+      "~/.netrc": "deny",
+      "~/.npmrc": "deny",
+      "~/.pi/agent/auth.json": "deny",
+      "~/.ssh/*": "deny"
+    },
+    "bash": {
+      "*": "allow",
+      "git clean": "ask",
+      "git clean *": "ask",
+      "git push": "ask",
+      "git push *": "ask",
+      "git reset --hard *": "ask",
+      "nix-collect-garbage *": "ask",
+      "rm -r *": "ask",
+      "rm -rf *": "ask",
+      "sudo *": "ask"
+    },
+    "external_directory": "ask"
+  }
+}
