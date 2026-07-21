@@ -33,6 +33,7 @@
     pkgs.rust-analyzer
     pkgs.pkg-config
     pkgs.bacon
+    pkgs.lazygit
 
     # Media and backup
     pkgs.ffmpeg
