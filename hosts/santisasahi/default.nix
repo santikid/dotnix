@@ -45,7 +45,10 @@ in {
     configurationLimit = 8;
   };
   boot.loader.efi.canTouchEfiVariables = false;
-  boot.kernelParams = ["appledrm.show_notch=1"];
+  boot.kernelParams = [
+    "appledrm.show_notch=1"
+    "hid_apple.fnmode=2"
+  ];
 
   networking.networkmanager = {
     enable = true;
