@@ -82,8 +82,8 @@
 
   actionBinds = mapBinds {
     "${modifier}+Shift+Slash" = {show-hotkey-overlay = [];};
-    "${modifier}+BracketLeft" = {consume-or-expel-window-left = [];};
-    "${modifier}+BracketRight" = {consume-or-expel-window-right = [];};
+    "${modifier}+Comma" = {consume-or-expel-window-left = [];};
+    "${modifier}+Period" = {consume-or-expel-window-right = [];};
     "${modifier}+R" = {switch-preset-column-width = [];};
     "${modifier}+Shift+R" = {switch-preset-column-width-back = [];};
     "${modifier}+M" = {maximize-window-to-edges = [];};
