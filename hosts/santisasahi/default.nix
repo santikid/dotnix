@@ -2,11 +2,9 @@
   config,
   lib,
   pkgs,
-  inputs,
   user,
   ...
 }: let
-  system = pkgs.stdenv.hostPlatform.system;
   asahiPkgs = config.hardware.asahi.pkgs;
 
   fairydustKernel =
@@ -89,10 +87,9 @@ in {
       polkitPolicyOwners = [user.name];
     };
   };
-  users.users.${user.name}.extraGroups = ["librepods"];
+  users.users.${user.name}.extraGroups = ["librepods" "networkmanager"];
 
   environment.systemPackages = with pkgs; [
-    inputs.zen-browser.packages.${system}.default
     (chromium.override {
       enableWideVine = true;
     })

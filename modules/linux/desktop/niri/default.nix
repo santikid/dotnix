@@ -6,6 +6,7 @@
   user,
   ...
 }: let
+  browserPackage = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default;
   footPalette = [
     "0=#111318"
     "1=#ff7b8a"
@@ -52,16 +53,15 @@
       clipboard = "";
       idleActive = "";
       idleInactive = "";
-      power = {
-        saver = "";
-        balanced = "";
-        performance = "";
-        unknown = "";
-      };
       charging = "";
       brightness = [""];
       volumeMuted = "󰍟";
       volume = ["" "" ""];
+      network = {
+        disconnected = "󰤭";
+        ethernet = "󰈀";
+        wifi = ["󰤯" "󰤟" "󰤢" "󰤥" "󰤨"];
+      };
       battery = ["" "" "" "" ""];
       plugged = "";
     };
@@ -75,7 +75,7 @@
     };
   };
   scripts = import ./lib/scripts.nix {
-    inherit config lib pkgs theme;
+    inherit browserPackage config lib pkgs theme;
   };
   binds = import ./lib/binds.nix {
     inherit lib;
@@ -89,6 +89,7 @@ in {
 
   environment.systemPackages = [
     pkgs.brightnessctl
+    browserPackage
     pkgs.cliphist
     pkgs.fuzzel
     pkgs.grim
@@ -96,7 +97,6 @@ in {
     pkgs.localsend
     pkgs.mako
     pkgs.nautilus
-    pkgs.networkmanagerapplet
     pkgs.wdisplays
     pkgs.pavucontrol
     pkgs.playerctl
@@ -114,8 +114,6 @@ in {
   };
 
   programs.dconf.enable = true;
-  programs.firefox.enable = true;
-
   services.greetd = {
     enable = true;
     settings.default_session.command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-user-session --cmd ${config.programs.niri.package}/bin/niri-session";
@@ -136,6 +134,7 @@ in {
   };
 
   environment.sessionVariables = {
+    BROWSER = niri.commands.browser;
     MOZ_ENABLE_WAYLAND = "1";
     NIXOS_OZONE_WL = "1";
     QT_QPA_PLATFORM = "wayland";
@@ -217,7 +216,6 @@ in {
 
         spawn-at-startup = [
           {argv = [niri.commands.mako];}
-          {argv = [niri.commands.nmApplet "--indicator"];}
           (niri.cliphistWatcher "text")
           (niri.cliphistWatcher "image")
           {
@@ -399,10 +397,12 @@ in {
     xdg.mimeApps = {
       enable = true;
       defaultApplications = {
+        "application/vnd.mozilla.xul+xml" = ["zen-beta.desktop"];
+        "application/xhtml+xml" = ["zen-beta.desktop"];
         "inode/directory" = ["org.gnome.Nautilus.desktop"];
-        "text/html" = ["firefox.desktop"];
-        "x-scheme-handler/http" = ["firefox.desktop"];
-        "x-scheme-handler/https" = ["firefox.desktop"];
+        "text/html" = ["zen-beta.desktop"];
+        "x-scheme-handler/http" = ["zen-beta.desktop"];
+        "x-scheme-handler/https" = ["zen-beta.desktop"];
       };
     };
   };

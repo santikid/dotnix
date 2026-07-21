@@ -18,6 +18,7 @@
         orientation = "horizontal";
         modules = [
           "tray"
+          "network"
           "custom/clipboard"
           "idle_inhibitor"
         ];
@@ -25,7 +26,6 @@
       "group/controls" = {
         orientation = "horizontal";
         modules = [
-          "custom/power-profile"
           "backlight"
           "pulseaudio"
           "custom/battery"
@@ -42,6 +42,21 @@
       tray = {
         spacing = 10;
       };
+      network = {
+        "format-wifi" = "{icon}";
+        "format-ethernet" = theme.icons.network.ethernet;
+        "format-linked" = theme.icons.network.ethernet;
+        "format-disconnected" = theme.icons.network.disconnected;
+        "format-disabled" = theme.icons.network.disconnected;
+        "format-icons" = theme.icons.network.wifi;
+        "tooltip-format" = "{ifname}\nClick: networks · Right click: advanced settings";
+        "tooltip-format-wifi" = "{essid} · {signalStrength}%\n{ipaddr}/{cidr}\nClick: networks · Right click: advanced settings";
+        "tooltip-format-ethernet" = "{ifname} · Ethernet\n{ipaddr}/{cidr}\nClick: networks · Right click: advanced settings";
+        "tooltip-format-disconnected" = "Network disconnected\nClick: networks · Right click: advanced settings";
+        "tooltip-format-disabled" = "Wi-Fi off\nClick: networks · Right click: advanced settings";
+        "on-click" = niri.commands.networkMenu;
+        "on-click-right" = niri.commands.nmConnectionEditor;
+      };
       "custom/clipboard" = {
         format = theme.icons.clipboard;
         tooltip = true;
@@ -54,14 +69,6 @@
           activated = theme.icons.idleActive;
           deactivated = theme.icons.idleInactive;
         };
-      };
-      "custom/power-profile" = {
-        exec = niri.commands.waybarPowerProfile;
-        format = "{text}";
-        interval = 30;
-        "return-type" = "json";
-        tooltip = true;
-        "on-click" = niri.commands.powerProfileMenu;
       };
       backlight = {
         format = "{icon}  {percent}%";
@@ -138,8 +145,8 @@
       }
 
       #custom-clipboard,
+      #network,
       #idle_inhibitor,
-      #custom-power-profile,
       #backlight,
       #pulseaudio,
       #custom-battery,
@@ -176,7 +183,7 @@
       }
 
       #custom-clipboard:hover,
-      #custom-power-profile:hover,
+      #network:hover,
       #idle_inhibitor:hover,
       #backlight:hover,
       #pulseaudio:hover,
@@ -186,15 +193,21 @@
       }
 
       #custom-clipboard,
-      #idle_inhibitor,
-      #custom-power-profile {
+      #network,
+      #idle_inhibitor {
         min-width: 18px;
         padding: 0 10px;
       }
 
+      #network,
       #idle_inhibitor,
       #tray {
         color: ${theme.colors.muted};
+      }
+
+      #network.disconnected,
+      #network.disabled {
+        color: ${theme.colors.dim};
       }
 
       #tray {
@@ -208,17 +221,11 @@
       }
 
       #idle_inhibitor.activated,
-      #custom-power-profile.power-saver,
       #custom-battery.charging,
       #custom-battery.plugged {
         color: ${theme.colors.accent};
       }
 
-      #custom-power-profile.balanced {
-        color: ${theme.colors.muted};
-      }
-
-      #custom-power-profile.performance,
       #pulseaudio.muted,
       #custom-battery.warning {
         color: ${theme.colors.warning};

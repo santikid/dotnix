@@ -1,4 +1,5 @@
 {
+  browserPackage,
   config,
   lib,
   pkgs,
@@ -303,6 +304,340 @@
     '';
   };
 
+  networkMenu = pkgs.writeShellApplication {
+    name = "network-menu";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.fuzzel
+      pkgs.libnotify
+      pkgs.networkmanager
+      pkgs.networkmanagerapplet
+    ];
+    text = ''
+      split_nmcli_line() {
+        local input="$1"
+        local character=""
+        local field=""
+        local escaped=0
+        local index
+
+        nmcli_fields=()
+        for ((index = 0; index < ''${#input}; index++)); do
+          character="''${input:index:1}"
+          if (( escaped )); then
+            field+="$character"
+            escaped=0
+          elif [[ "$character" == "\\" ]]; then
+            escaped=1
+          elif [[ "$character" == ':' ]]; then
+            nmcli_fields+=("$field")
+            field=""
+          else
+            field+="$character"
+          fi
+        done
+        nmcli_fields+=("$field")
+      }
+
+      display_text() {
+        local value="$1"
+        value="''${value//$'\n'/ }"
+        value="''${value//$'\r'/ }"
+        value="''${value//$'\t'/ }"
+        printf '%s' "$value"
+      }
+
+      signal_icon() {
+        local signal="$1"
+
+        if (( signal < 20 )); then
+          printf '%s' '${builtins.elemAt icons.network.wifi 0}'
+        elif (( signal < 40 )); then
+          printf '%s' '${builtins.elemAt icons.network.wifi 1}'
+        elif (( signal < 60 )); then
+          printf '%s' '${builtins.elemAt icons.network.wifi 2}'
+        elif (( signal < 80 )); then
+          printf '%s' '${builtins.elemAt icons.network.wifi 3}'
+        else
+          printf '%s' '${builtins.elemAt icons.network.wifi 4}'
+        fi
+      }
+
+      notify_error() {
+        local message="$1"
+        notify-send --app-name=network-menu --urgency=critical "Network connection failed" "$message"
+      }
+
+      notify_connected() {
+        notify-send --app-name=network-menu "Connected" "$(display_text "$1")"
+      }
+
+      profile_uuid_for_ssid() {
+        local ssid="$1"
+        local index
+
+        for index in "''${!saved_ssids[@]}"; do
+          if [[ "''${saved_ssids[$index]}" == "$ssid" ]]; then
+            printf '%s' "''${saved_uuids[$index]}"
+            return 0
+          fi
+        done
+
+        return 1
+      }
+
+      prompt_password() {
+        local ssid="$1"
+
+        fuzzel \
+          --config=${fuzzelMenuConfig} \
+          --dmenu \
+          --prompt-only='Password  ' \
+          --password \
+          --mesg="Connect to $(display_text "$ssid")" \
+          --width=36
+      }
+
+      connect_network() {
+        local ssid="$1"
+        local security="$2"
+        local is_active="$3"
+        local profile_uuid="$4"
+        local output=""
+        local password=""
+
+        if (( is_active )); then
+          notify-send --app-name=network-menu "Already connected" "$(display_text "$ssid")"
+          return
+        fi
+
+        if [[ -n "$profile_uuid" ]]; then
+          if output="$(nmcli --ask --wait 30 connection up uuid "$profile_uuid" </dev/null 2>&1)"; then
+            notify_connected "$ssid"
+            return
+          fi
+        fi
+
+        if [[ -z "$security" || "$security" == "--" ]]; then
+          if output="$(nmcli --ask --wait 30 device wifi connect "$ssid" </dev/null 2>&1)"; then
+            notify_connected "$ssid"
+          else
+            notify_error "$output"
+          fi
+          return
+        fi
+
+        if [[ "$security" == *"802.1X"* || "$security" == *"EAP"* ]]; then
+          notify-send \
+            --app-name=network-menu \
+            "Enterprise Wi-Fi requires advanced settings" \
+            "Right-click the network icon to configure $(display_text "$ssid")"
+          return
+        fi
+
+        password="$(prompt_password "$ssid")" || return 0
+        [[ -n "$password" ]] || return
+
+        if output="$(printf '%s\n' "$password" | nmcli --ask --wait 30 device wifi connect "$ssid" 2>&1)"; then
+          notify_connected "$ssid"
+        else
+          notify_error "$output"
+        fi
+      }
+
+      wifi_state="$(nmcli radio wifi 2>/dev/null || true)"
+      if [[ "$wifi_state" != "enabled" && "$wifi_state" != "disabled" ]]; then
+        notify_error "NetworkManager is unavailable"
+        exit 1
+      fi
+
+      active_ssid=""
+      declare -a saved_ssids=()
+      declare -a saved_uuids=()
+      declare -a ssids=()
+      declare -a signals=()
+      declare -a securities=()
+      declare -a active=()
+      declare -a profile_uuids=()
+
+      while IFS= read -r line; do
+        [[ -n "$line" ]] || continue
+        split_nmcli_line "$line"
+        (( ''${#nmcli_fields[@]} >= 3 )) || continue
+
+        profile_uuid="''${nmcli_fields[1]}"
+        profile_type="''${nmcli_fields[2]}"
+        case "$profile_type" in
+          wifi | 802-11-wireless) ;;
+          *) continue ;;
+        esac
+
+        profile_ssid_line="$(
+          nmcli \
+            --terse \
+            --escape yes \
+            --get-values 802-11-wireless.ssid \
+            connection show uuid "$profile_uuid" \
+            2>/dev/null || true
+        )"
+        [[ -n "$profile_ssid_line" ]] || continue
+        split_nmcli_line "$profile_ssid_line"
+        (( ''${#nmcli_fields[@]} >= 1 )) || continue
+
+        profile_ssid="''${nmcli_fields[0]}"
+        [[ -n "$profile_ssid" ]] || continue
+        saved_ssids+=("$profile_ssid")
+        saved_uuids+=("$profile_uuid")
+      done < <(nmcli --terse --escape yes --fields NAME,UUID,TYPE connection show 2>/dev/null)
+
+      if [[ "$wifi_state" == "enabled" ]]; then
+        while IFS= read -r line; do
+          [[ -n "$line" ]] || continue
+          split_nmcli_line "$line"
+          (( ''${#nmcli_fields[@]} >= 4 )) || continue
+
+          in_use="''${nmcli_fields[0]}"
+          ssid="''${nmcli_fields[1]}"
+          signal="''${nmcli_fields[2]}"
+          security="''${nmcli_fields[3]}"
+          [[ -n "$ssid" && "$signal" =~ ^[0-9]+$ ]] || continue
+          profile_uuid="$(profile_uuid_for_ssid "$ssid" || true)"
+
+          existing_index=-1
+          for index in "''${!ssids[@]}"; do
+            if [[ "''${ssids[$index]}" == "$ssid" ]]; then
+              existing_index="$index"
+              break
+            fi
+          done
+
+          if (( existing_index >= 0 )); then
+            if (( signal > signals[existing_index] )); then
+              signals[existing_index]="$signal"
+              securities[existing_index]="$security"
+              profile_uuids[existing_index]="$profile_uuid"
+            fi
+            if [[ "$in_use" == "*" ]]; then
+              active[existing_index]=1
+              active_ssid="$ssid"
+            fi
+            continue
+          fi
+
+          ssids+=("$ssid")
+          signals+=("$signal")
+          securities+=("$security")
+          profile_uuids+=("$profile_uuid")
+          if [[ "$in_use" == "*" ]]; then
+            active+=(1)
+            active_ssid="$ssid"
+          else
+            active+=(0)
+          fi
+        done < <(nmcli --wait 15 --terse --escape yes --fields IN-USE,SSID,SIGNAL,SECURITY device wifi list --rescan auto 2>/dev/null)
+      fi
+
+      if [[ "$wifi_state" == "enabled" ]]; then
+        toggle_label='󰖪   Turn Wi-Fi off'
+        if [[ -n "$active_ssid" ]]; then
+          menu_status="Wi-Fi  ·  $(display_text "$active_ssid")"
+        elif (( ''${#ssids[@]} == 0 )); then
+          menu_status='Wi-Fi  ·  No networks found'
+        else
+          menu_status='Wi-Fi  ·  Not connected'
+        fi
+      else
+        toggle_label='${icons.network.disconnected}   Turn Wi-Fi on'
+        menu_status='Wi-Fi  ·  Off'
+      fi
+
+      row_count=$((''${#ssids[@]} + 3))
+      visible_lines="$row_count"
+      (( visible_lines > 12 )) && visible_lines=12
+      selected_index=0
+      for index in "''${!active[@]}"; do
+        if (( active[index] )); then
+          selected_index=$((index + 2))
+          break
+        fi
+      done
+
+      choice="$(
+        {
+          printf '%s\n' "$toggle_label"
+          printf '   Scan again\n'
+
+          for index in "''${!ssids[@]}"; do
+            ssid="$(display_text "''${ssids[$index]}")"
+            security="''${securities[$index]}"
+            signal="''${signals[$index]}"
+            icon="$(signal_icon "$signal")"
+
+            if [[ -n "$security" && "$security" != "--" ]]; then
+              lock='  '
+            else
+              lock=""
+            fi
+
+            if (( active[index] )); then
+              printf '✓  %s   %s%s  ·  %s%%\n' "$icon" "$ssid" "$lock" "$signal"
+            else
+              printf '   %s   %s%s  ·  %s%%\n' "$icon" "$ssid" "$lock" "$signal"
+            fi
+          done
+
+          printf '   Advanced settings\n'
+        } |
+          fuzzel \
+            --config=${fuzzelMenuConfig} \
+            --dmenu \
+            --index \
+            --no-sort \
+            --minimal-lines \
+            --only-match \
+            --hide-prompt \
+            --mesg="$menu_status" \
+            --select-index="$selected_index" \
+            --width=42 \
+            --lines="$visible_lines"
+      )" || exit 0
+      [[ "$choice" =~ ^[0-9]+$ ]] || exit 0
+
+      if (( choice == 0 )); then
+        if [[ "$wifi_state" == "enabled" ]]; then
+          if ! output="$(nmcli --ask radio wifi off </dev/null 2>&1)"; then
+            notify_error "$output"
+          fi
+        else
+          if output="$(nmcli --ask radio wifi on </dev/null 2>&1)"; then
+            sleep 1
+            exec "$0"
+          else
+            notify_error "$output"
+          fi
+        fi
+      elif (( choice == 1 )); then
+        if output="$(nmcli --ask --wait 15 device wifi rescan </dev/null 2>&1)"; then
+          sleep 1
+          exec "$0"
+        else
+          notify_error "$output"
+        fi
+      elif (( choice == ''${#ssids[@]} + 2 )); then
+        exec nm-connection-editor
+      else
+        network_index=$((choice - 2))
+        if (( network_index >= 0 && network_index < ''${#ssids[@]} )); then
+          connect_network \
+            "''${ssids[$network_index]}" \
+            "''${securities[$network_index]}" \
+            "''${active[$network_index]}" \
+            "''${profile_uuids[$network_index]}"
+        fi
+      fi
+    '';
+  };
+
   audioMenu = pkgs.writeShellApplication {
     name = "audio-menu";
     runtimeInputs = [
@@ -403,39 +738,6 @@
     '';
   };
 
-  waybarPowerProfile = pkgs.writeShellApplication {
-    name = "waybar-power-profile";
-    runtimeInputs = [pkgs.power-profiles-daemon];
-    text = ''
-      profile="$(powerprofilesctl get 2>/dev/null || true)"
-
-      case "$profile" in
-        power-saver)
-          icon='${icons.power.saver}'
-          tooltip='Power saver · Longer battery life'
-          class='power-saver'
-          ;;
-        balanced)
-          icon='${icons.power.balanced}'
-          tooltip='Balanced power mode'
-          class='balanced'
-          ;;
-        performance)
-          icon='${icons.power.performance}'
-          tooltip='Performance mode · Higher energy use'
-          class='performance'
-          ;;
-        *)
-          icon='${icons.power.unknown}'
-          tooltip='Power mode unavailable'
-          class='unknown'
-          ;;
-      esac
-
-      printf '{"text":"%s","tooltip":"%s","class":"%s"}\n' "$icon" "$tooltip" "$class"
-    '';
-  };
-
   waybarBattery = pkgs.writeShellApplication {
     name = "waybar-battery";
     text = ''
@@ -471,19 +773,20 @@
         icon="${builtins.elemAt icons.battery 4}"
       fi
 
-      printf '{"text":"%s  %s%%","tooltip":"Battery %s%% · %s","class":"%s"}\n' "$icon" "$capacity" "$capacity" "$status" "$class"
+      printf '{"text":"%s  %s%%","tooltip":"Battery %s%% · %s\\nClick: power modes","class":"%s"}\n' "$icon" "$capacity" "$capacity" "$status" "$class"
     '';
   };
 
   commands = {
     audioMenu = lib.getExe audioMenu;
     appLauncher = lib.getExe appLauncher;
-    browser = lib.getExe pkgs.firefox;
+    browser = lib.getExe browserPackage;
     brightnessctl = lib.getExe pkgs.brightnessctl;
     cliphist = lib.getExe pkgs.cliphist;
     clipboardMenu = lib.getExe clipboardMenu;
     files = lib.getExe pkgs.nautilus;
     mako = lib.getExe pkgs.mako;
+    networkMenu = lib.getExe networkMenu;
     niri = lib.getExe config.programs.niri.package;
     pavucontrol = lib.getExe pkgs.pavucontrol;
     playerctl = lib.getExe pkgs.playerctl;
@@ -495,11 +798,9 @@
     terminal = lib.getExe' pkgs.foot "foot";
     waybar = lib.getExe pkgs.waybar;
     waybarBattery = lib.getExe waybarBattery;
-    waybarPowerProfile = lib.getExe waybarPowerProfile;
     wlPaste = lib.getExe' pkgs.wl-clipboard "wl-paste";
     wpctl = lib.getExe' pkgs.wireplumber "wpctl";
     xwaylandSatellite = lib.getExe pkgs.xwayland-satellite;
-    nmApplet = lib.getExe pkgs.networkmanagerapplet;
     nmConnectionEditor = lib.getExe' pkgs.networkmanagerapplet "nm-connection-editor";
   };
 
@@ -521,12 +822,12 @@ in {
     hex
     icons
     lockCommand
+    networkMenu
     powerProfileMenu
     screenshot
     sessionMenu
     uiFont
     waybarBattery
-    waybarPowerProfile
     waybarModules
     withAlpha
     cliphistWatcher
