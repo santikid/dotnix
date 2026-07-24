@@ -9,19 +9,6 @@
       then pkgs.emacs
       else pkgs.emacs-nox;
 
-    starshipPackage =
-      if pkgs.stdenv.isDarwin
-      then
-        pkgs.starship.overrideAttrs (_: {
-          # macOS 27's ld64 crashes in its stubs pass when linking Starship's
-          # optional notification backend. Keep battery support and its tests.
-          cargoBuildNoDefaultFeatures = "1";
-          cargoBuildFeatures = "battery";
-          cargoCheckNoDefaultFeatures = "1";
-          cargoCheckFeatures = "battery";
-        })
-      else pkgs.starship;
-
     link = path:
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/${path}";
 
@@ -252,7 +239,6 @@
 
     programs.starship = {
       enable = true;
-      package = starshipPackage;
     };
     programs.direnv.enable = true;
   };
