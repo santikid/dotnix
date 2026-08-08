@@ -164,8 +164,9 @@ jobs:
   notify:
     name: Notify build result
     if: >-
-      forgejo.event_name == 'push' &&
-      always()
+      always() &&
+      (forgejo.event_name == 'push' ||
+      needs.build.result != 'success')
     needs: build
     runs-on: nix-x86_64-linux
     steps:
@@ -176,7 +177,12 @@ jobs:
           BUILD_RESULT: ${{ needs.build.result }}
           COMMITS_JSON: ${{ toJSON(forgejo.event.commits) }}
           COMPARE_URL: ${{ forgejo.event.compare_url }}
+          EVENT_NAME: ${{ forgejo.event_name }}
           NTFY_URL: ${{ secrets.NTFY_URL }}
+          PR_NUMBER: ${{ forgejo.event.pull_request.number }}
+          PR_TITLE: ${{ forgejo.event.pull_request.title }}
+          REPOSITORY: ${{ forgejo.repository }}
+          SERVER_URL: ${{ forgejo.server_url }}
         run: |
           : "${NTFY_URL:?NTFY_URL is unavailable in this workflow}"
           case "$BUILD_RESULT" in
@@ -194,10 +200,23 @@ jobs:
               ;;
           esac
 
-          commit_titles="$(
-            printf '%s' "$COMMITS_JSON" |
-              nix run nixpkgs#jq -- --raw-output '.[].message | split("\n")[0]'
-          )"
+          case "$EVENT_NAME" in
+            push)
+              notification_body="$(
+                printf '%s' "$COMMITS_JSON" |
+                  nix run nixpkgs#jq -- --raw-output '.[].message | split("\n")[0]'
+              )"
+              click_url="$COMPARE_URL"
+              ;;
+            pull_request_target)
+              notification_body="PR #$PR_NUMBER: $PR_TITLE"
+              click_url="$SERVER_URL/$REPOSITORY/pulls/$PR_NUMBER"
+              ;;
+            *)
+              notification_body="Systems CI $BUILD_RESULT ($EVENT_NAME)"
+              click_url="$SERVER_URL/$REPOSITORY/actions"
+              ;;
+          esac
 
           nix shell nixpkgs#curl --command curl \
             --fail \
@@ -206,6 +225,6 @@ jobs:
             --retry 3 \
             --header "Title: $ntfy_title" \
             --header "Tags: $ntfy_tags" \
-            --header "Click: $COMPARE_URL" \
-            --data "$commit_titles" \
+            --header "Click: $click_url" \
+            --data "$notification_body" \
             "$NTFY_URL"

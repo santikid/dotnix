@@ -1,19 +1,29 @@
 name: Nix store integrity
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+    paths:
+      - ".forgejo/workflows/store-integrity.yml"
   schedule:
     - cron: "0 3 * * *"
       timezone: Europe/Vienna
 
 concurrency:
-  group: nix-store-integrity-${{ matrix.target.name }}
+  group: nix-store-integrity
   cancel-in-progress: false
+
+env:
+  NIX_CONFIG: |
+    experimental-features = nix-command flakes
 
 jobs:
   verify:
     name: Verify ${{ matrix.target.name }} store
     strategy:
+      fail-fast: false
       matrix:
         target:
           - name: aarch64-darwin
@@ -26,9 +36,33 @@ jobs:
     steps:
       - name: Verify and repair local Nix store contents
         run: |
-          if sudo nix store verify --store local --all --no-trust; then
+          if sudo -n nix store verify --store local --all --no-trust; then
             exit 0
           fi
 
-          sudo env NIX_REMOTE= nix-store --verify --check-contents --repair
-          sudo nix store verify --store local --all --no-trust
+          sudo -n nix-store --store local --verify --check-contents --repair
+          sudo -n nix store verify --store local --all --no-trust
+
+  notify:
+    name: Notify store integrity failure
+    if: >-
+      always() &&
+      needs.verify.result != 'success'
+    needs: verify
+    runs-on: nix-x86_64-linux
+    steps:
+      - name: Send failure notification
+        env:
+          NTFY_URL: ${{ secrets.NTFY_URL }}
+          VERIFY_RESULT: ${{ needs.verify.result }}
+        run: |
+          : "${NTFY_URL:?NTFY_URL is unavailable in this workflow}"
+          nix shell nixpkgs#curl --command curl \
+            --fail \
+            --silent \
+            --show-error \
+            --retry 3 \
+            --header 'Title: Nix store integrity repair failed' \
+            --header 'Tags: x,floppy_disk' \
+            --data "One or more runner stores remain unhealthy (result: $VERIFY_RESULT)." \
+            "$NTFY_URL"
