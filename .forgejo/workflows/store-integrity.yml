@@ -28,20 +28,17 @@ jobs:
         target:
           - name: aarch64-darwin
             runner: nix-aarch64-darwin
+            command: /usr/local/sbin/nix-store-maintenance
           - name: aarch64-linux
             runner: nix-aarch64-linux
-          - name: x86_64-linux
-            runner: nix-x86_64-linux
+            command: /run/current-system/sw/bin/nix-store-maintenance
     runs-on: ${{ matrix.target.runner }}
     steps:
       - name: Verify and repair local Nix store contents
         run: |
-          if sudo -n nix store verify --store local --all --no-trust; then
-            exit 0
-          fi
-
-          sudo -n nix-store --store local --verify --check-contents --repair
-          sudo -n nix store verify --store local --all --no-trust
+          maintenance_command='${{ matrix.target.command }}'
+          test -x "$maintenance_command"
+          sudo -n "$maintenance_command"
 
   notify:
     name: Notify store integrity failure
