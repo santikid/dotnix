@@ -21,28 +21,11 @@ env:
 
 jobs:
   verify:
-    name: Verify ${{ matrix.target.name }} store
-    strategy:
-      fail-fast: false
-      matrix:
-        target:
-          - name: aarch64-darwin
-            runner: nix-aarch64-darwin
-            command: /usr/local/sbin/nix-store-maintenance
-            sudo: /usr/bin/sudo
-          - name: aarch64-linux
-            runner: nix-aarch64-linux
-            command: /run/current-system/sw/bin/nix-store-maintenance
-            sudo: /run/wrappers/bin/sudo
-    runs-on: ${{ matrix.target.runner }}
+    name: Verify aarch64-darwin store
+    runs-on: nix-aarch64-darwin
     steps:
       - name: Verify and repair local Nix store contents
-        run: |
-          maintenance_command='${{ matrix.target.command }}'
-          sudo_command='${{ matrix.target.sudo }}'
-          test -x "$maintenance_command"
-          test -x "$sudo_command"
-          "$sudo_command" -n "$maintenance_command"
+        run: /usr/bin/sudo -n /usr/local/sbin/nix-store-maintenance
 
   notify:
     name: Notify store integrity failure
@@ -65,5 +48,5 @@ jobs:
             --retry 3 \
             --header 'Title: Nix store integrity repair failed' \
             --header 'Tags: x,floppy_disk' \
-            --data "One or more runner stores remain unhealthy (result: $VERIFY_RESULT)." \
+            --data "The Darwin runner store remains unhealthy (result: $VERIFY_RESULT)." \
             "$NTFY_URL"
