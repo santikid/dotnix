@@ -20,7 +20,6 @@
     pkgs.nodejs_24
     pkgs.pnpm_11
     pkgs.bun
-    pkgs.oxlint
     pkgs.prettier
     pkgs.svelte-language-server
     pkgs.typescript
