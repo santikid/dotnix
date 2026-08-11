@@ -12,16 +12,20 @@
       _kernelPatches = config.boot.kernelPatches;
     })
     .kernel
-    .overrideAttrs (_old: {
-      version = "7.0.13-fairydust";
-      modDirVersion = "7.0.13";
-      src = asahiPkgs.fetchFromGitHub {
-        owner = "AsahiLinux";
-        repo = "linux";
-        rev = "c83992242bc1e38bfc861a91696534479a2dbdf4";
-        hash = "sha256-sGcgrrf/rpb8u9dvwiTFdNjp18UyuRhW94biH1WMO5I=";
-      };
-    });
+    .override {
+      buildLinux = args:
+        asahiPkgs.buildLinux (args
+          // {
+            version = "7.1.5-fairydust";
+            modDirVersion = "7.1.5";
+            src = asahiPkgs.fetchFromGitHub {
+              owner = "AsahiLinux";
+              repo = "linux";
+              rev = "eb8089bbc11872c50fcf5138ff069d51b4ae996f";
+              hash = "sha256-NmYFKR4WxWOnfYFWcOBfvVFPwM09DZyVAc2kJb6I000=";
+            };
+          });
+    };
 
   allowedUnfreePackages = [
     "1password"
