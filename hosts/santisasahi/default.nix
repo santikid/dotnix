@@ -16,8 +16,8 @@
       buildLinux = args:
         asahiPkgs.buildLinux (args
           // {
-            version = "7.1.5-fairydust";
-            modDirVersion = "7.1.5";
+            version = "7.1.6-fairydust";
+            modDirVersion = "7.1.6";
             src = asahiPkgs.fetchFromGitHub {
               owner = "AsahiLinux";
               repo = "linux";
