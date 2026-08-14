@@ -2,11 +2,9 @@
   config,
   lib,
   pkgs,
-  inputs,
   user,
   ...
 }: let
-  system = pkgs.stdenv.hostPlatform.system;
   asahiPkgs = config.hardware.asahi.pkgs;
 
   fairydustKernel =
@@ -14,16 +12,20 @@
       _kernelPatches = config.boot.kernelPatches;
     })
     .kernel
-    .overrideAttrs (_old: {
-      version = "7.0.13-fairydust";
-      modDirVersion = "7.0.13";
-      src = asahiPkgs.fetchFromGitHub {
-        owner = "AsahiLinux";
-        repo = "linux";
-        rev = "c83992242bc1e38bfc861a91696534479a2dbdf4";
-        hash = "sha256-sGcgrrf/rpb8u9dvwiTFdNjp18UyuRhW94biH1WMO5I=";
-      };
-    });
+    .override {
+      buildLinux = args:
+        asahiPkgs.buildLinux (args
+          // {
+            version = "7.1.6-fairydust";
+            modDirVersion = "7.1.6";
+            src = asahiPkgs.fetchFromGitHub {
+              owner = "AsahiLinux";
+              repo = "linux";
+              rev = "eb8089bbc11872c50fcf5138ff069d51b4ae996f";
+              hash = "sha256-WywkNZXonLcyO0xAMlW7/k3uE9Embz3qedwyB5VOxQs=";
+            };
+          });
+    };
 
   allowedUnfreePackages = [
     "1password"
@@ -47,7 +49,10 @@ in {
     configurationLimit = 8;
   };
   boot.loader.efi.canTouchEfiVariables = false;
-  boot.kernelParams = ["appledrm.show_notch=1"];
+  boot.kernelParams = [
+    "appledrm.show_notch=1"
+    "hid_apple.fnmode=2"
+  ];
 
   networking.networkmanager = {
     enable = true;
@@ -89,10 +94,9 @@ in {
       polkitPolicyOwners = [user.name];
     };
   };
-  users.users.${user.name}.extraGroups = ["librepods"];
+  users.users.${user.name}.extraGroups = ["librepods" "networkmanager"];
 
   environment.systemPackages = with pkgs; [
-    inputs.zen-browser.packages.${system}.default
     (chromium.override {
       enableWideVine = true;
     })

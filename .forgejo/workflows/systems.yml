@@ -13,6 +13,7 @@ on:
       - "hosts/obsidian/**"
       - "hosts/ruby/**"
       - "hosts/santibook/**"
+      - "hosts/lime/**"
       - "modules/**"
       - "configs/**"
   push:
@@ -26,6 +27,7 @@ on:
       - "hosts/obsidian/**"
       - "hosts/ruby/**"
       - "hosts/santibook/**"
+      - "hosts/lime/**"
       - "modules/**"
       - "configs/**"
 
@@ -65,6 +67,12 @@ jobs:
             max_jobs: 4
             cores: 2
             installable: .#nixosConfigurations.ruby.config.system.build.toplevel
+          - name: lime
+            runner: nix-x86_64-linux
+            system: x86_64-linux
+            max_jobs: 4
+            cores: 2
+            installable: .#nixosConfigurations.lime.config.system.build.toplevel
     runs-on: ${{ matrix.target.runner }}
     steps:
       - name: Install Node.js for actions
@@ -91,6 +99,18 @@ jobs:
           node --version
           nix --version
           test "$(nix eval --impure --raw --expr 'builtins.currentSystem')" = "${{ matrix.target.system }}"
+
+      - name: Prepare Attic client
+        run: |
+          case "${{ matrix.target.system }}" in
+            *-darwin) configurations=darwinConfigurations ;;
+            *-linux) configurations=nixosConfigurations ;;
+            *) echo 'Unsupported runner system' >&2; exit 1 ;;
+          esac
+
+          nix build \
+            --out-link attic-client \
+            ".#$configurations.${{ matrix.target.name }}.pkgs.attic-client"
 
       - name: Evaluate system
         run: |
@@ -119,8 +139,8 @@ jobs:
         run: |
           : "${ATTIC_TOKEN:?ATTIC_TOKEN is unavailable in this workflow}"
           export XDG_CONFIG_HOME="$PWD/.ci-config"
-          nix run nixpkgs#attic-client -- login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
-          nix run nixpkgs#attic-client -- push forgejo:dotnix result
+          ./attic-client/bin/attic login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
+          ./attic-client/bin/attic push forgejo:dotnix result
 
   merge-update:
     name: Merge scheduled update
@@ -152,48 +172,67 @@ jobs:
   notify:
     name: Notify build result
     if: >-
-      forgejo.event_name == 'push' &&
-      (success() || failure())
+      always() &&
+      (forgejo.event_name == 'push' ||
+      needs.build.result != 'success')
     needs: build
     runs-on: nix-x86_64-linux
     steps:
-      - name: Configure successful notification
-        if: success()
-        run: |
-          printf '%s\n' \
-            'NTFY_TITLE=dotnix CI succeeded' \
-            'NTFY_TAGS=heavy_check_mark,computer' \
-            >> "$FORGEJO_ENV"
-
-      - name: Configure failed notification
-        if: failure()
-        run: |
-          printf '%s\n' \
-            'NTFY_TITLE=dotnix CI failed' \
-            'NTFY_TAGS=x,computer' \
-            >> "$FORGEJO_ENV"
-
       - name: Send notification
-        if: success() || failure()
+        if: always()
         continue-on-error: true
         env:
+          BUILD_RESULT: ${{ needs.build.result }}
           COMMITS_JSON: ${{ toJSON(forgejo.event.commits) }}
           COMPARE_URL: ${{ forgejo.event.compare_url }}
+          EVENT_NAME: ${{ forgejo.event_name }}
           NTFY_URL: ${{ secrets.NTFY_URL }}
+          PR_NUMBER: ${{ forgejo.event.pull_request.number }}
+          PR_TITLE: ${{ forgejo.event.pull_request.title }}
+          REPOSITORY: ${{ forgejo.repository }}
+          SERVER_URL: ${{ forgejo.server_url }}
         run: |
           : "${NTFY_URL:?NTFY_URL is unavailable in this workflow}"
-          commit_titles="$(
-            printf '%s' "$COMMITS_JSON" |
-              nix run nixpkgs#jq -- --raw-output '.[].message | split("\n")[0]'
-          )"
+          case "$BUILD_RESULT" in
+            success)
+              ntfy_title='dotnix CI succeeded'
+              ntfy_tags='heavy_check_mark,computer'
+              ;;
+            cancelled)
+              ntfy_title='dotnix CI cancelled'
+              ntfy_tags='warning,computer'
+              ;;
+            *)
+              ntfy_title='dotnix CI failed'
+              ntfy_tags='x,computer'
+              ;;
+          esac
+
+          case "$EVENT_NAME" in
+            push)
+              notification_body="$(
+                printf '%s' "$COMMITS_JSON" |
+                  nix run nixpkgs#jq -- --raw-output '.[].message | split("\n")[0]'
+              )"
+              click_url="$COMPARE_URL"
+              ;;
+            pull_request_target)
+              notification_body="PR #$PR_NUMBER: $PR_TITLE"
+              click_url="$SERVER_URL/$REPOSITORY/pulls/$PR_NUMBER"
+              ;;
+            *)
+              notification_body="Systems CI $BUILD_RESULT ($EVENT_NAME)"
+              click_url="$SERVER_URL/$REPOSITORY/actions"
+              ;;
+          esac
 
           nix shell nixpkgs#curl --command curl \
             --fail \
             --silent \
             --show-error \
             --retry 3 \
-            --header "Title: $NTFY_TITLE" \
-            --header "Tags: $NTFY_TAGS" \
-            --header "Click: $COMPARE_URL" \
-            --data "$commit_titles" \
+            --header "Title: $ntfy_title" \
+            --header "Tags: $ntfy_tags" \
+            --header "Click: $click_url" \
+            --data "$notification_body" \
             "$NTFY_URL"

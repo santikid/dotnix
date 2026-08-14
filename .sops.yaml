@@ -2,6 +2,7 @@ keys:
   - &santi age1lmhxry5p45qz2m3lstvvhepdcjrf884kculesvgy7phvm4pnnsqqs63vfz
   - &obsidian age1dhwlqn52rx9fte4kgugkpsdd7f256m38zfp7xaaclej5pm5sgdls906p9j
   - &lisbon age1wmscunfntut4fzem9zj0dxx4wpd2farrsj6qheuwg3mzlmep5ewq4fmejw
+  - &lime age1h62gf63yxpmvggkamrldutknsh2eqt365fmx4v486sv678z6f9pqm0xp5l
 creation_rules:
   - path_regex: ^secrets/obsidian\.yaml$
     key_groups:
@@ -14,3 +15,9 @@ creation_rules:
           - *santi
           - *obsidian
           - *lisbon
+          - *lime
+  - path_regex: ^secrets/lime\.yaml$
+    key_groups:
+      - age:
+          - *santi
+          - *lime

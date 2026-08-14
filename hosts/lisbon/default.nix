@@ -4,6 +4,8 @@
   ...
 }: {
   home-manager.users.${user.name} = {
+    home.sessionVariables.TART_HOME = "/Volumes/Storage/Tart";
+
     home.sessionPath = [
       "/opt/podman/bin"
     ];

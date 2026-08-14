@@ -6,6 +6,7 @@
   user,
   ...
 }: let
+  browserPackage = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default;
   footPalette = [
     "0=#111318"
     "1=#ff7b8a"
@@ -34,38 +35,35 @@
       size = 24;
     };
     colors = {
-      desktop = "#111318";
-      bar = "#171a21";
-      barBorder = "#2b303b";
-      surface = "#222734";
-      surfaceHover = "#2d3443";
-      text = "#f4f7fb";
-      muted = "#9aa7b8";
-      selected = "#7dd3fc";
-      selectedText = "#071118";
-      accent = "#a7f3d0";
-      warning = "#f6c177";
-      critical = "#ff7b8a";
-      focusInactive = "#667085";
+      desktop = "#111214";
+      bar = "#18191c";
+      barBorder = "#2d2f34";
+      surface = "#212327";
+      surfaceHover = "#2b2d32";
+      text = "#f0f1f3";
+      muted = "#9b9da3";
+      dim = "#63666d";
+      selected = "#d5d7da";
+      accent = "#d5d7da";
+      warning = "#d5ad75";
+      critical = "#dc7b82";
+      focusInactive = "#55585f";
     };
     icons = {
-      overview = "󰕰";
       clipboard = "";
       idleActive = "";
       idleInactive = "";
-      power = "";
-      brightness = ["󰃞" "󰃟" "󰃠"];
-      volumeMuted = "󰝟";
+      charging = "";
+      brightness = [""];
+      volumeMuted = "󰍟";
       volume = ["" "" ""];
+      network = {
+        disconnected = "󰤭";
+        ethernet = "󰈀";
+        wifi = ["󰤯" "󰤟" "󰤢" "󰤥" "󰤨"];
+      };
       battery = ["" "" "" "" ""];
       plugged = "";
-      workspace = {
-        focused = "";
-        active = "";
-        urgent = "";
-        empty = "";
-        default = "";
-      };
     };
     foot = {
       palette = footPalette;
@@ -77,7 +75,7 @@
     };
   };
   scripts = import ./lib/scripts.nix {
-    inherit config lib pkgs theme;
+    inherit browserPackage config lib pkgs theme;
   };
   binds = import ./lib/binds.nix {
     inherit lib;
@@ -91,6 +89,7 @@ in {
 
   environment.systemPackages = [
     pkgs.brightnessctl
+    browserPackage
     pkgs.cliphist
     pkgs.fuzzel
     pkgs.grim
@@ -98,7 +97,6 @@ in {
     pkgs.localsend
     pkgs.mako
     pkgs.nautilus
-    pkgs.networkmanagerapplet
     pkgs.wdisplays
     pkgs.pavucontrol
     pkgs.playerctl
@@ -116,8 +114,6 @@ in {
   };
 
   programs.dconf.enable = true;
-  programs.firefox.enable = true;
-
   services.greetd = {
     enable = true;
     settings.default_session.command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-user-session --cmd ${config.programs.niri.package}/bin/niri-session";
@@ -138,6 +134,7 @@ in {
   };
 
   environment.sessionVariables = {
+    BROWSER = niri.commands.browser;
     MOZ_ENABLE_WAYLAND = "1";
     NIXOS_OZONE_WL = "1";
     QT_QPA_PLATFORM = "wayland";
@@ -219,7 +216,6 @@ in {
 
         spawn-at-startup = [
           {argv = [niri.commands.mako];}
-          {argv = [niri.commands.nmApplet "--indicator"];}
           (niri.cliphistWatcher "text")
           (niri.cliphistWatcher "image")
           {
@@ -260,51 +256,78 @@ in {
           pad = "12x10";
           term = "foot";
         };
-        colors = {
-          background = theme.foot.background;
-          foreground = theme.foot.foreground;
-          palette = lib.concatStringsSep ";" theme.foot.palette;
-        };
+        colors-dark =
+          {
+            background = theme.foot.background;
+            foreground = theme.foot.foreground;
+          }
+          // lib.listToAttrs (map (entry: let
+              split = lib.splitString "=" entry;
+            in {
+              name = builtins.head split;
+              value = lib.removePrefix "#" (builtins.elemAt split 1);
+            })
+            theme.foot.palette);
       };
     };
 
     home.file = {
       ".config/fuzzel/fuzzel.ini".text = ''
         font=${theme.fonts.ui}:size=13
-        prompt=>
-        width=48
-        lines=12
+        use-bold=yes
+        prompt="Search  "
+        placeholder=Applications…
+        width=50
+        lines=9
         tabs=4
-        horizontal-pad=18
-        vertical-pad=14
-        inner-pad=8
+        horizontal-pad=30
+        vertical-pad=22
+        inner-pad=14
+        line-height=20
+        anchor=center
         layer=overlay
+        keyboard-focus=on-demand
+        exit-on-keyboard-focus-loss=yes
+        icon-theme=Papirus-Dark
+        image-size-ratio=1
+        fields=filename,name,generic,keywords,categories
+        match-mode=fzf
+        filter-desktop=yes
+        terminal=${niri.commands.terminal} -e
 
         [colors]
-        background=${niri.withAlpha theme.colors.bar "f2"}
+        background=${niri.withAlpha theme.colors.bar "fa"}
         text=${niri.withAlpha theme.colors.text "ff"}
-        match=ffffffff
+        message=${niri.withAlpha theme.colors.muted "ff"}
+        prompt=${niri.withAlpha theme.colors.accent "ff"}
+        placeholder=${niri.withAlpha theme.colors.dim "ff"}
+        input=${niri.withAlpha theme.colors.text "ff"}
+        match=${niri.withAlpha theme.colors.accent "ff"}
         selection=${niri.withAlpha theme.colors.surfaceHover "ff"}
-        selection-text=ffffffff
-        selection-match=ffffffff
-        border=777777ff
+        selection-text=${niri.withAlpha theme.colors.text "ff"}
+        selection-match=${niri.withAlpha theme.colors.accent "ff"}
+        counter=${niri.withAlpha theme.colors.dim "ff"}
+        border=${niri.withAlpha theme.colors.focusInactive "ff"}
 
         [border]
-        width=2
-        radius=8
+        width=1
+        radius=12
+        selection-radius=6
       '';
 
       ".config/mako/config".text = ''
-        font=${theme.fonts.ui} 12
-        background-color=${theme.colors.bar}f2
+        font=${theme.fonts.ui} 11
+        background-color=${theme.colors.bar}fa
         text-color=${theme.colors.text}
-        border-color=#777777
-        border-size=2
-        border-radius=8
-        padding=12
-        margin=16
-        width=420
-        max-icon-size=48
+        border-color=${theme.colors.barBorder}
+        progress-color=over ${theme.colors.accent}
+        border-size=1
+        border-radius=10
+        padding=14
+        outer-margin=50,20,0,0
+        margin=8
+        width=380
+        max-icon-size=40
         default-timeout=6000
         anchor=top-right
       '';
@@ -374,10 +397,12 @@ in {
     xdg.mimeApps = {
       enable = true;
       defaultApplications = {
+        "application/vnd.mozilla.xul+xml" = ["zen-beta.desktop"];
+        "application/xhtml+xml" = ["zen-beta.desktop"];
         "inode/directory" = ["org.gnome.Nautilus.desktop"];
-        "text/html" = ["firefox.desktop"];
-        "x-scheme-handler/http" = ["firefox.desktop"];
-        "x-scheme-handler/https" = ["firefox.desktop"];
+        "text/html" = ["zen-beta.desktop"];
+        "x-scheme-handler/http" = ["zen-beta.desktop"];
+        "x-scheme-handler/https" = ["zen-beta.desktop"];
       };
     };
   };

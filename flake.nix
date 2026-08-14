@@ -83,6 +83,16 @@
     };
 
     nixosHosts = {
+      lime = {
+        system = "x86_64-linux";
+        extraModules = [
+          ./hosts/lime
+          ./modules/linux/server.nix
+          ./modules/linux/ntfy-maintenance-alerts.nix
+          ./modules/secrets/ntfy.nix
+        ];
+      };
+
       obsidian = {
         system = "x86_64-linux";
         extraModules = [
@@ -100,6 +110,7 @@
           ./hosts/ruby
           ./modules/linux/server.nix
           ./modules/coding-agents.nix
+          ./modules/pi.nix
         ];
       };
 

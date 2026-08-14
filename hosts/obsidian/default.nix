@@ -117,6 +117,7 @@
     trustedInterfaces = ["tailscale0" "incusbr0"];
     allowedTCPPorts = [80 443];
   };
+  services.tailscale.openFirewall = true;
 
   services.smartd = {
     enable = true;

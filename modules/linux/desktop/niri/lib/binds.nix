@@ -65,7 +65,6 @@
 
   applicationBinds =
     mapSpawnBinds {
-      "${modifier}+Space" = [commands.fuzzel];
       "${modifier}+T" = [commands.terminal];
       "${modifier}+C" = [commands.browser];
       "${modifier}+F" = [commands.files];
@@ -76,21 +75,21 @@
       "Alt+Print" = [commands.screenshot "area"];
     }
     // {
+      "${modifier}+Space" = repeatless (spawn [commands.appLauncher]);
       "${modifier}+Ctrl+Q" = spawnSh lockCommand;
       "Super+Alt+L" = spawnSh lockCommand;
     };
 
   actionBinds = mapBinds {
     "${modifier}+Shift+Slash" = {show-hotkey-overlay = [];};
-    "${modifier}+BracketLeft" = {consume-or-expel-window-left = [];};
-    "${modifier}+BracketRight" = {consume-or-expel-window-right = [];};
+    "${modifier}+Comma" = {consume-or-expel-window-left = [];};
+    "${modifier}+Period" = {consume-or-expel-window-right = [];};
     "${modifier}+R" = {switch-preset-column-width = [];};
     "${modifier}+Shift+R" = {switch-preset-column-width-back = [];};
     "${modifier}+M" = {maximize-window-to-edges = [];};
     "${modifier}+Ctrl+Space" = {toggle-window-floating = [];};
     "${modifier}+Shift+F" = {fullscreen-window = [];};
     "${modifier}+Shift+Escape" = {toggle-keyboard-shortcuts-inhibit = [];};
-    "${modifier}+Shift+P" = {power-off-monitors = [];};
     "${modifier}+Shift+E" = {quit = [];};
     "Ctrl+Alt+Delete" = {quit = [];};
   };

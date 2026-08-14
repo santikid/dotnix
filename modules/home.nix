@@ -9,19 +9,6 @@
       then pkgs.emacs
       else pkgs.emacs-nox;
 
-    starshipPackage =
-      if pkgs.stdenv.isDarwin
-      then
-        pkgs.starship.overrideAttrs (_: {
-          # macOS 27's ld64 crashes in its stubs pass when linking Starship's
-          # optional notification backend. Keep battery support and its tests.
-          cargoBuildNoDefaultFeatures = "1";
-          cargoBuildFeatures = "battery";
-          cargoCheckNoDefaultFeatures = "1";
-          cargoCheckFeatures = "battery";
-        })
-      else pkgs.starship;
-
     link = path:
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/${path}";
 
@@ -104,6 +91,21 @@
           email = user.email;
         };
         init.defaultBranch = "main";
+      };
+    };
+
+    programs.herdr = {
+      enable = true;
+      settings = {
+        onboarding = false;
+        keys = {
+          prefix = "ctrl+a";
+          next_workspace = "prefix+u";
+          previous_workspace = "prefix+i";
+          switch_workspace = "prefix+shift+1..9";
+        };
+        terminal.default_shell = "${pkgs.zsh}/bin/zsh";
+        theme.name = "terminal";
       };
     };
 
@@ -232,14 +234,11 @@
         zstyle ':completion:*' menu select
         zstyle ':completion:*' insert-unambiguous yes
         zstyle ':completion:*:descriptions' format '%F{green}-- %d --%f'
-
-        [[ -f ~/.secrets.env ]] && source ~/.secrets.env
       '';
     };
 
     programs.starship = {
       enable = true;
-      package = starshipPackage;
     };
     programs.direnv.enable = true;
   };
