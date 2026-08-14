@@ -88,6 +88,7 @@
         extraModules = [
           ./hosts/lime
           ./modules/linux/server.nix
+          ./modules/secrets/ntfy.nix
         ];
       };
 
