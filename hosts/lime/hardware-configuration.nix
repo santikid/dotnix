@@ -27,9 +27,12 @@ in {
     "nvme"
     "usb_storage"
     "usbhid"
+    "uas"
+    "sd_mod"
+    "sdhci_pci"
   ];
   boot.initrd.kernelModules = [];
-  boot.kernelModules = [];
+  boot.kernelModules = ["kvm-intel"];
   boot.extraModulePackages = [];
 
   fileSystems = {
