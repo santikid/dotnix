@@ -27,6 +27,7 @@
   services = {
     openssh.openFirewall = false;
     fstrim.enable = true;
+    tailscale.useRoutingFeatures = "client";
 
     smartd = {
       enable = true;
