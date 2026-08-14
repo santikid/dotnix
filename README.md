@@ -8,6 +8,7 @@ Personal Nix flake for macOS, NixOS, Linux containers, and Asahi NixOS hosts.
 | --- | --- | --- |
 | `santibook` | `aarch64-darwin` | macOS desktop |
 | `lisbon` | `aarch64-darwin` | macOS server |
+| `lime` | `x86_64-linux` | NixOS backup server |
 | `obsidian` | `x86_64-linux` | NixOS server |
 | `ruby` | `x86_64-linux` | Incus VM |
 | `santisasahi` | `aarch64-linux` | Asahi NixOS laptop |

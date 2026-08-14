@@ -83,6 +83,14 @@
     };
 
     nixosHosts = {
+      lime = {
+        system = "x86_64-linux";
+        extraModules = [
+          ./hosts/lime
+          ./modules/linux/server.nix
+        ];
+      };
+
       obsidian = {
         system = "x86_64-linux";
         extraModules = [
