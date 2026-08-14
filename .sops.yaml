@@ -16,3 +16,8 @@ creation_rules:
           - *obsidian
           - *lisbon
           - *lime
+  - path_regex: ^secrets/lime\.yaml$
+    key_groups:
+      - age:
+          - *santi
+          - *lime
