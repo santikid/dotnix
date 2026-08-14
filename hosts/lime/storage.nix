@@ -10,6 +10,7 @@
   healthchecksCurlConfig = config.sops.secrets.restic_copy_healthchecks_curl_config.path;
   restic = lib.getExe pkgs.restic;
   curl = lib.getExe pkgs.curl;
+  resticCache = "/var/cache/restic-copy";
 
   enableTimers = false;
   copySchedule = "*-*-* 06:00:00";
@@ -52,6 +53,8 @@
     utils.escapeSystemdExecArgs (
       [
         restic
+        "--cache-dir"
+        resticCache
         "--repo"
         job.destinationRepository
         "--password-file"
@@ -93,6 +96,13 @@
     TimeoutStartSec = "infinity";
   };
 
+  resticServiceConfig =
+    commonServiceConfig
+    // {
+      CacheDirectory = "restic-copy";
+      CacheDirectoryMode = "0700";
+    };
+
   commonUnitConfig = job: {
     RequiresMountsFor = [storageMount];
     AssertPathIsMountPoint = storageMount;
@@ -110,7 +120,7 @@
             ++ lib.optional (name == "lisbon") "restic-copy-obsidian.service";
           path = [pkgs.openssh];
           unitConfig = commonUnitConfig job;
-          serviceConfig = commonServiceConfig // {ExecStart = copyCommand job;};
+          serviceConfig = resticServiceConfig // {ExecStart = copyCommand job;};
         }
     )
     jobs;
@@ -135,7 +145,7 @@
           startAt = lib.optional enableTimers job.maintenanceSchedule;
           unitConfig = commonUnitConfig job;
           serviceConfig =
-            commonServiceConfig
+            resticServiceConfig
             // {
               ExecStart = [
                 (destinationCommand job ([
