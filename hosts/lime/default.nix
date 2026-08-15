@@ -28,7 +28,9 @@
 
   time.timeZone = "Europe/Vienna";
 
+  virtualisation.docker.enable = true;
   virtualisation.incus.enable = true;
+  networking.nftables.enable = true;
 
   services = {
     fwupd.enable = true;
