@@ -12,7 +12,7 @@
   curl = lib.getExe pkgs.curl;
   resticCache = "/var/cache/restic-copy";
 
-  enableTimers = false;
+  enableTimers = true;
   copySchedule = "*-*-* 06:00:00";
 
   jobs = {
