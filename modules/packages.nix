@@ -38,6 +38,7 @@
     pkgs.ffmpeg
     pkgs.imagemagick
     pkgs.borgbackup
+    pkgs.rclone
 
     (pkgs.writeShellApplication {
       name = "ts";
