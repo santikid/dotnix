@@ -28,6 +28,8 @@
 
   time.timeZone = "Europe/Vienna";
 
+  virtualisation.incus.enable = true;
+
   services = {
     fwupd.enable = true;
     openssh.openFirewall = false;
