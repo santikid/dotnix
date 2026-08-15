@@ -89,7 +89,7 @@
     };
   };
 
-  users.users.${user.name}.extraGroups = ["networkmanager"];
+  users.users.${user.name}.extraGroups = ["networkmanager" "docker" "incus-admin"];
 
   zramSwap.enable = true;
 
