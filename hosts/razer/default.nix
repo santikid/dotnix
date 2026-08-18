@@ -35,7 +35,6 @@
     configurationLimit = 8;
   };
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.supportedFilesystems = ["btrfs" "ntfs"];
 
   zramSwap.enable = true;
   services.fstrim.enable = true;
