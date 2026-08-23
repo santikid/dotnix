@@ -100,7 +100,14 @@
   };
 
   programs.steam.enable = true;
-  programs.gamemode.enable = true;
+  programs.gamemode = {
+    enable = true;
+    settings.general = {
+      desiredgov = "performance";
+      desiredprof = "performance";
+      inhibit_screensaver = 1;
+    };
+  };
 
   programs._1password.enable = true;
   programs.librepods.enable = true;
@@ -124,21 +131,55 @@
     pciutils
     powertop
     usbutils
-    mangohud
     protonup-qt
     vulkan-tools
     polychromatic
   ];
 
   home-manager.users.${user.name} = {
+    programs.mangohud = {
+      enable = true;
+      settings = {
+        fps = true;
+        fps_metrics = "avg,0.01,0.1";
+        frametime = true;
+        frame_timing = true;
+        cpu_stats = true;
+        cpu_temp = true;
+        cpu_mhz = true;
+        cpu_power = true;
+        gpu_stats = true;
+        gpu_temp = true;
+        gpu_core_clock = true;
+        gpu_mem_clock = true;
+        gpu_power = true;
+        gpu_power_limit = true;
+        gpu_fan = true;
+        vram = true;
+        ram = true;
+        gamemode = true;
+        throttling_status_graph = true;
+        toggle_hud = "Shift_R+F12";
+        toggle_logging = "Shift_L+F2";
+        output_folder = "/home/${user.name}/Documents/MangoHud";
+        log_interval = 1000;
+      };
+    };
+
+    programs.niri.settings.outputs."eDP-1".mode = {
+      width = 2560;
+      height = 1440;
+      refresh = 165.003;
+    };
+
     programs.zsh.shellAliases = {
-      steam-nvidia = "nvidia-offload steam";
+      steam-gaming = "MANGOHUD=1 gamemoderun steam";
     };
 
     xdg.desktopEntries.steam = {
       name = "Steam";
       comment = "Application for managing and playing games on Steam";
-      exec = "nvidia-offload steam %U";
+      exec = "env MANGOHUD=1 gamemoderun steam %U";
       icon = "steam";
       terminal = false;
       type = "Application";
@@ -147,10 +188,6 @@
         "x-scheme-handler/steam"
         "x-scheme-handler/steamlink"
       ];
-      settings = {
-        PrefersNonDefaultGPU = "true";
-        X-KDE-RunOnDiscreteGpu = "true";
-      };
     };
 
     programs.ssh = {

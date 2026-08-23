@@ -6,6 +6,10 @@
   nix = {
     settings = {
       experimental-features = ["nix-command" "flakes"];
+      extra-substituters = ["http://obsidian:8180/dotnix"];
+      extra-trusted-public-keys = [
+        "dotnix:l60JA9kCmi7QH4e9UONJagnC7aqyJkJc++qsiKCYU6M="
+      ];
     };
 
     gc = {
