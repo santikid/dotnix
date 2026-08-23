@@ -167,8 +167,14 @@ nixos-generate-config --root /mnt
 nixos-install --flake /mnt/.nix#razer
 ```
 
-The Razer profile keeps the same Niri desktop and `de`/`mac` keyboard layout as `santisasahi`, adds NVIDIA PRIME offload, Steam, GameMode, and OpenRazer. Launch Steam for CS2 with:
+The Razer profile keeps the same Niri desktop and `de`/`mac` keyboard layout as `santisasahi`, and adds NVIDIA support, Steam, GameMode, MangoHud, and OpenRazer. Launch Steam normally:
 
 ```bash
-steam-nvidia
+steam
+```
+
+Set CS2's Steam launch options once so GameMode and MangoHud apply to the game rather than the Steam client:
+
+```text
+MANGOHUD=1 gamemoderun %command%
 ```

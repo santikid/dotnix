@@ -144,10 +144,11 @@
         fps_metrics = "avg,0.01,0.1";
         frametime = true;
         frame_timing = true;
+        frame_count = true;
         cpu_stats = true;
+        core_load = true;
         cpu_temp = true;
         cpu_mhz = true;
-        cpu_power = true;
         gpu_stats = true;
         gpu_temp = true;
         gpu_core_clock = true;
@@ -158,11 +159,15 @@
         vram = true;
         ram = true;
         gamemode = true;
+        throttling_status = true;
         throttling_status_graph = true;
+        vulkan_driver = true;
+        present_mode = true;
+        log_versioning = true;
         toggle_hud = "Shift_R+F12";
         toggle_logging = "Shift_L+F2";
         output_folder = "/home/${user.name}/Documents/MangoHud";
-        log_interval = 1000;
+        log_interval = 100;
       };
     };
 
@@ -170,24 +175,6 @@
       width = 2560;
       height = 1440;
       refresh = 165.003;
-    };
-
-    programs.zsh.shellAliases = {
-      steam-gaming = "MANGOHUD=1 gamemoderun steam";
-    };
-
-    xdg.desktopEntries.steam = {
-      name = "Steam";
-      comment = "Application for managing and playing games on Steam";
-      exec = "env MANGOHUD=1 gamemoderun steam %U";
-      icon = "steam";
-      terminal = false;
-      type = "Application";
-      categories = ["Network" "FileTransfer" "Game"];
-      mimeType = [
-        "x-scheme-handler/steam"
-        "x-scheme-handler/steamlink"
-      ];
     };
 
     programs.ssh = {
