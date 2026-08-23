@@ -119,6 +119,7 @@
         extraModules = [
           ./hosts/razer
           ./modules/linux/desktop/niri
+          ./modules/coding-agents.nix
         ];
       };
 
