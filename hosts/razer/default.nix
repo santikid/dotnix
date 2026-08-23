@@ -18,6 +18,7 @@
       "chromium"
       "chromium-unwrapped"
       "discord"
+      "discord-unwrapped"
       "nvidia-kernel-modules"
       "nvidia-settings"
       "nvidia-x11"
@@ -31,9 +32,9 @@
   hardware.enableRedistributableFirmware = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  boot.loader.systemd-boot = {
+  boot.loader.limine = {
     enable = true;
-    configurationLimit = 8;
+    maxGenerations = 10;
   };
   boot.loader.efi.canTouchEfiVariables = true;
 
@@ -82,19 +83,15 @@
     modesetting.enable = true;
     powerManagement = {
       enable = true;
-      finegrained = true;
+      finegrained = false;
     };
-    open = false;
+
+    dynamicBoost.enable = true;
+
+    open = true;
     nvidiaSettings = true;
+
     package = config.boot.kernelPackages.nvidiaPackages.stable;
-    prime = {
-      offload = {
-        enable = true;
-        enableOffloadCmd = true;
-      };
-      intelBusId = lib.mkDefault "PCI:0:2:0";
-      nvidiaBusId = lib.mkDefault "PCI:1:0:0";
-    };
   };
 
   hardware.openrazer = {
