@@ -7,6 +7,7 @@
     pkgs.ripgrep
     pkgs.fzf
     pkgs.gh
+    pkgs.forgejo-cli
     pkgs.nixd
     pkgs.pandoc
     pkgs.htop
