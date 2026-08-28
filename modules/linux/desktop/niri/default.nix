@@ -49,22 +49,6 @@
       critical = "#dc7b82";
       focusInactive = "#55585f";
     };
-    icons = {
-      clipboard = "";
-      idleActive = "";
-      idleInactive = "";
-      charging = "";
-      brightness = [""];
-      volumeMuted = "󰍟";
-      volume = ["" "" ""];
-      network = {
-        disconnected = "󰤭";
-        ethernet = "󰈀";
-        wifi = ["󰤯" "󰤟" "󰤢" "󰤥" "󰤨"];
-      };
-      battery = ["" "" "" "" ""];
-      plugged = "";
-    };
     foot = {
       palette = footPalette;
       background = "111318";
@@ -74,6 +58,152 @@
       selection-foreground = "ffffff";
     };
   };
+  noctaliaConfig = {
+    shell = {
+      font_family = theme.fonts.ui;
+      launch_apps_as_systemd_services = true;
+      polkit_agent = true;
+    };
+
+    wallpaper.enabled = false;
+
+    theme = {
+      mode = "dark";
+      source = "custom";
+      custom_palette = "Graphite";
+    };
+
+    notification.enable_daemon = true;
+    lockscreen.enabled = false;
+    system.monitor.enabled = false;
+    hooks.started = "${lib.getExe config.programs.noctalia.package} msg color-scheme-set custom Graphite";
+
+    control_center = {
+      sidebar = "compact";
+      sidebar_section = "compact";
+      width = 720;
+      show_shortcut_labels = true;
+      show_session_button = true;
+      shortcuts = map (type: {inherit type;}) [
+        "wifi"
+        "bluetooth"
+        "audio"
+        "caffeine"
+        "notification"
+        "power_profile"
+      ];
+    };
+
+    bar.main = {
+      position = "top";
+      layer = "top";
+      thickness = 36;
+      background_opacity = 0.94;
+      border = "outline";
+      border_width = 1.0;
+      radius = 12;
+      concave_edge_corners = false;
+      margin_ends = 12;
+      margin_edge = 8;
+      padding = 10;
+      widget_spacing = 6;
+      font_weight = 500;
+      shadow = true;
+      contact_shadow = true;
+      auto_hide = false;
+      reserve_space = true;
+      capsule = false;
+      start = ["workspaces"];
+      center = ["clock"];
+      end = [
+        "tray"
+        "notifications"
+        "battery"
+        "control-center"
+      ];
+    };
+
+    widget = {
+      workspaces = {
+        style = "focus_hint";
+        show_labels = false;
+        pill_scale = 0.9;
+        active_pill_size = 2.0;
+        inactive_pill_size = 0.8;
+      };
+      clock = {
+        format = "{:%a %d %b · %H:%M}";
+        tooltip_format = "{:%A, %B %d, %Y}";
+      };
+      tray = {
+        drawer = true;
+        drawer_columns = 3;
+        hide_passive = true;
+      };
+      notifications.hide_when_no_unread = true;
+      battery = {
+        display_mode = "glyph";
+        show_label = true;
+        label_content = "percent";
+      };
+      control-center = {
+        capsule = true;
+        capsule_fill = "primary";
+        capsule_foreground = "on_primary";
+        capsule_padding = 7;
+      };
+    };
+  };
+  noctaliaPalette = {
+    dark = {
+      mPrimary = "#d6d8dc";
+      mOnPrimary = "#17181b";
+      mSecondary = "#b4b7bd";
+      mOnSecondary = "#17181b";
+      mTertiary = "#8e929a";
+      mOnTertiary = "#111214";
+      mError = "#dc7b82";
+      mOnError = "#1b1012";
+      mSurface = "#18191c";
+      mOnSurface = "#f0f1f3";
+      mSurfaceVariant = "#24262a";
+      mOnSurfaceVariant = "#b9bcc2";
+      mOutline = "#3b3e44";
+      mShadow = "#08090a";
+      mHover = "#2b2d32";
+      mOnHover = "#f4f5f7";
+      terminal = {
+        background = "#111318";
+        foreground = "#f4f7fb";
+        cursor = "#d6d8dc";
+        cursorText = "#111318";
+        selectionBg = "#2d3443";
+        selectionFg = "#ffffff";
+        normal = {
+          black = "#111318";
+          red = "#ff7b8a";
+          green = "#a7f3d0";
+          yellow = "#f6c177";
+          blue = "#7dd3fc";
+          magenta = "#c4a7e7";
+          cyan = "#67e8f9";
+          white = "#e6edf3";
+        };
+        bright = {
+          black = "#667085";
+          red = "#ff9aa6";
+          green = "#c4f8df";
+          yellow = "#ffd899";
+          blue = "#a5e4ff";
+          magenta = "#d8b4fe";
+          cyan = "#9bf6ff";
+          white = "#ffffff";
+        };
+      };
+    };
+  };
+  noctaliaConfigFile = (pkgs.formats.toml {}).generate "noctalia-config.toml" noctaliaConfig;
+  noctaliaPaletteFile = (pkgs.formats.json {}).generate "Graphite.json" noctaliaPalette;
   scripts = import ./lib/scripts.nix {
     inherit browserPackage config lib pkgs theme;
   };
@@ -83,23 +213,13 @@
   };
   niri = scripts // binds;
 in {
-  imports = [
-    (import ./waybar.nix {inherit niri theme user;})
-  ];
-
   environment.systemPackages = [
-    pkgs.brightnessctl
     browserPackage
-    pkgs.cliphist
-    pkgs.fuzzel
     pkgs.grim
     pkgs.imv
     pkgs.localsend
-    pkgs.mako
     pkgs.nautilus
     pkgs.wdisplays
-    pkgs.pavucontrol
-    pkgs.playerctl
     pkgs.slurp
     pkgs.swayidle
     pkgs.swaylock
@@ -111,6 +231,12 @@ in {
   programs.niri = {
     enable = true;
     useNautilus = true;
+  };
+
+  programs.noctalia = {
+    enable = true;
+    systemd.enable = true;
+    recommendedServices.enable = true;
   };
 
   programs.dconf.enable = true;
@@ -168,6 +294,8 @@ in {
     programs.niri = {
       package = config.programs.niri.package;
       settings = {
+        debug.honor-xdg-activation-with-invalid-serial = {};
+
         input = {
           keyboard.xkb = {
             layout = "de";
@@ -212,12 +340,15 @@ in {
 
         window-rules = [
           {draw-border-with-background = false;}
+          {
+            matches = [{app-id = "^dev\\.noctalia\\.Noctalia$";}];
+            open-floating = true;
+            default-column-width.fixed = 1080;
+            default-window-height.fixed = 920;
+          }
         ];
 
         spawn-at-startup = [
-          {argv = [niri.commands.mako];}
-          (niri.cliphistWatcher "text")
-          (niri.cliphistWatcher "image")
           {
             argv = [
               niri.commands.swayidle
@@ -232,7 +363,6 @@ in {
               niri.lockCommand
             ];
           }
-          {argv = [niri.commands.waybar];}
           {argv = [niri.commands.tailscale "systray"];}
           {argv = [niri.commands.xwaylandSatellite];}
         ];
@@ -272,65 +402,8 @@ in {
     };
 
     home.file = {
-      ".config/fuzzel/fuzzel.ini".text = ''
-        font=${theme.fonts.ui}:size=13
-        use-bold=yes
-        prompt="Search  "
-        placeholder=Applications…
-        width=50
-        lines=9
-        tabs=4
-        horizontal-pad=30
-        vertical-pad=22
-        inner-pad=14
-        line-height=20
-        anchor=center
-        layer=overlay
-        keyboard-focus=on-demand
-        exit-on-keyboard-focus-loss=yes
-        icon-theme=Papirus-Dark
-        image-size-ratio=1
-        fields=filename,name,generic,keywords,categories
-        match-mode=fzf
-        filter-desktop=yes
-        terminal=${niri.commands.terminal} -e
-
-        [colors]
-        background=${niri.withAlpha theme.colors.bar "fa"}
-        text=${niri.withAlpha theme.colors.text "ff"}
-        message=${niri.withAlpha theme.colors.muted "ff"}
-        prompt=${niri.withAlpha theme.colors.accent "ff"}
-        placeholder=${niri.withAlpha theme.colors.dim "ff"}
-        input=${niri.withAlpha theme.colors.text "ff"}
-        match=${niri.withAlpha theme.colors.accent "ff"}
-        selection=${niri.withAlpha theme.colors.surfaceHover "ff"}
-        selection-text=${niri.withAlpha theme.colors.text "ff"}
-        selection-match=${niri.withAlpha theme.colors.accent "ff"}
-        counter=${niri.withAlpha theme.colors.dim "ff"}
-        border=${niri.withAlpha theme.colors.focusInactive "ff"}
-
-        [border]
-        width=1
-        radius=12
-        selection-radius=6
-      '';
-
-      ".config/mako/config".text = ''
-        font=${theme.fonts.ui} 11
-        background-color=${theme.colors.bar}fa
-        text-color=${theme.colors.text}
-        border-color=${theme.colors.barBorder}
-        progress-color=over ${theme.colors.accent}
-        border-size=1
-        border-radius=10
-        padding=14
-        outer-margin=50,20,0,0
-        margin=8
-        width=380
-        max-icon-size=40
-        default-timeout=6000
-        anchor=top-right
-      '';
+      ".config/noctalia/config.toml".source = noctaliaConfigFile;
+      ".config/noctalia/palettes/Graphite.json".source = noctaliaPaletteFile;
     };
 
     gtk = {

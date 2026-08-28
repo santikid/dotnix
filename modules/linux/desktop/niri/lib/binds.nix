@@ -9,6 +9,7 @@
   spawnSh = command: bind {"spawn-sh" = command;};
   locked = binding: binding // {allow-when-locked = true;};
   repeatless = binding: binding // {repeat = false;};
+  noctalia = args: spawn ([commands.noctalia "msg"] ++ args);
   mapBinds = lib.mapAttrs (_: bind);
   mapSpawnBinds = lib.mapAttrs (_: spawn);
 
@@ -50,17 +51,17 @@
   };
 
   mediaBinds = {
-    XF86AudioRaiseVolume = locked (spawnSh "${commands.wpctl} set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0");
-    XF86AudioLowerVolume = locked (spawnSh "${commands.wpctl} set-volume @DEFAULT_AUDIO_SINK@ 0.1-");
-    XF86AudioMute = locked (spawnSh "${commands.wpctl} set-mute @DEFAULT_AUDIO_SINK@ toggle");
-    XF86AudioMicMute = locked (spawnSh "${commands.wpctl} set-mute @DEFAULT_AUDIO_SOURCE@ toggle");
-    XF86AudioPlay = locked (spawn [commands.playerctl "play-pause"]);
-    XF86AudioPause = locked (spawn [commands.playerctl "play-pause"]);
-    XF86AudioNext = locked (spawn [commands.playerctl "next"]);
-    XF86AudioPrev = locked (spawn [commands.playerctl "previous"]);
-    XF86AudioStop = locked (spawn [commands.playerctl "stop"]);
-    XF86MonBrightnessUp = locked (spawn [commands.brightnessctl "set" "+5%"]);
-    XF86MonBrightnessDown = locked (spawn [commands.brightnessctl "set" "5%-"]);
+    XF86AudioRaiseVolume = locked (noctalia ["volume-up"]);
+    XF86AudioLowerVolume = locked (noctalia ["volume-down"]);
+    XF86AudioMute = locked (noctalia ["volume-mute"]);
+    XF86AudioMicMute = locked (noctalia ["mic-mute"]);
+    XF86AudioPlay = locked (noctalia ["media" "toggle"]);
+    XF86AudioPause = locked (noctalia ["media" "toggle"]);
+    XF86AudioNext = locked (noctalia ["media" "next"]);
+    XF86AudioPrev = locked (noctalia ["media" "previous"]);
+    XF86AudioStop = locked (noctalia ["media" "stop"]);
+    XF86MonBrightnessUp = locked (noctalia ["brightness-up"]);
+    XF86MonBrightnessDown = locked (noctalia ["brightness-down"]);
   };
 
   applicationBinds =
@@ -68,14 +69,17 @@
       "${modifier}+T" = [commands.terminal];
       "${modifier}+C" = [commands.browser];
       "${modifier}+F" = [commands.files];
-      "${modifier}+Shift+V" = [commands.clipboardMenu];
-      "${modifier}+Escape" = [commands.sessionMenu];
+      "${modifier}+Shift+V" = [commands.noctalia "msg" "panel-toggle" "clipboard"];
+      "${modifier}+Escape" = [commands.noctalia "msg" "panel-toggle" "session"];
       "${modifier}+Ctrl+3" = [commands.screenshot "full"];
       "${modifier}+Ctrl+4" = [commands.screenshot "area"];
       "Alt+Print" = [commands.screenshot "area"];
     }
     // {
-      "${modifier}+Space" = repeatless (spawn [commands.appLauncher]);
+      "${modifier}+Space" = repeatless (noctalia ["panel-toggle" "launcher"]);
+      "${modifier}+S" = repeatless (noctalia ["panel-toggle" "control-center"]);
+      "${modifier}+Shift+S" = repeatless (noctalia ["settings-toggle"]);
+      "Alt+Tab" = repeatless (noctalia ["window-switcher"]);
       "${modifier}+Ctrl+Q" = spawnSh lockCommand;
       "Super+Alt+L" = spawnSh lockCommand;
     };

@@ -44,10 +44,13 @@ in {
       "steam-run"
       "steam-unwrapped"
       "widevine-cdm"
+      "vmware-workstation"
     ];
 
   hardware.enableRedistributableFirmware = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  virtualisation.vmware.host.enable = true;
 
   boot.loader.limine = {
     enable = true;
@@ -80,7 +83,6 @@ in {
   services.automatic-timezoned.enable = true;
 
   hardware.bluetooth.enable = true;
-  services.blueman.enable = true;
   services.tailscale.enable = true;
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
