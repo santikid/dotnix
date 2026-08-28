@@ -256,9 +256,61 @@
     name = "power-profile-menu";
     runtimeInputs = [
       pkgs.fuzzel
+      pkgs.gnused
       pkgs.power-profiles-daemon
     ];
     text = ''
+      if command -v razer-performance >/dev/null 2>&1; then
+        status="$(razer-performance status 2>/dev/null || true)"
+        current_label="$(printf '%s\n' "$status" | sed -n '1s/^CPU zone: \([^;]*\);.*/\1/p')"
+
+        case "$current_label" in
+          custom) selected=0 ;;
+          gaming) selected=1 ;;
+          balanced) selected=3 ;;
+          *)
+            current_label='unavailable'
+            selected=0
+            ;;
+        esac
+
+        choice="$(
+          printf '   Custom max · auto fans\n   Gaming · auto fans\n󰈐   Gaming · max fans\n   Balanced · auto fans\n' |
+            fuzzel \
+              --config=${fuzzelMenuConfig} \
+              --dmenu \
+              --index \
+              --no-sort \
+              --minimal-lines \
+              --only-match \
+              --hide-prompt \
+              --mesg="Razer power  ·  $current_label" \
+              --select-index="$selected" \
+              --width=35 \
+              --lines=4
+        )" || exit 0
+
+        case "$choice" in
+          0)
+            powerprofilesctl set performance
+            razer-performance custom-max
+            ;;
+          1)
+            powerprofilesctl set performance
+            razer-performance gaming
+            ;;
+          2)
+            powerprofilesctl set performance
+            razer-performance gaming-max-fans
+            ;;
+          3)
+            razer-performance balanced
+            powerprofilesctl set balanced
+            ;;
+        esac
+        exit 0
+      fi
+
       current="$(powerprofilesctl get 2>/dev/null || true)"
 
       case "$current" in

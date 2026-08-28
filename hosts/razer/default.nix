@@ -5,7 +5,24 @@
   pkgs,
   user,
   ...
-}: {
+}: let
+  razer-performance = pkgs.stdenv.mkDerivation {
+    pname = "razer-performance";
+    version = "1";
+    src = ./razer-performance.c;
+    dontUnpack = true;
+    buildPhase = ''
+      $CC -std=c11 -D_DEFAULT_SOURCE -O2 -Wall -Wextra -Werror "$src" -o razer-performance
+    '';
+    installPhase = ''
+      install -Dm755 razer-performance "$out/bin/razer-performance"
+    '';
+  };
+  razer-performance-default = pkgs.writeShellScript "razer-performance-default" ''
+    ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance
+    ${razer-performance}/bin/razer-performance custom-max
+  '';
+in {
   imports = [
     ./hardware-configuration.nix
   ];
@@ -99,6 +116,11 @@
     users = [user.name];
   };
 
+  # Minimal local controller for the Blade 15's EC performance profiles.
+  services.udev.extraRules = ''
+    KERNEL=="hidraw*", ATTRS{idVendor}=="1532", ATTRS{idProduct}=="0276", GROUP="openrazer", MODE="0660"
+  '';
+
   programs.steam.enable = true;
   programs.gamemode = {
     enable = true;
@@ -134,9 +156,23 @@
     protonup-qt
     vulkan-tools
     polychromatic
+    razer-performance
   ];
 
   home-manager.users.${user.name} = {
+    systemd.user.services.razer-performance-default = {
+      Unit = {
+        Description = "Set the Razer Blade gaming performance profile";
+        After = ["graphical-session-pre.target"];
+      };
+      Service = {
+        Type = "oneshot";
+        ExecStart = razer-performance-default;
+        RemainAfterExit = true;
+      };
+      Install.WantedBy = ["graphical-session.target"];
+    };
+
     programs.mangohud = {
       enable = true;
       settings = {
