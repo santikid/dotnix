@@ -16,13 +16,13 @@
       buildLinux = args:
         asahiPkgs.buildLinux (args
           // {
-            version = "7.1.6-fairydust";
-            modDirVersion = "7.1.6";
+            version = "7.1.12-fairydust";
+            modDirVersion = "7.1.12";
             src = asahiPkgs.fetchFromGitHub {
               owner = "AsahiLinux";
               repo = "linux";
-              rev = "eb8089bbc11872c50fcf5138ff069d51b4ae996f";
-              hash = "sha256-WywkNZXonLcyO0xAMlW7/k3uE9Embz3qedwyB5VOxQs=";
+              rev = "b8810ad6442699f610984f3eceea2e3234a50b77";
+              hash = "sha256-gtUvQl83LTEdJAfl9tQhBfYmjogBOGEdrYrxPa5xHYY=";
             };
           });
     };
