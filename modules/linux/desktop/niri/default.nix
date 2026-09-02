@@ -94,7 +94,6 @@ in {
     pkgs.fuzzel
     pkgs.grim
     pkgs.imv
-    pkgs.localsend
     pkgs.mako
     pkgs.nautilus
     pkgs.wdisplays
