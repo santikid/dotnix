@@ -8,7 +8,12 @@
   ];
 
   boot = {
+    extraModprobeConfig = ''
+      # The media workload benefits little from a very large ARC.
+      options zfs zfs_arc_max=8589934592
+    '';
     kernelPackages = pkgs.linuxPackages_latest;
+    zfs.forceImportRoot = false;
     loader = {
       efi.canTouchEfiVariables = false;
       grub = {
@@ -28,7 +33,10 @@
         ];
       };
     };
-    supportedFilesystems = ["btrfs"];
+    supportedFilesystems = [
+      "btrfs"
+      "zfs"
+    ];
   };
 
   systemd.tmpfiles.rules = [
@@ -41,6 +49,8 @@
   };
 
   networking = {
+    # Stable ZFS host identifier derived from Opal's machine ID.
+    hostId = "e1d2ff7e";
     networkmanager.enable = true;
     nftables.enable = true;
     firewall = {
@@ -83,6 +93,17 @@
     smartd = {
       enable = true;
       autodetect = true;
+    };
+    zfs = {
+      autoScrub = {
+        enable = true;
+        interval = "monthly";
+        pools = ["storage"];
+      };
+      trim = {
+        enable = true;
+        interval = "weekly";
+      };
     };
     udev.extraRules = ''
       # Authorize only the OWC Express 4M2, and only when the host IOMMU is
