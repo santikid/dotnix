@@ -8,7 +8,10 @@
     # protecting Thunderbolt DMA.
     ACTION=="add", SUBSYSTEM=="thunderbolt", ATTR{unique_id}=="d4030000-0070-6718-2351-393f86545801", ATTRS{iommu_dma_protection}=="1", ATTR{authorized}=="0", ATTR{authorized}="1"
   '';
-  owc4m2InitrdUdevRules = pkgs.writeTextDir "etc/udev/rules.d/99-owc-express-4m2.rules" owc4m2UdevRule;
+  storageUdevRule = ''
+    # Import this pool after all of its members appear, including after hot-plug.
+    ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_TYPE}=="zfs_member", ENV{ID_FS_UUID}=="4193332052382858745", TAG+="systemd", ENV{SYSTEMD_WANTS}+="storage-pool.service"
+  '';
 in {
   imports = [
     ./hardware-configuration.nix
@@ -44,7 +47,6 @@ in {
       "btrfs"
       "zfs"
     ];
-    initrd.services.udev.packages = [owc4m2InitrdUdevRules];
   };
 
   systemd.tmpfiles.rules = [
@@ -79,7 +81,58 @@ in {
       "live-restore" = false;
     };
   };
-  systemd.services.docker.path = [pkgs.nftables];
+  systemd = {
+    services = {
+      docker.path = [pkgs.nftables];
+
+      storage-pool = {
+        description = "Import, unlock, and mount the 4M2 storage pool";
+        path = [
+          pkgs.coreutils
+          pkgs.zfs
+        ];
+        script = ''
+          if ! zpool list -H -o name storage >/dev/null 2>&1; then
+            if ! timeout --kill-after=5s 15s zpool import -N -d /dev/disk/by-id -o cachefile=none 4193332052382858745; then
+              echo "Could not import the storage pool; leaving storage offline."
+              exit 0
+            fi
+          fi
+
+          if ! key_status="$(zfs get -H -o value keystatus storage 2>/dev/null)"; then
+            echo "Could not read the storage encryption state; leaving storage unmounted."
+            exit 0
+          fi
+
+          if [[ "$key_status" == "unavailable" ]]; then
+            if [[ ! -r /var/lib/zfs/keys/storage.key ]]; then
+              echo "The storage encryption key is unavailable; leaving storage unmounted."
+              exit 0
+            fi
+            if ! zfs load-key storage; then
+              echo "Could not unlock the storage pool; leaving storage unmounted."
+              exit 0
+            fi
+          fi
+
+          if ! zfs mount -a; then
+            echo "The storage pool is online, but one or more datasets could not be mounted."
+            exit 0
+          fi
+        '';
+        unitConfig.ConditionPathExists = [
+          "/dev/disk/by-id/nvme-CT4000P3SSD8_2324E6E26D33-part1"
+          "/dev/disk/by-id/nvme-CT4000P3SSD8_2328E6ECAFF7-part1"
+          "/dev/disk/by-id/nvme-CT4000P3SSD8_2328E6ECB013-part1"
+          "/dev/disk/by-id/nvme-CT4000P3SSD8_2328E6ECB021-part1"
+        ];
+        serviceConfig = {
+          Type = "oneshot";
+          TimeoutStartSec = "30s";
+        };
+      };
+    };
+  };
 
   users.users.${user.name}.extraGroups = [
     "docker"
@@ -113,7 +166,7 @@ in {
         interval = "weekly";
       };
     };
-    udev.extraRules = owc4m2UdevRule;
+    udev.extraRules = owc4m2UdevRule + storageUdevRule;
   };
 
   zramSwap.enable = true;
