@@ -80,6 +80,11 @@
       enable = true;
       autodetect = true;
     };
+    udev.extraRules = ''
+      # Authorize only the OWC Express 4M2, and only when the host IOMMU is
+      # protecting Thunderbolt DMA.
+      ACTION=="add", SUBSYSTEM=="thunderbolt", ATTR{unique_id}=="d4030000-0070-6718-2351-393f86545801", ATTRS{iommu_dma_protection}=="1", ATTR{authorized}=="0", ATTR{authorized}="1"
+    '';
   };
 
   zramSwap.enable = true;
