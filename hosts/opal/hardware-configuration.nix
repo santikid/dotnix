@@ -22,11 +22,11 @@ in {
 
   boot.initrd.availableKernelModules = [
     "nvme"
-    "sd_mod"
-    "uas"
-    "usb_storage"
-    "usbhid"
     "xhci_pci"
+    "thunderbolt"
+    "usbhid"
+    "uas"
+    "sd_mod"
   ];
   boot.initrd.kernelModules = [];
   boot.kernelModules = ["kvm-amd"];
