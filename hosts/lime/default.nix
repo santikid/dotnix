@@ -46,7 +46,7 @@
     fwupd.enable = true;
     openssh.openFirewall = false;
     fstrim.enable = true;
-    tailscale.useRoutingFeatures = "client";
+    tailscale.useRoutingFeatures = "both";
     udev.extraRules = ''
       ACTION=="add", SUBSYSTEM=="power_supply", KERNEL=="BAT0", ATTR{charge_control_end_threshold}="80", ATTR{charge_control_start_threshold}="70"
     '';
