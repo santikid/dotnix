@@ -33,11 +33,10 @@ in {
   boot.extraModulePackages = [];
 
   fileSystems = {
-    "/" = btrfsSubvolume "@root";
-    "/nix" = btrfsSubvolume "@nix";
-    "/home" = btrfsSubvolume "@home";
-    "/var/log" = btrfsSubvolume "@log";
-    "/var/lib/docker" = btrfsSubvolume "@docker";
+    "/" = btrfsSubvolume "root";
+    "/nix" = btrfsSubvolume "nix";
+    "/home" = btrfsSubvolume "home";
+    "/srv" = btrfsSubvolume "srv";
     "/boot-a" = {
       device = "/dev/disk/by-label/OPAL-ESP-A";
       fsType = "vfat";
