@@ -31,6 +31,10 @@
     supportedFilesystems = ["btrfs"];
   };
 
+  systemd.tmpfiles.rules = [
+    "d /srv 2775 root users -"
+  ];
+
   hardware = {
     enableRedistributableFirmware = true;
     graphics.enable = true;
