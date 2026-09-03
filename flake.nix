@@ -83,6 +83,14 @@
     };
 
     nixosHosts = {
+      opal = {
+        system = "x86_64-linux";
+        extraModules = [
+          ./hosts/opal
+          ./modules/linux/server.nix
+        ];
+      };
+
       lime = {
         system = "x86_64-linux";
         extraModules = [

@@ -10,6 +10,7 @@ on:
       - "flake.nix"
       - "flake.lock"
       - "hosts/lisbon/**"
+      - "hosts/opal/**"
       - "hosts/obsidian/**"
       - "hosts/ruby/**"
       - "hosts/santibook/**"
@@ -24,6 +25,7 @@ on:
       - "flake.nix"
       - "flake.lock"
       - "hosts/lisbon/**"
+      - "hosts/opal/**"
       - "hosts/obsidian/**"
       - "hosts/ruby/**"
       - "hosts/santibook/**"
@@ -55,6 +57,12 @@ jobs:
             max_jobs: 2
             cores: 2
             installable: .#darwinConfigurations.lisbon.system
+          - name: opal
+            runner: nix-x86_64-linux
+            system: x86_64-linux
+            max_jobs: 4
+            cores: 2
+            installable: .#nixosConfigurations.opal.config.system.build.toplevel
           - name: obsidian
             runner: nix-x86_64-linux
             system: x86_64-linux

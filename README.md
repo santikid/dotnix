@@ -8,6 +8,7 @@ Personal Nix flake for macOS, NixOS, Linux containers, and Asahi NixOS hosts.
 | --- | --- | --- |
 | `santibook` | `aarch64-darwin` | macOS desktop |
 | `lisbon` | `aarch64-darwin` | macOS server |
+| `opal` | `x86_64-linux` | NixOS server (Minisforum AI X1 Pro) |
 | `lime` | `x86_64-linux` | NixOS backup server |
 | `obsidian` | `x86_64-linux` | NixOS server |
 | `ruby` | `x86_64-linux` | Incus VM |
@@ -56,6 +57,10 @@ make rekey
    ```
 
 ## Installing NixOS
+
+For `opal`, follow the mirrored-NVMe installation notes in
+[`hosts/opal/INSTALL.md`](hosts/opal/INSTALL.md). The generic single-disk steps
+below are for the other NixOS hosts.
 
 Boot the NixOS minimal installer ISO, optionally load a keymap such as `loadkeys de`, then format and mount the disk:
 
