@@ -33,6 +33,7 @@
   services = {
     fstrim.enable = true;
     openssh.openFirewall = false;
+    qemuGuest.enable = true;
     tailscale.openFirewall = true;
 
     prometheus.exporters.node = {
