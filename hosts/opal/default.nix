@@ -65,7 +65,10 @@ in {
     nftables.enable = true;
     firewall = {
       enable = true;
-      trustedInterfaces = ["tailscale0"];
+      trustedInterfaces = [
+        "incusbr0"
+        "tailscale0"
+      ];
     };
   };
 
@@ -81,6 +84,8 @@ in {
       "live-restore" = false;
     };
   };
+  virtualisation.incus.enable = true;
+
   systemd = {
     services = {
       docker.path = [pkgs.nftables];
@@ -136,6 +141,7 @@ in {
 
   users.users.${user.name}.extraGroups = [
     "docker"
+    "incus-admin"
     "networkmanager"
   ];
 
