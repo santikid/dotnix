@@ -58,16 +58,32 @@
 
   systemd = {
     tmpfiles.rules = ["d /srv/Attic 0700 atticd atticd -"];
-    services.atticd = {
-      after = ["storage-pool.service"];
-      wants = ["storage-pool.service"];
-      unitConfig.ConditionPathIsMountPoint = "/storage";
-      serviceConfig = {
-        DynamicUser = lib.mkForce false;
-        ExecStartPre = [
-          "+${pkgs.coreutils}/bin/install -d -m 0700 -o atticd -g atticd /storage/attic"
-        ];
-        ReadWritePaths = ["/srv/Attic"];
+    services = {
+      storage-pool.wants = ["atticd.service"];
+
+      atticd-storage = {
+        description = "Prepare Attic storage after the ZFS pool is mounted";
+        requires = ["storage-pool.service"];
+        after = ["storage-pool.service"];
+        before = ["atticd.service"];
+        unitConfig.ConditionPathIsMountPoint = "/storage";
+        script = ''
+          ${pkgs.coreutils}/bin/install -d -m 0700 -o atticd -g atticd /storage/attic
+        '';
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+        };
+      };
+
+      atticd = {
+        requires = ["atticd-storage.service"];
+        after = ["atticd-storage.service"];
+        unitConfig.ConditionPathIsMountPoint = "/storage";
+        serviceConfig = {
+          DynamicUser = lib.mkForce false;
+          ReadWritePaths = ["/srv/Attic"];
+        };
       };
     };
   };
