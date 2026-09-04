@@ -16,28 +16,12 @@
   copySchedule = "*-*-* 06:00:00";
 
   jobs = {
-    obsidian = {
-      sourceRepositoryFile = config.sops.secrets.restic_copy_obsidian_source_repository.path;
-      destinationRepository = "${storageMount}/restic/obsidian";
-      sourcePasswordFile = config.sops.secrets.restic_copy_obsidian_source_password.path;
-      destinationPasswordFile = config.sops.secrets.restic_copy_obsidian_destination_password.path;
+    opal = {
+      sourceRepositoryFile = config.sops.secrets.restic_copy_opal_source_repository.path;
+      destinationRepository = "${storageMount}/restic/opal";
+      sourcePasswordFile = config.sops.secrets.restic_copy_opal_source_password.path;
+      destinationPasswordFile = config.sops.secrets.restic_copy_opal_destination_password.path;
       maintenanceSchedule = "*-*-01 10:00:00";
-      retentionArgs = [
-        "--keep-daily"
-        "7"
-        "--keep-weekly"
-        "4"
-        "--keep-monthly"
-        "6"
-      ];
-    };
-
-    lisbon = {
-      sourceRepositoryFile = config.sops.secrets.restic_copy_lisbon_source_repository.path;
-      destinationRepository = "${storageMount}/restic/lisbon";
-      sourcePasswordFile = config.sops.secrets.restic_copy_lisbon_source_password.path;
-      destinationPasswordFile = config.sops.secrets.restic_copy_lisbon_destination_password.path;
-      maintenanceSchedule = "*-*-02 10:00:00";
       retentionArgs = [
         "--keep-hourly"
         "24"
@@ -115,9 +99,7 @@
         lib.nameValuePair "restic-copy-${name}" {
           description = "Copy ${name} Restic snapshots to local storage";
           wants = ["network-online.target"];
-          after =
-            ["network-online.target"]
-            ++ lib.optional (name == "lisbon") "restic-copy-obsidian.service";
+          after = ["network-online.target"];
           path = [pkgs.openssh];
           unitConfig = commonUnitConfig job;
           serviceConfig = resticServiceConfig // {ExecStart = copyCommand job;};
@@ -167,12 +149,9 @@ in {
     "restic_copy_source_ssh_config"
     "restic_copy_source_ssh_key"
     "restic_copy_source_known_hosts"
-    "restic_copy_obsidian_source_repository"
-    "restic_copy_obsidian_source_password"
-    "restic_copy_obsidian_destination_password"
-    "restic_copy_lisbon_source_repository"
-    "restic_copy_lisbon_source_password"
-    "restic_copy_lisbon_destination_password"
+    "restic_copy_opal_source_repository"
+    "restic_copy_opal_source_password"
+    "restic_copy_opal_destination_password"
     "restic_copy_healthchecks_curl_config"
   ] (_: {sopsFile = ../../secrets/lime.yaml;});
 

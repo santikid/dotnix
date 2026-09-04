@@ -71,15 +71,6 @@
           ./modules/coding-agents.nix
         ];
       };
-      lisbon = {
-        system = "aarch64-darwin";
-        extraModules = [
-          ./hosts/lisbon
-          ./modules/darwin/server.nix
-          ./modules/healthchecks.nix
-          ./modules/secrets/ntfy.nix
-        ];
-      };
     };
 
     nixosHosts = {
@@ -111,17 +102,6 @@
           ./hosts/jade
           ./modules/healthchecks.nix
           ./modules/linux/server.nix
-          ./modules/secrets/ntfy.nix
-        ];
-      };
-
-      obsidian = {
-        system = "x86_64-linux";
-        extraModules = [
-          ./hosts/obsidian
-          ./modules/linux/server.nix
-          ./modules/healthchecks.nix
-          ./modules/linux/ntfy-maintenance-alerts.nix
           ./modules/secrets/ntfy.nix
         ];
       };

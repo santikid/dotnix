@@ -6,11 +6,10 @@ Personal Nix flake for macOS, NixOS, Linux containers, and Asahi NixOS hosts.
 
 | Host | Platform | Role |
 | --- | --- | --- |
-| `santibook` | `aarch64-darwin` | macOS desktop |
-| `lisbon` | `aarch64-darwin` | macOS server |
-| `opal` | `x86_64-linux` | NixOS server (Minisforum AI X1 Pro) |
+| `santibook` | `aarch64-darwin` | macOS laptop |
+| `opal` | `x86_64-linux` | NixOS host (Minisforum AI X1 Pro) |
+| `jade` | `x86_64-linux` | Public VPS running ingress |
 | `lime` | `x86_64-linux` | NixOS backup server |
-| `obsidian` | `x86_64-linux` | NixOS server |
 | `ruby` | `x86_64-linux` | Incus VM |
 | `santisasahi` | `aarch64-linux` | Asahi NixOS laptop |
 
@@ -86,13 +85,13 @@ For a new host, generate hardware config:
 nixos-generate-config --root /mnt
 ```
 
-Clone and install. When `obsidian` is reachable, supply the cache settings explicitly so the initial installation can reuse CI artifacts before the installed configuration takes effect:
+Clone and install. When `opal` is reachable, supply the cache settings explicitly so the initial installation can reuse CI artifacts before the installed configuration takes effect:
 
 ```bash
 git clone https://github.com/santikid/dotnix /mnt/.nix
 nixos-install --flake /mnt/.nix#<machine> \
-  --option extra-substituters http://obsidian:8180/dotnix \
-  --option extra-trusted-public-keys 'dotnix:l60JA9kCmi7QH4e9UONJagnC7aqyJkJc++qsiKCYU6M='
+  --option extra-substituters http://opal:8180/dotnix \
+  --option extra-trusted-public-keys 'dotnix:N7VDgNbJ+yj6YV97+97s5HrxQ38+27OSPm17BexG3qA='
 ```
 
 ## Installing Asahi NixOS

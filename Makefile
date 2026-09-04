@@ -29,10 +29,9 @@ format:
 
 check:
 	nix eval .#darwinConfigurations.santibook.system.drvPath --raw
-	nix eval .#darwinConfigurations.lisbon.system.drvPath --raw
 	nix eval .#nixosConfigurations.opal.config.system.build.toplevel.drvPath --raw
 	nix eval .#nixosConfigurations.lime.config.system.build.toplevel.drvPath --raw
-	nix eval .#nixosConfigurations.obsidian.config.system.build.toplevel.drvPath --raw
+	nix eval .#nixosConfigurations.jade.config.system.build.toplevel.drvPath --raw
 	nix eval .#nixosConfigurations.ruby.config.system.build.toplevel.drvPath --raw
 	nix eval .#nixosConfigurations.santisasahi.config.networking.hostName --raw
 

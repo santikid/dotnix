@@ -69,6 +69,7 @@
       targets = {
         jade = "http://jade:9100/";
         lime = "http://lime:9100/";
+        ruby = "http://ruby:9100/";
       };
     };
 
