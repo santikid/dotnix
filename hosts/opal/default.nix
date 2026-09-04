@@ -4,6 +4,7 @@
   ...
 }: {
   imports = [
+    ./cache.nix
     ./hardware-configuration.nix
     ./storage.nix
     ./virtualisation.nix
