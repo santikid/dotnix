@@ -101,6 +101,14 @@
         ];
       };
 
+      jade = {
+        system = "x86_64-linux";
+        extraModules = [
+          ./hosts/jade
+          ./modules/linux/server.nix
+        ];
+      };
+
       obsidian = {
         system = "x86_64-linux";
         extraModules = [
