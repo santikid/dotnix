@@ -9,7 +9,6 @@ on:
       - ".forgejo/workflows/systems.yml"
       - "flake.nix"
       - "flake.lock"
-      - "hosts/lisbon/**"
       - "hosts/opal/**"
       - "hosts/jade/**"
       - "hosts/ruby/**"
@@ -24,7 +23,6 @@ on:
       - ".forgejo/workflows/systems.yml"
       - "flake.nix"
       - "flake.lock"
-      - "hosts/lisbon/**"
       - "hosts/opal/**"
       - "hosts/jade/**"
       - "hosts/ruby/**"
@@ -51,12 +49,6 @@ jobs:
             max_jobs: 2
             cores: 2
             installable: .#darwinConfigurations.santibook.system
-          - name: lisbon
-            runner: nix-aarch64-darwin
-            system: aarch64-darwin
-            max_jobs: 2
-            cores: 2
-            installable: .#darwinConfigurations.lisbon.system
           - name: opal
             runner: nix-x86_64-linux
             system: x86_64-linux
