@@ -1,11 +1,20 @@
-{user, ...}: {
+{
+  config,
+  user,
+  ...
+}: {
   imports = [
     ./hardware-configuration.nix
   ];
 
+  sops.age = {
+    generateKey = false;
+    sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+  };
+
   boot.loader.grub = {
     enable = true;
-    device = "/dev/sda";
+    device = "/dev/vda";
     configurationLimit = 5;
   };
 
@@ -29,6 +38,12 @@
     prometheus.exporters.node = {
       enable = true;
       port = 9100;
+    };
+
+    peerHealthcheck = {
+      enable = true;
+      topicFile = config.sops.secrets.ntfy_maintenance_topic.path;
+      targets.opal = "http://opal:9100/";
     };
   };
 

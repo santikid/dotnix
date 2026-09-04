@@ -87,7 +87,10 @@
         system = "x86_64-linux";
         extraModules = [
           ./hosts/opal
+          ./modules/healthchecks.nix
           ./modules/linux/server.nix
+          ./modules/linux/ntfy-maintenance-alerts.nix
+          ./modules/secrets/ntfy.nix
         ];
       };
 
@@ -95,6 +98,7 @@
         system = "x86_64-linux";
         extraModules = [
           ./hosts/lime
+          ./modules/healthchecks.nix
           ./modules/linux/server.nix
           ./modules/linux/ntfy-maintenance-alerts.nix
           ./modules/secrets/ntfy.nix
@@ -105,7 +109,9 @@
         system = "x86_64-linux";
         extraModules = [
           ./hosts/jade
+          ./modules/healthchecks.nix
           ./modules/linux/server.nix
+          ./modules/secrets/ntfy.nix
         ];
       };
 

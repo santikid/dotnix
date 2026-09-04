@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   user,
   ...
@@ -55,9 +56,33 @@
 
   services = {
     fwupd.enable = true;
+    tailscale.openFirewall = true;
+
     prometheus.exporters.node = {
       enable = true;
       port = 9100;
+    };
+
+    peerHealthcheck = {
+      enable = true;
+      topicFile = config.sops.secrets.ntfy_maintenance_topic.path;
+      targets = {
+        jade = "http://jade:9100/";
+        lime = "http://lime:9100/";
+      };
+    };
+
+    ntfy-maintenance-alerts = {
+      enable = true;
+      topicFile = config.sops.secrets.ntfy_maintenance_topic.path;
+      systemdServices = [
+        "smartd"
+        "storage-pool"
+        "zfs-scrub"
+        "zfs-zed"
+        "zpool-trim"
+      ];
+      smartd.enable = true;
     };
   };
 

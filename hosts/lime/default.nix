@@ -46,6 +46,7 @@
     fwupd.enable = true;
     openssh.openFirewall = false;
     fstrim.enable = true;
+    tailscale.openFirewall = true;
     tailscale.useRoutingFeatures = "both";
     udev.extraRules = ''
       ACTION=="add", SUBSYSTEM=="power_supply", KERNEL=="BAT0", ATTR{charge_control_end_threshold}="80", ATTR{charge_control_start_threshold}="70"
@@ -83,6 +84,12 @@
     prometheus.exporters.node = {
       enable = true;
       port = 9100;
+    };
+
+    peerHealthcheck = {
+      enable = true;
+      topicFile = config.sops.secrets.ntfy_maintenance_topic.path;
+      targets.opal = "http://opal:9100/";
     };
 
     logind.settings.Login = {

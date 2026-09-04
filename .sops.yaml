@@ -4,6 +4,7 @@ keys:
   - &lisbon age1wmscunfntut4fzem9zj0dxx4wpd2farrsj6qheuwg3mzlmep5ewq4fmejw
   - &lime age1h62gf63yxpmvggkamrldutknsh2eqt365fmx4v486sv678z6f9pqm0xp5l
   - &opal age1mv34n5m248rv9r0tpkg7c35anathtp3r7ppvrj823drgnhv4ud0sz65stq
+  - &jade age1qqcc655mawc6p7u4d6aeuf092ueq0dhaqmhvazkenh6at664cgxqus96nv
 creation_rules:
   - path_regex: ^secrets/obsidian\.yaml$
     key_groups:
@@ -17,6 +18,8 @@ creation_rules:
           - *obsidian
           - *lisbon
           - *lime
+          - *opal
+          - *jade
   - path_regex: ^secrets/lime\.yaml$
     key_groups:
       - age:

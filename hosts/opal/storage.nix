@@ -34,29 +34,29 @@ in {
       if ! zpool list -H -o name storage >/dev/null 2>&1; then
         if ! timeout --kill-after=5s 15s zpool import -N -d /dev/disk/by-id -o cachefile=none 4193332052382858745; then
           echo "Could not import the storage pool; leaving storage offline."
-          exit 0
+          exit 1
         fi
       fi
 
       if ! key_status="$(zfs get -H -o value keystatus storage 2>/dev/null)"; then
         echo "Could not read the storage encryption state; leaving storage unmounted."
-        exit 0
+        exit 1
       fi
 
       if [[ "$key_status" == "unavailable" ]]; then
         if [[ ! -r /var/lib/zfs/keys/storage.key ]]; then
           echo "The storage encryption key is unavailable; leaving storage unmounted."
-          exit 0
+          exit 1
         fi
         if ! zfs load-key storage; then
           echo "Could not unlock the storage pool; leaving storage unmounted."
-          exit 0
+          exit 1
         fi
       fi
 
       if ! zfs mount -a; then
         echo "The storage pool is online, but one or more datasets could not be mounted."
-        exit 0
+        exit 1
       fi
     '';
     unitConfig.ConditionPathExists = [
