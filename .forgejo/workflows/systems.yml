@@ -11,7 +11,7 @@ on:
       - "flake.lock"
       - "hosts/lisbon/**"
       - "hosts/opal/**"
-      - "hosts/obsidian/**"
+      - "hosts/jade/**"
       - "hosts/ruby/**"
       - "hosts/santibook/**"
       - "hosts/lime/**"
@@ -26,7 +26,7 @@ on:
       - "flake.lock"
       - "hosts/lisbon/**"
       - "hosts/opal/**"
-      - "hosts/obsidian/**"
+      - "hosts/jade/**"
       - "hosts/ruby/**"
       - "hosts/santibook/**"
       - "hosts/lime/**"
@@ -36,8 +36,8 @@ on:
 env:
   NIX_CONFIG: |
     experimental-features = nix-command flakes
-    extra-substituters = http://obsidian:8180/dotnix
-    extra-trusted-public-keys = dotnix:l60JA9kCmi7QH4e9UONJagnC7aqyJkJc++qsiKCYU6M=
+    extra-substituters = http://opal:8180/dotnix
+    extra-trusted-public-keys = dotnix:N7VDgNbJ+yj6YV97+97s5HrxQ38+27OSPm17BexG3qA=
 
 jobs:
   build:
@@ -63,12 +63,12 @@ jobs:
             max_jobs: 4
             cores: 2
             installable: .#nixosConfigurations.opal.config.system.build.toplevel
-          - name: obsidian
+          - name: jade
             runner: nix-x86_64-linux
             system: x86_64-linux
             max_jobs: 4
             cores: 2
-            installable: .#nixosConfigurations.obsidian.config.system.build.toplevel
+            installable: .#nixosConfigurations.jade.config.system.build.toplevel
           - name: ruby
             runner: nix-x86_64-linux
             system: x86_64-linux
@@ -147,7 +147,7 @@ jobs:
         run: |
           : "${ATTIC_TOKEN:?ATTIC_TOKEN is unavailable in this workflow}"
           export XDG_CONFIG_HOME="$PWD/.ci-config"
-          ./attic-client/bin/attic login forgejo http://obsidian:8180 "$ATTIC_TOKEN"
+          ./attic-client/bin/attic login forgejo http://opal:8180 "$ATTIC_TOKEN"
           ./attic-client/bin/attic push forgejo:dotnix result
 
   merge-update:
