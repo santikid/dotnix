@@ -25,7 +25,7 @@ make upgrade
 make rekey
 ```
 
-`make bootstrap` performs the first rebuild with the Attic substituter supplied explicitly. Once that configuration is active, regular `make rebuild` invocations use the cache automatically.
+`make bootstrap` supplies the Opal and NixOS cache URLs and signing keys through `NIX_CONFIG`, replacing stale cache settings for that rebuild. Once that configuration is active, regular `make rebuild` invocations use the cache automatically.
 
 `santisasahi` rebuilds use `--impure` because the Apple Silicon firmware lives outside the flake.
 
