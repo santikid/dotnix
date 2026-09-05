@@ -47,7 +47,7 @@ jobs:
             runner: nix-aarch64-darwin
             system: aarch64-darwin
             max_jobs: 2
-            cores: 2
+            cores: 0
             installable: .#darwinConfigurations.santibook.system
           - name: opal
             runner: nix-x86_64-linux
@@ -65,7 +65,7 @@ jobs:
             runner: nix-x86_64-linux
             system: x86_64-linux
             max_jobs: 4
-            cores: 2
+            cores: 0
             installable: .#nixosConfigurations.ruby.config.system.build.toplevel
           - name: lime
             runner: nix-x86_64-linux
