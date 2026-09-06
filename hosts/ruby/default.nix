@@ -11,6 +11,14 @@
 
   boot.loader.systemd-boot.configurationLimit = 5;
 
+  # Disk-backed headroom for temporary browser and build memory spikes.
+  swapDevices = [
+    {
+      device = "/var/lib/swapfile";
+      size = 4 * 1024;
+    }
+  ];
+
   networking = {
     dhcpcd.enable = false;
     useDHCP = false;
