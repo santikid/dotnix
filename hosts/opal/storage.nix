@@ -65,6 +65,10 @@ in {
       "/dev/disk/by-id/nvme-CT4000P3SSD8_2328E6ECB013-part1"
       "/dev/disk/by-id/nvme-CT4000P3SSD8_2328E6ECB021-part1"
     ];
+    # Docker is deliberately gated on this pool. If the enclosure is absent,
+    # Opal still boots and remains reachable; Docker starts automatically once
+    # a later hot-plug imports and mounts the pool successfully.
+    unitConfig.OnSuccess = "docker.service";
     serviceConfig = {
       Type = "oneshot";
       TimeoutStartSec = "30s";

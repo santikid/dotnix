@@ -1,9 +1,18 @@
 {
   config,
+  lib,
   pkgs,
   user,
   ...
-}: {
+}: let
+  requireMediaStorage = pkgs.writeShellScript "docker-require-media-storage" ''
+    mount="$(findmnt -rn -M /storage/media -o SOURCE,FSTYPE || true)"
+    if [[ "$mount" != "storage/data/media zfs" ]]; then
+      echo "Refusing to start Docker without storage/data/media mounted at /storage/media." >&2
+      exit 1
+    fi
+  '';
+in {
   networking.firewall.trustedInterfaces = ["incusbr0"];
 
   virtualisation = {
@@ -22,7 +31,12 @@
     incus.enable = true;
   };
 
-  systemd.services.docker.path = [pkgs.nftables];
+  systemd.services.docker = {
+    wants = ["storage-pool.service"];
+    after = ["storage-pool.service"];
+    path = [pkgs.nftables];
+    serviceConfig.ExecStartPre = lib.mkAfter [requireMediaStorage];
+  };
 
   # Scheduled ahead of Backrest's 04:00 backup; there is no ordering dependency.
   systemd.services.incus-export-ruby = {
