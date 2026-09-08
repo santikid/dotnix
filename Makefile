@@ -38,6 +38,7 @@ check:
 	nix eval .#nixosConfigurations.ruby.config.system.build.toplevel.drvPath --raw
 	nix eval .#nixosConfigurations.razer.config.system.build.toplevel.drvPath --raw
 	nix eval .#nixosConfigurations.santisasahi.config.networking.hostName --raw
+	nix eval .#nixosConfigurations.santisasahi.config.home-manager.users.santi.home.activationPackage.drvPath --raw
 
 rebuild:
 ifeq ($(SYS_TYPE),Linux)
