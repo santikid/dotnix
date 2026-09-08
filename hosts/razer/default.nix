@@ -49,6 +49,7 @@ in {
 
   hardware.enableRedistributableFirmware = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelParams = ["hid_apple.swap_fn_leftctrl=1"];
 
   virtualisation.vmware.host.enable = true;
 
