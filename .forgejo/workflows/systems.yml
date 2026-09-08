@@ -65,7 +65,7 @@ jobs:
             runner: nix-x86_64-linux
             system: x86_64-linux
             max_jobs: 4
-            cores: 0
+            cores: 4
             installable: .#nixosConfigurations.ruby.config.system.build.toplevel
           - name: lime
             runner: nix-x86_64-linux
