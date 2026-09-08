@@ -67,8 +67,10 @@ in {
     ];
     # Docker is deliberately gated on this pool. If the enclosure is absent,
     # Opal still boots and remains reachable; Docker starts automatically once
-    # a later hot-plug imports and mounts the pool successfully.
-    unitConfig.OnSuccess = "docker.service";
+    # a later hot-plug imports and mounts the pool successfully. Pull Docker
+    # into the same transaction; OnSuccess would re-trigger this inactive
+    # oneshot through Docker's Wants=storage-pool.service and create a loop.
+    wants = ["docker.service"];
     serviceConfig = {
       Type = "oneshot";
       TimeoutStartSec = "30s";

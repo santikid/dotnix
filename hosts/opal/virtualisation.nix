@@ -6,7 +6,7 @@
   ...
 }: let
   requireMediaStorage = pkgs.writeShellScript "docker-require-media-storage" ''
-    mount="$(findmnt -rn -M /storage/media -o SOURCE,FSTYPE || true)"
+    mount="$(${pkgs.util-linux}/bin/findmnt -rn -M /storage/media -o SOURCE,FSTYPE || true)"
     if [[ "$mount" != "storage/data/media zfs" ]]; then
       echo "Refusing to start Docker without storage/data/media mounted at /storage/media." >&2
       exit 1
