@@ -7,6 +7,7 @@
     pkgs.ripgrep
     pkgs.fzf
     pkgs.gh
+    pkgs.forgejo-cli
     pkgs.nixd
     pkgs.pandoc
     pkgs.htop
@@ -38,6 +39,7 @@
     pkgs.ffmpeg
     pkgs.imagemagick
     pkgs.borgbackup
+    pkgs.rclone
 
     (pkgs.writeShellApplication {
       name = "ts";
@@ -48,7 +50,7 @@
           pkgs.fzf
           pkgs.tmux
         ]
-        ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+        ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
           pkgs.procps
         ];
       text = ''

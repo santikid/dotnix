@@ -4,55 +4,8 @@
   ...
 }: {
   home-manager.users.${user.name} = {config, ...}: let
-    emacsPackage =
-      if pkgs.stdenv.isDarwin
-      then pkgs.emacs
-      else pkgs.emacs-nox;
-
     link = path:
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/${path}";
-
-    neovimPackage = pkgs.neovim;
-
-    mkEditorLauncher = {
-      name,
-      terminalOnly ? false,
-    }:
-      pkgs.writeShellApplication {
-        inherit name;
-        runtimeInputs = [
-          emacsPackage
-          neovimPackage
-        ];
-        text =
-          if terminalOnly
-          then ''
-            if emacsclient --eval t >/dev/null 2>&1; then
-              exec emacsclient -t "$@"
-            fi
-
-            if command -v emacs >/dev/null 2>&1; then
-              exec emacs -nw "$@"
-            fi
-
-            exec nvim "$@"
-          ''
-          else ''
-            if emacsclient --eval t >/dev/null 2>&1; then
-              if [[ -n "''${DISPLAY:-}''${WAYLAND_DISPLAY:-}" || "$(uname -s)" = "Darwin" ]]; then
-                exec emacsclient -c -n "$@"
-              fi
-
-              exec emacsclient -t "$@"
-            fi
-
-            if command -v emacs >/dev/null 2>&1; then
-              exec emacs "$@"
-            fi
-
-            exec nvim "$@"
-          '';
-      };
   in {
     home.stateVersion = "24.05";
 
@@ -62,24 +15,13 @@
 
     home.file = {
       ".config/nvim".source = link "configs/nvim";
-      ".emacs.d/init.el".source = link "configs/emacs/init.el";
-      ".emacs.d/early-init.el".source = link "configs/emacs/early-init.el";
-      ".emacs.d/config.org".source = link "configs/emacs/config.org";
     };
 
-    home.packages = [
-      neovimPackage
-      emacsPackage
-      (mkEditorLauncher {name = "e";})
-      (mkEditorLauncher {
-        name = "et";
-        terminalOnly = true;
-      })
-    ];
+    home.packages = [pkgs.neovim];
 
     programs.gpg.enable = true;
     services.gpg-agent = {
-      enable = pkgs.stdenv.isLinux;
+      enable = pkgs.stdenv.hostPlatform.isLinux;
       enableScDaemon = true;
     };
 
@@ -172,6 +114,10 @@
 
     programs.zsh = {
       enable = true;
+      shellAliases = {
+        e = "nvim";
+        et = "nvim";
+      };
       enableCompletion = true;
       defaultKeymap = "viins";
       completionInit = ''

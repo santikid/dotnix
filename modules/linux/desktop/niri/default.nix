@@ -217,7 +217,6 @@ in {
     browserPackage
     pkgs.grim
     pkgs.imv
-    pkgs.localsend
     pkgs.nautilus
     pkgs.wdisplays
     pkgs.slurp

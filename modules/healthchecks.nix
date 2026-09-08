@@ -6,149 +6,97 @@
   ...
 }: let
   cfg = config.services.peerHealthcheck;
-  ntfyBaseUrl = lib.removeSuffix "/" cfg.baseUrl;
   stateDirectory =
-    if pkgs.stdenv.isDarwin
+    if pkgs.stdenv.hostPlatform.isDarwin
     then "/var/db/peer-healthcheck"
     else "/var/lib/peer-healthcheck";
   targetNames = builtins.attrNames cfg.targets;
-  targetUrls = map (name: cfg.targets.${name}) targetNames;
 
   checker = pkgs.writeShellApplication {
     name = "peer-healthcheck";
-    runtimeInputs = [
-      pkgs.coreutils
-      pkgs.curl
-    ];
-    text = ''
-      monitor=${lib.escapeShellArg config.networking.hostName}
-      topic_file=${lib.escapeShellArg (toString cfg.topicFile)}
-      state_dir=${lib.escapeShellArg stateDirectory}
-      failure_threshold=${toString cfg.failureThreshold}
-      timeout=${toString cfg.timeoutSeconds}
-      target_names=(${lib.escapeShellArgs targetNames})
-      target_urls=(${lib.escapeShellArgs targetUrls})
+    runtimeInputs = [pkgs.coreutils pkgs.curl];
+    text =
+      (import ./ntfy-notification.nix {
+        inherit lib;
+        inherit (cfg) topicFile baseUrl timeoutSeconds;
+      })
+      + ''
+        monitor=${lib.escapeShellArg config.networking.hostName}
+        state_dir=${lib.escapeShellArg stateDirectory}
+        failure_threshold=${toString cfg.failureThreshold}
+        timeout=${toString cfg.timeoutSeconds}
+        target_names=(${lib.escapeShellArgs targetNames})
+        target_urls=(${lib.escapeShellArgs (map (name: cfg.targets.${name}) targetNames)})
 
-      install -d -m 0700 "$state_dir"
+        install -d -m 0700 "$state_dir"
 
-      if [[ ! -r $topic_file ]]; then
-        echo "peer-healthcheck: cannot read ntfy topic at $topic_file" >&2
-        exit 1
-      fi
+        notify() {
+          local event=$1 target_name=$2 target_url=$3
+          local title priority tags message
 
-      ntfy_topic=$(tr -d '\r\n' < "$topic_file")
-      if [[ ! $ntfy_topic =~ ^[a-zA-Z0-9_-]+$ ]]; then
-        echo "peer-healthcheck: ntfy topic is empty or contains invalid characters" >&2
-        exit 65
-      fi
-      ntfy_url=${lib.escapeShellArg ntfyBaseUrl}/$ntfy_topic
-
-      notify() {
-        local event=$1
-        local target_name=$2
-        local target_url=$3
-        local title priority tags message
-
-        if [[ $event == down ]]; then
-          title="$monitor: $target_name is down"
-          priority=high
-          tags=rotating_light
-          message="$monitor cannot reach $target_name at $target_url after $failure_threshold consecutive checks."
-        else
-          title="$monitor: $target_name recovered"
-          priority=default
-          tags=white_check_mark
-          message="$monitor can reach $target_name at $target_url again."
-        fi
-
-        if ! printf 'url = "%s"\n' "$ntfy_url" | curl \
-          --config - \
-          --fail \
-          --silent \
-          --show-error \
-          --connect-timeout 5 \
-          --max-time "$timeout" \
-          --retry 2 \
-          --retry-all-errors \
-          --retry-delay 2 \
-          --header "Title: $title" \
-          --header "Priority: $priority" \
-          --header "Tags: $tags" \
-          --data-raw "$message" \
-          --output /dev/null; then
-          echo "peer-healthcheck: failed to send $event notification for $target_name" >&2
-          return 1
-        fi
-
-        echo "peer-healthcheck: sent $event notification for $target_name"
-      }
-
-      save_state() {
-        local state_file=$1
-        local status=$2
-        local failures=$3
-        local temporary_file
-
-        temporary_file=$(mktemp "$state_file.tmp.XXXXXX")
-        chmod 0600 "$temporary_file"
-        printf '%s %s\n' "$status" "$failures" > "$temporary_file"
-        mv "$temporary_file" "$state_file"
-      }
-
-      for index in "''${!target_names[@]}"; do
-        target_name="''${target_names[$index]}"
-        target_url="''${target_urls[$index]}"
-
-        state_file="$state_dir/$target_name.state"
-        previous_status=up
-        failures=0
-
-        if [[ -r $state_file ]]; then
-          read -r previous_status failures < "$state_file" || true
-          if [[ $previous_status != up && $previous_status != down ]]; then
-            previous_status=up
+          if [[ $event == down ]]; then
+            title="$monitor: $target_name is down"
+            priority=high
+            tags=rotating_light
+            message="$monitor cannot reach $target_name at $target_url after $failure_threshold consecutive checks."
+          else
+            title="$monitor: $target_name recovered"
+            priority=default
+            tags=white_check_mark
+            message="$monitor can reach $target_name at $target_url again."
           fi
-          if [[ ! $failures =~ ^[0-9]+$ ]]; then
+
+          if ! send_ntfy "$title" "$tags" "$priority" "$message"; then
+            echo "peer-healthcheck: failed to send $event notification for $target_name" >&2
+            return 1
+          fi
+          echo "peer-healthcheck: sent $event notification for $target_name"
+        }
+
+        save_state() {
+          local state_file=$1 status=$2 failures=$3 temporary_file
+          temporary_file=$(mktemp "$state_file.tmp.XXXXXX")
+          chmod 0600 "$temporary_file"
+          printf '%s %s\n' "$status" "$failures" > "$temporary_file"
+          mv "$temporary_file" "$state_file"
+        }
+
+        for index in "''${!target_names[@]}"; do
+          target_name="''${target_names[$index]}"
+          target_url="''${target_urls[$index]}"
+          state_file="$state_dir/$target_name.state"
+          status=up
+          failures=0
+
+          if [[ -r $state_file ]]; then
+            read -r status failures < "$state_file" || true
+            [[ $status == up || $status == down ]] || status=up
+            [[ $failures =~ ^[0-9]+$ ]] || failures=0
+          fi
+
+          if curl --fail --silent --connect-timeout "$timeout" --max-time "$timeout" \
+            --output /dev/null "$target_url"; then
             failures=0
-          fi
-        fi
-
-        if curl \
-          --fail \
-          --silent \
-          --connect-timeout "$timeout" \
-          --max-time "$timeout" \
-          --output /dev/null \
-          "$target_url"; then
-          if [[ $previous_status == down ]]; then
-            if notify recovered "$target_name" "$target_url"; then
-              save_state "$state_file" up 0
-            else
-              save_state "$state_file" down 0
+            if [[ $status == down ]] && notify recovered "$target_name" "$target_url"; then
+              status=up
+            fi
+          elif [[ $status == up ]]; then
+            failures=$((failures + 1))
+            if (( failures >= failure_threshold )); then
+              # Retry failed delivery on the next run instead of losing the alert.
+              failures=$failure_threshold
+              if notify down "$target_name" "$target_url"; then
+                status=down
+                failures=0
+              fi
             fi
           else
-            save_state "$state_file" up 0
+            failures=0
           fi
-          continue
-        fi
 
-        if [[ $previous_status == down ]]; then
-          save_state "$state_file" down 0
-          continue
-        fi
-
-        failures=$((failures + 1))
-        if (( failures >= failure_threshold )); then
-          if notify down "$target_name" "$target_url"; then
-            save_state "$state_file" down 0
-          else
-            save_state "$state_file" up "$failure_threshold"
-          fi
-        else
-          save_state "$state_file" up "$failures"
-        fi
-      done
-    '';
+          save_state "$state_file" "$status" "$failures"
+        done
+      '';
   };
 
   checkerCommand = lib.getExe checker;

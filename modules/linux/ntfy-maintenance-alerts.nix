@@ -6,47 +6,23 @@
 }: let
   cfg = config.services.ntfy-maintenance-alerts;
   hostName = config.networking.hostName;
-  ntfyBaseUrl = lib.removeSuffix "/" cfg.baseUrl;
-
   notifyNtfy = pkgs.writeShellApplication {
     name = "notify-ntfy-maintenance";
-    runtimeInputs = [
-      pkgs.coreutils
-      pkgs.curl
-    ];
-    text = ''
-      if (( $# != 4 )); then
-        echo "usage: notify-ntfy-maintenance TITLE TAGS PRIORITY MESSAGE" >&2
-        exit 64
-      fi
-
-      title=$1
-      tags=$2
-      priority=$3
-      message=$4
-
-      topic=$(tr -d '\r\n' < ${lib.escapeShellArg (toString cfg.topicFile)})
-      if [[ ! $topic =~ ^[a-zA-Z0-9_-]+$ ]]; then
-        echo "ntfy maintenance topic is empty or contains invalid characters" >&2
-        exit 65
-      fi
-
-      curl \
-        --fail \
-        --silent \
-        --show-error \
-        --connect-timeout 5 \
-        --max-time 15 \
-        --retry 2 \
-        --retry-all-errors \
-        --retry-delay 2 \
-        --output /dev/null \
-        --header "Title: $title" \
-        --header "Tags: $tags" \
-        --header "Priority: $priority" \
-        --data-raw "$message" \
-        ${lib.escapeShellArg ntfyBaseUrl}/"$topic"
-    '';
+    runtimeInputs = [pkgs.coreutils pkgs.curl];
+    text =
+      ''
+        if (( $# != 4 )); then
+          echo "usage: notify-ntfy-maintenance TITLE TAGS PRIORITY MESSAGE" >&2
+          exit 64
+        fi
+      ''
+      + (import ../ntfy-notification.nix {
+        inherit lib;
+        inherit (cfg) topicFile baseUrl;
+      })
+      + ''
+        send_ntfy "$@"
+      '';
   };
 
   notifySmartd = pkgs.writeShellApplication {

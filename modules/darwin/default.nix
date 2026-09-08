@@ -62,8 +62,7 @@ in {
     enable = true;
     casks = ["ghostty"];
     brews = [
-      "libvterm"
-      "coreutils" # for emacs "gls"
+      "coreutils"
     ];
   };
 
