@@ -89,9 +89,29 @@ in {
   };
 
   programs.dconf.enable = true;
-  services.greetd = {
+  services.displayManager.regreet = {
     enable = true;
-    settings.default_session.command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-user-session --cmd ${config.programs.niri.package}/bin/niri-session";
+    theme = {
+      name = "adw-gtk3-dark";
+      package = pkgs.adw-gtk3;
+    };
+    font = {
+      name = theme.fonts.ui;
+      package = pkgs.inter;
+      size = 12;
+    };
+    cursorTheme = {
+      name = theme.cursor.name;
+      package = pkgs.bibata-cursors;
+    };
+    settings.GTK.application_prefer_dark_theme = true;
+    extraCss = ''
+      window { background-color: ${theme.colors.desktop}; }
+    '';
+  };
+  systemd.services.greetd.environment = {
+    XKB_DEFAULT_LAYOUT = "de";
+    XKB_DEFAULT_VARIANT = "mac";
   };
 
   security.pam.services.swaylock = {};
