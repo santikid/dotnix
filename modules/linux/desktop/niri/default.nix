@@ -49,22 +49,6 @@
       critical = "#dc7b82";
       focusInactive = "#55585f";
     };
-    icons = {
-      clipboard = "";
-      idleActive = "";
-      idleInactive = "";
-      charging = "";
-      brightness = [""];
-      volumeMuted = "󰍟";
-      volume = ["" "" ""];
-      network = {
-        disconnected = "󰤭";
-        ethernet = "󰈀";
-        wifi = ["󰤯" "󰤟" "󰤢" "󰤥" "󰤨"];
-      };
-      battery = ["" "" "" "" ""];
-      plugged = "";
-    };
     foot = {
       palette = footPalette;
       background = "111318";
@@ -83,22 +67,14 @@
   };
   niri = scripts // binds;
 in {
-  imports = [
-    (import ./waybar.nix {inherit niri theme user;})
-  ];
+  imports = [(import ./noctalia.nix {inherit theme user;})];
 
   environment.systemPackages = [
-    pkgs.brightnessctl
     browserPackage
-    pkgs.cliphist
-    pkgs.fuzzel
     pkgs.grim
     pkgs.imv
-    pkgs.mako
     pkgs.nautilus
     pkgs.wdisplays
-    pkgs.pavucontrol
-    pkgs.playerctl
     pkgs.slurp
     pkgs.swayidle
     pkgs.swaylock
@@ -167,6 +143,8 @@ in {
     programs.niri = {
       package = config.programs.niri.package;
       settings = {
+        debug.honor-xdg-activation-with-invalid-serial = {};
+
         input = {
           keyboard.xkb = {
             layout = "de";
@@ -211,12 +189,15 @@ in {
 
         window-rules = [
           {draw-border-with-background = false;}
+          {
+            matches = [{app-id = "^dev\\.noctalia\\.Noctalia$";}];
+            open-floating = true;
+            default-column-width.fixed = 1080;
+            default-window-height.fixed = 920;
+          }
         ];
 
         spawn-at-startup = [
-          {argv = [niri.commands.mako];}
-          (niri.cliphistWatcher "text")
-          (niri.cliphistWatcher "image")
           {
             argv = [
               niri.commands.swayidle
@@ -231,7 +212,6 @@ in {
               niri.lockCommand
             ];
           }
-          {argv = [niri.commands.waybar];}
           {argv = [niri.commands.tailscale "systray"];}
           {argv = [niri.commands.xwaylandSatellite];}
         ];
@@ -268,68 +248,6 @@ in {
             })
             theme.foot.palette);
       };
-    };
-
-    home.file = {
-      ".config/fuzzel/fuzzel.ini".text = ''
-        font=${theme.fonts.ui}:size=13
-        use-bold=yes
-        prompt="Search  "
-        placeholder=Applications…
-        width=50
-        lines=9
-        tabs=4
-        horizontal-pad=30
-        vertical-pad=22
-        inner-pad=14
-        line-height=20
-        anchor=center
-        layer=overlay
-        keyboard-focus=on-demand
-        exit-on-keyboard-focus-loss=yes
-        icon-theme=Papirus-Dark
-        image-size-ratio=1
-        fields=filename,name,generic,keywords,categories
-        match-mode=fzf
-        filter-desktop=yes
-        terminal=${niri.commands.terminal} -e
-
-        [colors]
-        background=${niri.withAlpha theme.colors.bar "fa"}
-        text=${niri.withAlpha theme.colors.text "ff"}
-        message=${niri.withAlpha theme.colors.muted "ff"}
-        prompt=${niri.withAlpha theme.colors.accent "ff"}
-        placeholder=${niri.withAlpha theme.colors.dim "ff"}
-        input=${niri.withAlpha theme.colors.text "ff"}
-        match=${niri.withAlpha theme.colors.accent "ff"}
-        selection=${niri.withAlpha theme.colors.surfaceHover "ff"}
-        selection-text=${niri.withAlpha theme.colors.text "ff"}
-        selection-match=${niri.withAlpha theme.colors.accent "ff"}
-        counter=${niri.withAlpha theme.colors.dim "ff"}
-        border=${niri.withAlpha theme.colors.focusInactive "ff"}
-
-        [border]
-        width=1
-        radius=12
-        selection-radius=6
-      '';
-
-      ".config/mako/config".text = ''
-        font=${theme.fonts.ui} 11
-        background-color=${theme.colors.bar}fa
-        text-color=${theme.colors.text}
-        border-color=${theme.colors.barBorder}
-        progress-color=over ${theme.colors.accent}
-        border-size=1
-        border-radius=10
-        padding=14
-        outer-margin=50,20,0,0
-        margin=8
-        width=380
-        max-icon-size=40
-        default-timeout=6000
-        anchor=top-right
-      '';
     };
 
     gtk = {
