@@ -1,4 +1,5 @@
 {pkgs, ...}: let
+  poolGuid = "4193332052382858745";
   owc4m2UdevRule = ''
     # Authorize only the OWC Express 4M2, and only when the host IOMMU is
     # protecting Thunderbolt DMA.
@@ -6,7 +7,7 @@
   '';
   storageUdevRule = ''
     # Import this pool after all of its members appear, including after hot-plug.
-    ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_TYPE}=="zfs_member", ENV{ID_FS_UUID}=="4193332052382858745", TAG+="systemd", ENV{SYSTEMD_WANTS}+="storage-pool.service"
+    ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_TYPE}=="zfs_member", ENV{ID_FS_UUID}=="${poolGuid}", TAG+="systemd", ENV{SYSTEMD_WANTS}+="storage-pool.service"
   '';
 in {
   boot = {
@@ -31,33 +32,19 @@ in {
       pkgs.zfs
     ];
     script = ''
+      # NixOS service scripts stop on error; keep ZFS's own diagnostic output.
       if ! zpool list -H -o name storage >/dev/null 2>&1; then
-        if ! timeout --kill-after=5s 15s zpool import -N -d /dev/disk/by-id -o cachefile=none 4193332052382858745; then
-          echo "Could not import the storage pool; leaving storage offline."
-          exit 1
-        fi
+        timeout --kill-after=5s 15s zpool import -N -d /dev/disk/by-id \
+          -o cachefile=none ${poolGuid}
       fi
 
-      if ! key_status="$(zfs get -H -o value keystatus storage 2>/dev/null)"; then
-        echo "Could not read the storage encryption state; leaving storage unmounted."
-        exit 1
-      fi
-
+      key_status=$(zfs get -H -o value keystatus storage)
       if [[ "$key_status" == "unavailable" ]]; then
-        if [[ ! -r /var/lib/zfs/keys/storage.key ]]; then
-          echo "The storage encryption key is unavailable; leaving storage unmounted."
-          exit 1
-        fi
-        if ! zfs load-key storage; then
-          echo "Could not unlock the storage pool; leaving storage unmounted."
-          exit 1
-        fi
+        # Uses the dataset's existing keylocation; no secret is embedded in Nix.
+        zfs load-key storage
       fi
 
-      if ! zfs mount -a; then
-        echo "The storage pool is online, but one or more datasets could not be mounted."
-        exit 1
-      fi
+      zfs mount -a
     '';
     unitConfig.ConditionPathExists = [
       "/dev/disk/by-id/nvme-CT4000P3SSD8_2324E6E26D33-part1"
@@ -65,12 +52,8 @@ in {
       "/dev/disk/by-id/nvme-CT4000P3SSD8_2328E6ECB013-part1"
       "/dev/disk/by-id/nvme-CT4000P3SSD8_2328E6ECB021-part1"
     ];
-    # Docker is deliberately gated on this pool. If the enclosure is absent,
-    # Opal still boots and remains reachable; Docker starts automatically once
-    # a later hot-plug imports and mounts the pool successfully. Pull Docker
-    # into the same transaction; OnSuccess would re-trigger this inactive
-    # oneshot through Docker's Wants=storage-pool.service and create a loop.
-    wants = ["docker.service"];
+    # Stay inactive after import so subsequent device arrivals can retry it.
+    # Consumers add Wants/After dependencies, not OnSuccess restart triggers.
     serviceConfig = {
       Type = "oneshot";
       TimeoutStartSec = "30s";
@@ -83,7 +66,6 @@ in {
       fileSystems = ["/"];
       interval = "monthly";
     };
-    fstrim.enable = true;
     smartd = {
       enable = true;
       autodetect = true;

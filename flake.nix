@@ -37,9 +37,7 @@
     nix-homebrew,
     homebrew-cask,
     sops-nix,
-    niri,
     nixos-apple-silicon,
-    zen-browser,
     ...
   }: let
     lib = nixpkgs.lib;
@@ -78,10 +76,7 @@
         system = "x86_64-linux";
         extraModules = [
           ./hosts/opal
-          ./modules/healthchecks.nix
-          ./modules/linux/server.nix
-          ./modules/linux/ntfy-maintenance-alerts.nix
-          ./modules/secrets/ntfy.nix
+          ./modules/linux/monitored-server.nix
         ];
       };
 
@@ -89,10 +84,7 @@
         system = "x86_64-linux";
         extraModules = [
           ./hosts/lime
-          ./modules/healthchecks.nix
-          ./modules/linux/server.nix
-          ./modules/linux/ntfy-maintenance-alerts.nix
-          ./modules/secrets/ntfy.nix
+          ./modules/linux/monitored-server.nix
         ];
       };
 
@@ -100,9 +92,7 @@
         system = "x86_64-linux";
         extraModules = [
           ./hosts/jade
-          ./modules/healthchecks.nix
-          ./modules/linux/server.nix
-          ./modules/secrets/ntfy.nix
+          ./modules/linux/monitored-server.nix
         ];
       };
 
@@ -112,7 +102,6 @@
           ./hosts/ruby
           ./modules/linux/server.nix
           ./modules/coding-agents.nix
-          ./modules/pi.nix
         ];
       };
 
@@ -131,15 +120,18 @@
       ./modules/common/base.nix
       ./modules/home.nix
       ./modules/packages.nix
-      ({...}: {
+      {
         networking.hostName = hostName;
         home-manager.useUserPackages = true;
         home-manager.useGlobalPkgs = true;
         home-manager.extraSpecialArgs = {inherit inputs user;};
-      })
+      }
     ];
 
-    makeDarwin = hostName: system: extraModules:
+    makeDarwin = hostName: {
+      system,
+      extraModules,
+    }:
       darwin.lib.darwinSystem {
         inherit system;
         specialArgs = {inherit inputs self user;};
@@ -166,7 +158,10 @@
           ++ extraModules;
       };
 
-    makeNixOS = hostName: system: extraModules:
+    makeNixOS = hostName: {
+      system,
+      extraModules,
+    }:
       nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = {inherit inputs self user;};
@@ -180,19 +175,8 @@
           ++ extraModules;
       };
   in {
-    darwinConfigurations =
-      builtins.mapAttrs (
-        name: host:
-          makeDarwin name host.system host.extraModules
-      )
-      darwinHosts;
-
-    nixosConfigurations =
-      builtins.mapAttrs (
-        name: host:
-          makeNixOS name host.system host.extraModules
-      )
-      nixosHosts;
+    darwinConfigurations = lib.mapAttrs makeDarwin darwinHosts;
+    nixosConfigurations = lib.mapAttrs makeNixOS nixosHosts;
 
     formatter = forAllSystems (system: let
       pkgs = import nixpkgs {inherit system;};

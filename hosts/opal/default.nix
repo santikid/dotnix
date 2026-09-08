@@ -1,15 +1,23 @@
 {
-  config,
   pkgs,
   user,
   ...
 }: {
   imports = [
+    ./backup.nix
     ./cache.nix
     ./hardware-configuration.nix
     ./storage.nix
     ./virtualisation.nix
   ];
+
+  sops = {
+    age = {
+      generateKey = false;
+      sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+    };
+    defaultSopsFile = ../../secrets/opal.yaml;
+  };
 
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
@@ -48,7 +56,8 @@
     nftables.enable = true;
     firewall = {
       enable = true;
-      trustedInterfaces = ["tailscale0"];
+      # Prometheus reaches this host's exporter from its dedicated Docker bridge.
+      interfaces."br-monitoring".allowedTCPPorts = [9100];
     };
   };
 
@@ -56,26 +65,14 @@
 
   services = {
     fwupd.enable = true;
-    tailscale.openFirewall = true;
-
-    prometheus.exporters.node = {
-      enable = true;
-      port = 9100;
-    };
-
-    peerHealthcheck = {
-      enable = true;
-      topicFile = config.sops.secrets.ntfy_maintenance_topic.path;
-      targets = {
-        jade = "http://jade:9100/";
-        lime = "http://lime:9100/";
-        ruby = "http://ruby:9100/";
-      };
+    peerHealthcheck.targets = {
+      jade = "http://jade:9100/";
+      lime = "http://lime:9100/";
+      ruby = "http://ruby:9100/";
     };
 
     ntfy-maintenance-alerts = {
       enable = true;
-      topicFile = config.sops.secrets.ntfy_maintenance_topic.path;
       systemdServices = [
         "smartd"
         "storage-pool"
@@ -86,8 +83,6 @@
       smartd.enable = true;
     };
   };
-
-  zramSwap.enable = true;
 
   environment.systemPackages = with pkgs; [
     ethtool

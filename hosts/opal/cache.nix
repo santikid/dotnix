@@ -5,11 +5,6 @@
   ...
 }: {
   sops = {
-    age = {
-      generateKey = false;
-      sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
-    };
-    defaultSopsFile = ../../secrets/opal.yaml;
     secrets.attic_jwt_secret = {};
     templates."atticd.env" = {
       content = ''

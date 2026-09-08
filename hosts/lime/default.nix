@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   user,
   ...
@@ -22,16 +21,15 @@
     networkmanager.enable = true;
     firewall = {
       enable = true;
-      trustedInterfaces = ["tailscale0"];
 
       interfaces.win11br0 = {
         allowedUDPPorts = [53 67];
         allowedTCPPorts = [53];
       };
       extraForwardRules = ''
-          iifname "win11br0" ip daddr { 0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16, 198.18.0.0/15, 224.0.0.0/4, 240.0.0.0/4 } drop
-          iifname "win11br0" accept
-          oifname "win11br0" ct state established,related accept
+        iifname "win11br0" ip daddr { 0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16, 198.18.0.0/15, 224.0.0.0/4, 240.0.0.0/4 } drop
+        iifname "win11br0" accept
+        oifname "win11br0" ct state established,related accept
       '';
     };
   };
@@ -45,8 +43,6 @@
   services = {
     fwupd.enable = true;
     openssh.openFirewall = false;
-    fstrim.enable = true;
-    tailscale.openFirewall = true;
     tailscale.useRoutingFeatures = "both";
     udev.extraRules = ''
       ACTION=="add", SUBSYSTEM=="power_supply", KERNEL=="BAT0", ATTR{charge_control_end_threshold}="80", ATTR{charge_control_start_threshold}="70"
@@ -81,16 +77,7 @@
       interval = "monthly";
     };
 
-    prometheus.exporters.node = {
-      enable = true;
-      port = 9100;
-    };
-
-    peerHealthcheck = {
-      enable = true;
-      topicFile = config.sops.secrets.ntfy_maintenance_topic.path;
-      targets.opal = "http://opal:9100/";
-    };
+    peerHealthcheck.targets.opal = "http://opal:9100/";
 
     logind.settings.Login = {
       HandleLidSwitch = "ignore";
@@ -100,7 +87,6 @@
 
     ntfy-maintenance-alerts = {
       enable = true;
-      topicFile = config.sops.secrets.ntfy_maintenance_topic.path;
       systemdServices = [
         "btrfs-scrub--"
         "smartd"
@@ -110,8 +96,6 @@
   };
 
   users.users.${user.name}.extraGroups = ["networkmanager" "docker" "incus-admin"];
-
-  zramSwap.enable = true;
 
   environment.systemPackages = with pkgs; [
     btrfs-progs

@@ -1,8 +1,4 @@
-{
-  config,
-  user,
-  ...
-}: {
+{user, ...}: {
   imports = [
     ./hardware-configuration.nix
   ];
@@ -22,7 +18,6 @@
     useDHCP = true;
     firewall = {
       enable = true;
-      trustedInterfaces = ["tailscale0"];
       allowedTCPPorts = [22 80 443];
     };
   };
@@ -31,28 +26,14 @@
   users.users.${user.name}.extraGroups = ["docker"];
 
   services = {
-    fstrim.enable = true;
     openssh.openFirewall = false;
     qemuGuest.enable = true;
-    tailscale.openFirewall = true;
-
-    prometheus.exporters.node = {
-      enable = true;
-      port = 9100;
-    };
-
-    peerHealthcheck = {
-      enable = true;
-      topicFile = config.sops.secrets.ntfy_maintenance_topic.path;
-      targets.opal = "http://opal:9100/";
-    };
+    peerHealthcheck.targets.opal = "http://opal:9100/";
   };
 
   systemd.tmpfiles.rules = [
     "d /srv 2775 root users -"
   ];
-
-  zramSwap.enable = true;
 
   system.stateVersion = "26.05";
 }

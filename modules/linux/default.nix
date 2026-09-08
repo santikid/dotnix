@@ -34,7 +34,6 @@
     pkgs.watch
     pkgs.gcc
     pkgs.clang
-    pkgs.libvterm
     pkgs.foot
     pkgs.ghostty.terminfo
   ];

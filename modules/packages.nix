@@ -50,7 +50,7 @@
           pkgs.fzf
           pkgs.tmux
         ]
-        ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+        ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
           pkgs.procps
         ];
       text = ''
