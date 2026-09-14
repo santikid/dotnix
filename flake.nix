@@ -120,6 +120,7 @@
       ./modules/common/base.nix
       ./modules/home.nix
       ./modules/packages.nix
+      ./modules/dev-tools
       {
         networking.hostName = hostName;
         home-manager.useUserPackages = true;

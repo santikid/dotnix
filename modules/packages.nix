@@ -8,32 +8,10 @@
     pkgs.fzf
     pkgs.gh
     pkgs.forgejo-cli
-    pkgs.nixd
     pkgs.pandoc
     pkgs.htop
     pkgs.btop
     pkgs.mosh
-
-    # Development
-    pkgs.python3
-    pkgs.cmake
-    pkgs.tree-sitter
-    pkgs.nodejs_24
-    pkgs.pnpm_11
-    pkgs.bun
-    pkgs.prettier
-    pkgs.svelte-language-server
-    pkgs.typescript
-    pkgs.typescript-language-server
-    pkgs.vscode-langservers-extracted
-    pkgs.rustc
-    pkgs.cargo
-    pkgs.rustfmt
-    pkgs.clippy
-    pkgs.rust-analyzer
-    pkgs.pkg-config
-    pkgs.bacon
-    pkgs.lazygit
 
     # Media and backup
     pkgs.ffmpeg
