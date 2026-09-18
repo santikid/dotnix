@@ -14,6 +14,9 @@
 
   security.polkit.enable = true;
 
+  # Allow conventional dynamically linked binaries to run on NixOS.
+  programs.nix-ld.enable = true;
+
   fonts = {
     fontDir.enable = true;
     fontconfig.defaultFonts = {
