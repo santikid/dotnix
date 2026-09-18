@@ -22,7 +22,8 @@
               owner = "AsahiLinux";
               repo = "linux";
               rev = "ce9f2eba72c061a50b2d790450e90af3439d8c24";
-              hash = "sha256-P6PAKF8rwie8/kjLWtNLCyO/9m7nQPWyyxJIcUxRyZU=";
+              # Verify on Linux: case-insensitive filesystems collapse kernel headers.
+              hash = "sha256-W3yMSUe6xa+M/X0k86kbCS4g3d7jJmO3WV9L/5rQRhI=";
             };
           });
     };
