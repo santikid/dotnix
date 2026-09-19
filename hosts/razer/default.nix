@@ -54,7 +54,10 @@ in {
 
   hardware.enableRedistributableFirmware = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelParams = ["hid_apple.swap_fn_leftctrl=1"];
+  boot.kernelParams = [
+    "hid_apple.swap_fn_leftctrl=1"
+    "hid_apple.fnmode=2" # Use F1–F12 by default; hold Fn for media keys.
+  ];
 
   virtualisation.vmware.host.enable = true;
 
