@@ -1,5 +1,6 @@
 local servers = {
 	"nixd",
+	"sourcekit",
 	"ts_ls",
 	"svelte",
 	"eslint",

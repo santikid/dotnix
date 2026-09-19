@@ -3,6 +3,7 @@
     ./javascript.nix
     ./python.nix
     ./rust.nix
+    ./swift.nix
   ];
 
   environment.systemPackages = [
