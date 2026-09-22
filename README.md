@@ -57,10 +57,6 @@ make rekey
 
 ## Installing NixOS
 
-For `opal`, follow the mirrored-NVMe installation notes in
-[`hosts/opal/INSTALL.md`](hosts/opal/INSTALL.md). The generic single-disk steps
-below are for the other NixOS hosts.
-
 Boot the NixOS minimal installer ISO, optionally load a keymap such as `loadkeys de`, then format and mount the disk:
 
 ```bash
