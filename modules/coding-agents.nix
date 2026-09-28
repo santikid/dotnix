@@ -9,5 +9,6 @@ in {
     llmAgents.codex
     llmAgents.kimi-code
     llmAgents.opencode
+    llmAgents.claude-code
   ];
 }
