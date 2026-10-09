@@ -26,6 +26,14 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.signcolumn = "yes"
 vim.opt.undofile = true
+vim.opt.updatetime = 250
+
+vim.diagnostic.config({
+	virtual_text = false,
+	virtual_lines = { current_line = true },
+	severity_sort = true,
+	float = { border = "rounded", source = "if_many" },
+})
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","

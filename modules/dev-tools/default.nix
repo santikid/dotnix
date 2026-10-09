@@ -12,5 +12,9 @@
     pkgs.pkg-config
     pkgs.lazygit
     pkgs.nixd
+    pkgs.lua-language-server
+    pkgs.stylua
+    pkgs.alejandra
+    pkgs.shfmt
   ];
 }

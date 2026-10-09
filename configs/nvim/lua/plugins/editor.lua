@@ -27,11 +27,89 @@ return {
 		},
 		keys = {
 			{
+				"<leader>fw",
+				function()
+					Snacks.picker.grep_word()
+				end,
+				mode = { "n", "x" },
+				desc = "Grep Word / Selection",
+			},
+			{
+				"<leader>fR",
+				function()
+					Snacks.picker.resume()
+				end,
+				desc = "Resume Last Picker",
+			},
+			{
+				"<leader>f/",
+				function()
+					Snacks.picker.lines()
+				end,
+				desc = "Search Buffer Lines",
+			},
+			{
+				"<leader>fk",
+				function()
+					Snacks.picker.keymaps()
+				end,
+				desc = "Find Keymaps",
+			},
+			{
+				"<leader>fn",
+				function()
+					Snacks.picker.notifications()
+				end,
+				desc = "Notification History",
+			},
+			{
+				"<leader>xx",
+				function()
+					Snacks.picker.diagnostics()
+				end,
+				desc = "Workspace Diagnostics",
+			},
+			{
+				"<leader>xX",
+				function()
+					Snacks.picker.diagnostics_buffer()
+				end,
+				desc = "Buffer Diagnostics",
+			},
+			{
+				"<leader>xq",
+				function()
+					Snacks.picker.qflist()
+				end,
+				desc = "Quickfix List",
+			},
+			{
+				"<leader>cs",
+				function()
+					Snacks.picker.lsp_symbols()
+				end,
+				desc = "Document Symbols",
+			},
+			{
+				"<leader>cS",
+				function()
+					Snacks.picker.lsp_workspace_symbols()
+				end,
+				desc = "Workspace Symbols",
+			},
+			{
+				"<leader>cl",
+				function()
+					Snacks.picker.lsp_references()
+				end,
+				desc = "References",
+			},
+			{
 				"<leader>gg",
 				function()
 					Snacks.lazygit()
 				end,
-				desc = "Commands",
+				desc = "Lazygit",
 			},
 			{
 				"<leader>fa",
@@ -41,7 +119,7 @@ return {
 				desc = "Smart Find Files",
 			},
 			{
-				"<leader>b",
+				"<leader>bb",
 				function()
 					Snacks.picker.buffers()
 				end,
@@ -134,39 +212,6 @@ return {
 		},
 	},
 	{
-		"folke/trouble.nvim",
-		dependencies = "nvim-tree/nvim-web-devicons",
-		cmd = "Trouble",
-		opts = {},
-		keys = {
-			{
-				"<leader>xx",
-				"<cmd>Trouble diagnostics toggle<cr>",
-				desc = "Diagnostics (Trouble)",
-			},
-			{
-				"<leader>xX",
-				"<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
-				desc = "Diagnostics (Trouble) in current buffer",
-			},
-			{
-				"<leader>cs",
-				"<cmd>Trouble symbols toggle<cr>",
-				desc = "Symbols (Trouble)",
-			},
-			{
-				"<leader>xq",
-				"<cmd>Trouble qflist toggle<cr>",
-				desc = "QF-list (Trouble)",
-			},
-			{
-				"<leader>cl",
-				"<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
-				desc = "LSP Definitions / References (Trouble)",
-			},
-		},
-	},
-	{
 		"lewis6991/gitsigns.nvim",
 		event = "BufReadPre",
 		opts = {},
@@ -228,7 +273,13 @@ return {
 				end,
 				desc = "Prev TODO",
 			},
-			{ "<leader>xt", "<cmd>Trouble todo toggle<cr>", desc = "TODOs (Trouble)" },
+			{
+				"<leader>xt",
+				function()
+					Snacks.picker.todo_comments()
+				end,
+				desc = "TODOs",
+			},
 			{
 				"<leader>ft",
 				function()
@@ -241,10 +292,11 @@ return {
 	{
 		"folke/flash.nvim",
 		event = "VeryLazy",
-		opts = {},
+		-- f opens full Flash search; keep F/t/T/;/, as native character motions.
+		opts = { modes = { char = { enabled = false } } },
 		keys = {
 			{
-				"s",
+				"f",
 				mode = { "n", "x", "o" },
 				function()
 					require("flash").jump()
@@ -259,6 +311,15 @@ return {
 				end,
 				desc = "Flash Treesitter",
 			},
+		},
+	},
+	{
+		"nvim-mini/mini.ai",
+		version = false,
+		event = "VeryLazy",
+		opts = {
+			-- Keep Neovim 0.12's an/in syntax-node selection in Visual mode.
+			mappings = { around_next = "", inside_next = "" },
 		},
 	},
 	{
@@ -282,12 +343,6 @@ return {
 				line_down = "<A-j>",
 				line_up = "<A-k>",
 			},
-		},
-	},
-	{
-		"mbbill/undotree",
-		keys = {
-			{ "<leader>u", "<cmd>UndotreeToggle<cr>", desc = "Undotree" },
 		},
 	},
 	{

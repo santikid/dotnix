@@ -9,10 +9,13 @@ local parsers = {
 	"lua",
 	"markdown",
 	"markdown_inline",
+	"nix",
+	"python",
 	"regex",
 	"rust",
 	"scss",
 	"svelte",
+	"swift",
 	"tsx",
 	"typescript",
 }
@@ -24,14 +27,9 @@ return {
 		build = ":TSUpdate",
 		lazy = false,
 		config = function()
-			local installed = require("nvim-treesitter.config").get_installed()
-			local missing = vim.tbl_filter(function(parser)
-				return not vim.list_contains(installed, parser)
-			end, parsers)
-
-			if #missing > 0 then
-				require("nvim-treesitter").install(missing)
-			end
+			-- The installer skips existing languages and also installs inherited
+			-- queries (ecma, jsx, html_tags), which do not have parser binaries.
+			require("nvim-treesitter").install(parsers)
 		end,
 	},
 	{
