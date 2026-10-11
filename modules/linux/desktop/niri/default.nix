@@ -224,7 +224,6 @@ in {
             ];
           }
           {argv = [niri.commands.tailscale "systray"];}
-          {argv = [niri.commands.xwaylandSatellite];}
         ];
 
         hotkey-overlay.skip-at-startup = true;

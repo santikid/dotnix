@@ -106,7 +106,6 @@
     swayidle = lib.getExe pkgs.swayidle;
     tailscale = lib.getExe pkgs.tailscale;
     terminal = lib.getExe' pkgs.foot "foot";
-    xwaylandSatellite = lib.getExe pkgs.xwayland-satellite;
   };
 in {
   inherit
