@@ -19,8 +19,15 @@
     '';
   };
   razer-performance-default = pkgs.writeShellScript "razer-performance-default" ''
-    ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance
-    ${razer-performance}/bin/razer-performance custom-max
+    set -eu
+    # Only request maximum boost when the AC adapter is present at login.
+    if [ "$(cat /sys/class/power_supply/AC0/online)" = 1 ]; then
+      ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance
+      ${razer-performance}/bin/razer-performance custom-max
+    else
+      ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set balanced
+      ${razer-performance}/bin/razer-performance balanced
+    fi
   '';
   intel-undervolt-apply = pkgs.writeShellScript "intel-undervolt-apply" ''
     set -eu
@@ -206,8 +213,9 @@ in {
   home-manager.users.${user.name} = {
     systemd.user.services.razer-performance-default = {
       Unit = {
-        Description = "Set the Razer Blade gaming performance profile";
+        Description = "Set the Razer Blade initial power profile";
         After = ["graphical-session-pre.target"];
+        PartOf = ["graphical-session.target"];
       };
       Service = {
         Type = "oneshot";
