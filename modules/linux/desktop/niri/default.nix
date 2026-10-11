@@ -71,6 +71,7 @@ in {
 
   environment.systemPackages = [
     browserPackage
+    pkgs.bibata-cursors
     pkgs.grim
     pkgs.imv
     pkgs.nautilus
@@ -89,29 +90,19 @@ in {
   };
 
   programs.dconf.enable = true;
-  services.displayManager.regreet = {
+  services.greetd = {
     enable = true;
-    theme = {
-      name = "adw-gtk3-dark";
-      package = pkgs.adw-gtk3;
+    settings.default_session = {
+      user = "greeter";
+      command = "${lib.getExe pkgs.tuigreet} --time --remember --remember-user-session --cmd ${config.programs.niri.package}/bin/niri-session";
     };
-    font = {
-      name = theme.fonts.ui;
-      package = pkgs.inter;
-      size = 12;
-    };
-    cursorTheme = {
-      name = theme.cursor.name;
-      package = pkgs.bibata-cursors;
-    };
-    settings.GTK.application_prefer_dark_theme = true;
-    extraCss = ''
-      window { background-color: ${theme.colors.desktop}; }
-    '';
   };
-  systemd.services.greetd.environment = {
-    XKB_DEFAULT_LAYOUT = "de";
-    XKB_DEFAULT_VARIANT = "mac";
+
+  # Keep tuigreet and the recovery consoles on the desktop keyboard layout.
+  console.useXkbConfig = true;
+  services.xserver.xkb = {
+    layout = "de";
+    variant = "mac";
   };
 
   security.pam.services.swaylock = {};
