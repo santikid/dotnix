@@ -64,6 +64,8 @@ in {
   boot.kernelParams = [
     "hid_apple.swap_fn_leftctrl=1"
     "hid_apple.fnmode=2" # Use F1–F12 by default; hold Fn for media keys.
+    # Avoid the RZ09-0409 firmware's problematic S3 wake path.
+    "mem_sleep_default=s2idle"
   ];
 
   virtualisation.vmware.host.enable = true;
