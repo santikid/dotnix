@@ -1,5 +1,6 @@
 firmware/
 EMACS.md
+/docs/
 
 # Emacs generated files
 configs/emacs/config.el
