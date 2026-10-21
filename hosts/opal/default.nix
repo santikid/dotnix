@@ -20,7 +20,7 @@
   };
 
   boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages_7_2;
     loader = {
       efi.canTouchEfiVariables = false;
       grub = {
