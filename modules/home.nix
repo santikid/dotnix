@@ -17,6 +17,17 @@
       ".config/nvim".source = link "configs/nvim";
     };
 
+    xdg.configFile."tuios/config.toml".text = ''
+      [startup]
+      tiled = true
+      daemon = true
+      layout = "scrolling"
+
+      [keybindings]
+      leader_key = "ctrl+a"
+      preset = "tmux"
+    '';
+
     home.packages = [pkgs.neovim];
 
     programs.gpg.enable = true;
