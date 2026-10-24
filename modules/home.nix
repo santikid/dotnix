@@ -17,11 +17,17 @@
       ".config/nvim".source = link "configs/nvim";
     };
 
-    xdg.configFile."tuios/config.toml".text = ''
+    xdg.enable = true;
+
+    # Shared defaults; tuios can save hosts and local overrides in config.toml.
+    xdg.configFile."tuios/config.d/nix.toml".text = ''
       [startup]
       tiled = true
       daemon = true
       layout = "scrolling"
+
+      [appearance]
+      preferred_shell = "${pkgs.zsh}/bin/zsh"
 
       [keybindings]
       leader_key = "ctrl+a"
