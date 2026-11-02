@@ -186,7 +186,16 @@
     formatter = forAllSystems (system: let
       pkgs = import nixpkgs {inherit system;};
     in
-      pkgs.alejandra);
+      pkgs.treefmt.withConfig {
+        runtimeInputs = [pkgs.alejandra];
+        settings = {
+          tree-root-file = "flake.nix";
+          formatter.alejandra = {
+            command = "alejandra";
+            includes = ["*.nix"];
+          };
+        };
+      });
 
     devShells = forAllSystems (system: let
       pkgs = import nixpkgs {inherit system;};
