@@ -27,43 +27,69 @@
           pkgs.coreutils
           pkgs.findutils
           pkgs.fzf
-          pkgs.tmux
-        ]
-        ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
-          pkgs.procps
+          pkgs.jq
+          pkgs.openssh
+          pkgs.tuios
         ];
       text = ''
         set +e
         set +o nounset
 
+        list_projects() {
+          find ~/Projects/co ~/Projects/p ~/Projects/w -mindepth 1 -maxdepth 1 -type d 2> /dev/null
+        }
+
+        # Projects on every linked tuios host, as host:/path.
+        list_remote_projects() {
+          tuios hosts --json 2> /dev/null |
+            jq -r '.hosts[]? | select(.status == "up") | "\(.host) \(.addr)"' |
+            while read -r host addr; do
+              ssh -n -o BatchMode=yes -o ConnectTimeout=5 "$addr" \
+                'find ~/Projects/co ~/Projects/p ~/Projects/w -mindepth 1 -maxdepth 1 -type d 2> /dev/null' |
+                sed "s|^|$host:|"
+            done
+        }
+
         if [[ $# -eq 1 ]]; then
           selected=$1
         else
-          selected=$(find ~/Projects/co ~/Projects/p ~/Projects/w -mindepth 1 -maxdepth 1 -type d | fzf)
+          selected=$({ list_projects; list_remote_projects; } | fzf)
         fi
 
         if [[ -z $selected ]]; then
           exit 0
         fi
 
-        selected_name=$(basename "$selected" | tr . _)
-        tmux_running=$(pgrep tmux)
+        host=
+        dir=$selected
+        if [[ $selected =~ ^([^/:]+):(/.*)$ ]]; then
+          host=''${BASH_REMATCH[1]}
+          dir=''${BASH_REMATCH[2]}
+        fi
 
-        if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
-          tmux new-session -s "$selected_name" -c "$selected"
+        selected_name=$(basename "$dir" | tr . _)
+
+        # Inside tuios, switch this client in place instead of nesting.
+        if [[ -n $TUIOS_ENV ]]; then
+          tuios switch-session --create --cwd "$dir" "''${host:+$host:}$selected_name"
           exit 0
         fi
 
-        if ! tmux has-session -t="$selected_name" 2> /dev/null; then
-          tmux new-session -ds "$selected_name" -c "$selected"
+        # tuios starts the daemon on demand; ls lists saved sessions when it is down.
+        if [[ -n $host ]]; then
+          host_args=(--host "$host")
+          sessions='.hosts[]?.sessions[]?'
+        else
+          host_args=()
+          sessions='.[]'
         fi
 
-        if [[ -z $TMUX ]]; then
-          tmux attach -t "$selected_name"
-          exit 0
+        if tuios ls "''${host_args[@]}" --json 2> /dev/null |
+          jq -e --arg n "$selected_name" "any($sessions; .name == \$n)" > /dev/null; then
+          tuios attach "''${host_args[@]}" "$selected_name"
+        else
+          tuios new "''${host_args[@]}" "$selected_name" --cwd "$dir"
         fi
-
-        tmux switch-client -t "$selected_name"
       '';
     })
   ];
