@@ -20,6 +20,9 @@
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
+    paneru.url = "github:karinushka/paneru";
+    paneru.inputs.nixpkgs.follows = "nixpkgs";
+
     niri.url = "github:sodiboo/niri-flake";
     niri.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -66,6 +69,7 @@
         extraModules = [
           ./hosts/santibook
           ./modules/darwin/desktop.nix
+          ./modules/darwin/paneru.nix
           ./modules/coding-agents.nix
         ];
       };
