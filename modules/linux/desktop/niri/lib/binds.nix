@@ -88,8 +88,7 @@
     "${modifier}+Shift+Slash" = {show-hotkey-overlay = [];};
     "${modifier}+Comma" = {consume-or-expel-window-left = [];};
     "${modifier}+Period" = {consume-or-expel-window-right = [];};
-    "${modifier}+R" = {switch-preset-column-width = [];};
-    "${modifier}+Shift+R" = {switch-preset-column-width-back = [];};
+    "${modifier}+E" = {switch-preset-column-width = [];};
     "${modifier}+M" = {maximize-window-to-edges = [];};
     "${modifier}+Ctrl+Space" = {toggle-window-floating = [];};
     "${modifier}+Shift+F" = {fullscreen-window = [];};

@@ -178,3 +178,23 @@ Set CS2's Steam launch options once so GameMode and MangoHud apply to the game r
 ```text
 MANGOHUD=1 gamemoderun %command%
 ```
+
+## Drift From `main`
+
+`razer` is a long-lived branch: `main` is merged into it, never the other way round. Last synced with `main` at `2616eba` (2026-11-02).
+
+Razer-only, by design:
+
+- `hosts/razer/` (host config, hardware config, `razer-performance.c`), the `razer` entry in `flake.nix`, and the `razer` line in `make check`.
+- The razer section of this README and the `/docs/` entry in `.gitignore`.
+
+Shared modules that differ from `main` (these also change `santisasahi` when it is built from this branch):
+
+- `modules/linux/desktop/niri/default.nix`: tuigreet replaces regreet as the greeter, the `de`/`mac` layout is set through `services.xserver.xkb` with `console.useXkbConfig`, `bibata-cursors` is installed system-wide, and Niri manages `xwayland-satellite` itself instead of spawning it at startup.
+- `modules/linux/desktop/niri/lib/scripts.nix`: the `xwaylandSatellite` command is gone, matching the above.
+- `modules/linux/desktop/niri/lib/binds.nix`: `Mod+E` cycles preset column widths (same key as paneru's `cmd - e` on macOS), and `Mod+R` / `Mod+Shift+R` are unbound. `main` still uses `Mod+R` / `Mod+Shift+R`.
+
+Expected to go stale:
+
+- `flake.lock`: automated input updates land on `main` only. After a merge, take `main`'s lock (`git checkout --theirs flake.lock` while merging into `razer`), then run `nix flake lock`. This only adds inputs if `razer` ever gains some of its own.
+- Shared modules not listed above (`modules/home.nix`, `modules/packages.nix`, `modules/dev-tools`, `modules/coding-agents.nix`, the nvim config) are identical to `main` at the last sync and only pick up changes when `main` is merged again.
