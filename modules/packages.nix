@@ -12,6 +12,7 @@
     pkgs.htop
     pkgs.btop
     pkgs.mosh
+    pkgs.tuios
 
     # Media and backup
     pkgs.ffmpeg

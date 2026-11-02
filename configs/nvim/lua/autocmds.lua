@@ -1,63 +1,56 @@
-local treesitter_by_filetype = {
-	astro = "astro",
-	bash = "bash",
-	css = "css",
-	html = "html",
-	javascript = "javascript",
-	javascriptreact = "javascript",
-	json = "json",
-	json5 = "json5",
-	jsonc = "json",
-	lua = "lua",
-	markdown = "markdown",
-	regex = "regex",
-	rust = "rust",
-	scss = "scss",
-	sh = "bash",
-	svelte = "svelte",
-	tsx = "tsx",
-	typescript = "typescript",
-	typescriptreact = "tsx",
-}
+local group = vim.api.nvim_create_augroup("UserConfig", { clear = true })
 
 vim.api.nvim_create_autocmd("FileType", {
-	desc = "Start Treesitter highlighting",
-	pattern = vim.tbl_keys(treesitter_by_filetype),
+	group = group,
+	desc = "Start Treesitter highlighting when a parser is available",
 	callback = function(event)
 		local filetype = vim.bo[event.buf].filetype
-		pcall(vim.treesitter.start, event.buf, treesitter_by_filetype[filetype])
+		if vim.bo[event.buf].buftype ~= "" or filetype == "bigfile" then
+			return
+		end
+		local lang = vim.treesitter.language.get_lang(filetype)
+		if lang then
+			-- Uninstalled parsers should not prevent opening a file.
+			pcall(vim.treesitter.start, event.buf, lang)
+		end
 	end,
 })
 
 vim.api.nvim_create_autocmd("LspAttach", {
+	group = group,
 	desc = "LSP actions",
 	callback = function(event)
-		local bufmap = function(mode, lhs, rhs)
-			local opts = { buffer = true, noremap = true }
-			vim.keymap.set(mode, lhs, rhs, opts)
+		local client = vim.lsp.get_client_by_id(event.data.client_id)
+		if client and client.name == "ruff" then
+			-- Pyright owns Python hover/type information; Ruff owns lint actions.
+			client.server_capabilities.hoverProvider = false
 		end
 
-		-- Enable completion triggered by <c-x><c-o>
-		vim.bo[event.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
-		bufmap("n", "gD", vim.lsp.buf.declaration)
+		local function bufmap(mode, lhs, rhs, desc)
+			vim.keymap.set(mode, lhs, rhs, { buffer = event.buf, desc = desc })
+		end
+
+		bufmap("n", "gD", vim.lsp.buf.declaration, "Go to Declaration")
 		bufmap("n", "gd", function()
-			require("trouble").toggle("lsp_definitions")
-		end)
-		bufmap("n", "gr", function()
-			require("trouble").toggle("lsp_references")
-		end)
+			Snacks.picker.lsp_definitions()
+		end, "Go to Definition")
+		bufmap("n", "grr", function()
+			Snacks.picker.lsp_references()
+		end, "References")
 		bufmap("n", "gi", function()
-			require("trouble").toggle("lsp_implementations")
-		end)
-		bufmap("n", "K", vim.lsp.buf.hover)
-		bufmap("n", "<M-k>", vim.lsp.buf.signature_help)
-		bufmap("n", "<space>wa", vim.lsp.buf.add_workspace_folder)
-		bufmap("n", "<space>wr", vim.lsp.buf.remove_workspace_folder)
-		bufmap("n", "<space>wl", function()
-			print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-		end)
-		bufmap("n", "<space>D", vim.lsp.buf.type_definition)
-		bufmap("n", "<space>rn", vim.lsp.buf.rename)
-		bufmap("n", "<space>ca", vim.lsp.buf.code_action)
+			Snacks.picker.lsp_implementations()
+		end, "Go to Implementation")
+		bufmap("n", "K", vim.lsp.buf.hover, "Hover Documentation")
+		bufmap("n", "<leader>ck", vim.lsp.buf.signature_help, "Signature Help")
+		bufmap("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, "Add Workspace Folder")
+		bufmap("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, "Remove Workspace Folder")
+		bufmap("n", "<leader>wl", function()
+			vim.notify(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+		end, "List Workspace Folders")
+		bufmap("n", "<leader>D", function()
+			Snacks.picker.lsp_type_definitions()
+		end, "Go to Type Definition")
+		bufmap("n", "<leader>rn", vim.lsp.buf.rename, "Rename Symbol")
+		bufmap({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, "Code Action")
 	end,
 })

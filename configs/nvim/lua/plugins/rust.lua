@@ -1,7 +1,8 @@
 return {
 	{
 		"mrcjkb/rustaceanvim",
-		version = "^6", -- Recommended
+		-- Keep Rust-specific runnables, macro expansion, and cargo integration.
+		version = "^9",
 		lazy = false,
 	},
 }

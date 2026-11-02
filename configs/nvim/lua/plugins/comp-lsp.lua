@@ -4,18 +4,6 @@ return {
 		dependencies = { "rafamadriz/friendly-snippets" },
 		version = "1.*",
 		opts = {
-			-- 'default' (recommended) for mappings similar to built-in completions (C-y to accept)
-			-- 'super-tab' for mappings similar to vscode (tab to accept)
-			-- 'enter' for enter to accept
-			-- 'none' for no mappings
-			--
-			-- All presets have the following mappings:
-			-- C-space: Open menu or open docs if already open
-			-- C-n/C-p or Up/Down: Select next/previous item
-			-- C-e: Hide menu
-			-- C-k: Toggle signature help (if signature.enabled = true)
-			--
-			-- See :h blink-cmp-config-keymap for defining your own keymap
 			keymap = { preset = "enter" },
 
 			appearance = {
@@ -33,19 +21,15 @@ return {
 				},
 			},
 
-			completion = { trigger = { prefetch_on_insert = false } },
+			completion = {
+				trigger = { prefetch_on_insert = false },
+				documentation = { auto_show = true, auto_show_delay_ms = 200 },
+				-- Enter inserts a newline until a completion is explicitly selected.
+				list = { selection = { preselect = false } },
+			},
 
 			fuzzy = { implementation = "prefer_rust_with_warning" },
 		},
 		opts_extend = { "sources.default" },
-	},
-	{
-		"rachartier/tiny-inline-diagnostic.nvim",
-		event = "VeryLazy",
-		priority = 1000,
-		config = function()
-			require("tiny-inline-diagnostic").setup()
-			vim.diagnostic.config({ virtual_text = false }) -- Disable Neovim's default virtual text diagnostics
-		end,
 	},
 }

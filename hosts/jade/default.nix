@@ -1,6 +1,7 @@
 {user, ...}: {
   imports = [
     ./hardware-configuration.nix
+    ./networking.nix
   ];
 
   sops.age = {
@@ -15,7 +16,6 @@
   };
 
   networking = {
-    useDHCP = true;
     firewall = {
       enable = true;
       allowedTCPPorts = [22 80 443];

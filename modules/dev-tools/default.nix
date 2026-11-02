@@ -3,7 +3,6 @@
     ./javascript.nix
     ./python.nix
     ./rust.nix
-    ./swift.nix
   ];
 
   environment.systemPackages = [
@@ -12,5 +11,9 @@
     pkgs.pkg-config
     pkgs.lazygit
     pkgs.nixd
+    pkgs.lua-language-server
+    pkgs.stylua
+    pkgs.alejandra
+    pkgs.shfmt
   ];
 }

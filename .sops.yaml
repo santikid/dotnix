@@ -21,3 +21,8 @@ creation_rules:
       - age:
           - *santi
           - *opal
+  - path_regex: ^secrets/jade\.yaml$
+    key_groups:
+      - age:
+          - *santi
+          - *jade

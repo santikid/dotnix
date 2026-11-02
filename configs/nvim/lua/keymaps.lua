@@ -13,6 +13,11 @@ end
 
 local map = vim.keymap.set
 
+map("n", "<leader>u", function()
+	vim.cmd.packadd("nvim.undotree")
+	vim.cmd.Undotree()
+end, { desc = "Undo Tree" })
+
 map("n", "<C-h>", "<C-w>h", { desc = "Switch left" })
 map("n", "<C-l>", "<C-w>l", { desc = "Switch right" })
 map("n", "<C-j>", "<C-w>j", { desc = "Switch down" })
