@@ -22,42 +22,47 @@
 
     (pkgs.writeShellApplication {
       name = "ts";
-      runtimeInputs =
-        [
-          pkgs.coreutils
-          pkgs.findutils
-          pkgs.fzf
-          pkgs.jq
-          pkgs.openssh
-          pkgs.tuios
-        ];
+      runtimeInputs = [
+        pkgs.coreutils
+        pkgs.findutils
+        pkgs.fzf
+        pkgs.jq
+        pkgs.openssh
+        pkgs.tuios
+      ];
       text = ''
-        set +e
-        set +o nounset
+        # Pick a project here or on a linked tuios host and open its session.
 
-        list_projects() {
-          find ~/Projects/co ~/Projects/p ~/Projects/w -mindepth 1 -maxdepth 1 -type d 2> /dev/null
+        projects() {
+          find ~/Projects/co ~/Projects/p ~/Projects/w -mindepth 1 -maxdepth 1 -type d 2> /dev/null || true
         }
 
-        # Projects on every linked tuios host, as host:/path.
-        list_remote_projects() {
-          tuios hosts --json 2> /dev/null |
-            jq -r '.hosts[]? | select(.status == "up") | "\(.host) \(.addr)"' |
+        hosts_json() {
+          tuios hosts --json 2> /dev/null || true
+        }
+
+        # Projects on every linked host, as host:/path.
+        remote_projects() {
+          hosts_json | jq -r '.hosts[]? | select(.status == "up") | "\(.host) \(.addr)"' |
             while read -r host addr; do
-              ssh -n -o BatchMode=yes -o ConnectTimeout=5 "$addr" \
-                'find ~/Projects/co ~/Projects/p ~/Projects/w -mindepth 1 -maxdepth 1 -type d 2> /dev/null' |
-                sed "s|^|$host:|"
+              ssh -n -o BatchMode=yes -o ConnectTimeout=5 "$addr" "$(declare -f projects); projects" |
+                sed "s|^|$host:|" || true
             done
+        }
+
+        # Run tuios on the machine that holds the project.
+        on_host() {
+          if [[ -n $host ]]; then
+            ssh -n -o BatchMode=yes "$addr" "tuios $(printf '%q ' "$@")"
+          else
+            tuios "$@"
+          fi
         }
 
         if [[ $# -eq 1 ]]; then
           selected=$1
         else
-          selected=$({ list_projects; list_remote_projects; } | fzf)
-        fi
-
-        if [[ -z $selected ]]; then
-          exit 0
+          selected=$({ projects; remote_projects; } | fzf) || exit 0
         fi
 
         host=
@@ -65,30 +70,23 @@
         if [[ $selected =~ ^([^/:]+):(/.*)$ ]]; then
           host=''${BASH_REMATCH[1]}
           dir=''${BASH_REMATCH[2]}
+          addr=$(hosts_json | jq -er --arg h "$host" '.hosts[]? | select(.host == $h) | .addr') ||
+            { echo "ts: $host is not a tuios host" >&2; exit 1; }
         fi
+        name=$(basename "$dir" | tr . _)
 
-        selected_name=$(basename "$dir" | tr . _)
+        # Create the session where the project lives (tuios refuses --cwd with --host);
+        # this fails harmlessly when it already exists.
+        on_host new "$name" -d --cwd "$dir" > /dev/null 2>&1 || true
 
-        # Inside tuios, switch this client in place instead of nesting.
-        if [[ -n $TUIOS_ENV ]]; then
-          tuios switch-session --create --cwd "$dir" "''${host:+$host:}$selected_name"
-          exit 0
-        fi
-
-        # tuios starts the daemon on demand; ls lists saved sessions when it is down.
-        if [[ -n $host ]]; then
-          host_args=(--host "$host")
-          sessions='.hosts[]?.sessions[]?'
+        if [[ -n ''${TUIOS_ENV:-} ]]; then
+          # A pane on a linked host may not move the client of the machine drawing it.
+          tuios switch-session "''${host:+$host:}$name" 2> /dev/null ||
+            echo "ts: $name is ready; open it with the session switcher (prefix s)"
+        elif [[ -n $host ]]; then
+          tuios attach --host "$host" "$name"
         else
-          host_args=()
-          sessions='.[]'
-        fi
-
-        if tuios ls "''${host_args[@]}" --json 2> /dev/null |
-          jq -e --arg n "$selected_name" "any($sessions; .name == \$n)" > /dev/null; then
-          tuios attach "''${host_args[@]}" "$selected_name"
-        else
-          tuios new "''${host_args[@]}" "$selected_name" --cwd "$dir"
+          tuios attach "$name"
         fi
       '';
     })
