@@ -33,7 +33,6 @@ in {
       # Closest thing to niri's active/inactive border colors.
       decorations.inactive.dim = {
         opacity = -0.1;
-        opacity_night = -0.2;
       };
 
       swipe = {
