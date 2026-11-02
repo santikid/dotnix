@@ -56,7 +56,7 @@ in {
   };
 
   system.primaryUser = user.name;
-  system.stateVersion = 5;
+  system.stateVersion = 7;
 
   homebrew = {
     enable = true;
