@@ -7,7 +7,7 @@
     link = path:
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/${path}";
   in {
-    home.stateVersion = "24.05";
+    home.stateVersion = "26.05";
 
     home.sessionPath = [
       "$HOME/.local/bin"
