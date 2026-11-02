@@ -17,7 +17,7 @@ in {
         auto_center = false;
         animation_speed = 25;
         # niri: preset-column-widths
-        preset_column_widths = [0.33333 0.5 0.66667];
+        preset_column_widths = [0.4 0.5 0.7 0.9];
         reap_empty_workspaces = true;
         create_virtual_workspace_automatically = true;
       };
