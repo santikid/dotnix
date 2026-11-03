@@ -32,6 +32,12 @@
       [appearance]
       preferred_shell = "${pkgs.zsh}/bin/zsh"
 
+      [appearance.sidebar]
+      sections = "sessions,terminals,agents"
+
+      [appearance.sidebar.right]
+      sections = "sessions,terminals,agents"
+
       [keybindings]
       leader_key = "ctrl+a"
       preset = "tmux"
