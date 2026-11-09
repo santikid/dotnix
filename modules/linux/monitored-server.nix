@@ -10,6 +10,12 @@
   services.tailscale.openFirewall = true;
   services.fstrim.enable = true;
   zramSwap.enable = true;
+  # zram swap is compressed RAM, so prefer it over dropping page cache, and
+  # skip swap readahead since there is no seek cost.
+  boot.kernel.sysctl = {
+    "vm.swappiness" = 180;
+    "vm.page-cluster" = 0;
+  };
 
   services.prometheus.exporters.node = {
     enable = true;
