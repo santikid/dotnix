@@ -6,7 +6,7 @@
   llmAgents = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
 in {
   environment.systemPackages = [
-    llmAgents.codex
+    pkgs.codex
     llmAgents.claude-code
   ];
 }

@@ -7,7 +7,7 @@
     link = path:
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nix/${path}";
   in {
-    home.stateVersion = "24.05";
+    home.stateVersion = "26.05";
 
     home.sessionPath = [
       "$HOME/.local/bin"
@@ -20,7 +20,10 @@
     xdg.enable = true;
 
     # Shared defaults; tuios can save hosts and local overrides in config.toml.
-    xdg.configFile."tuios/config.d/nix.toml".text = ''
+    # tuios watches the directory a config link resolves to, and fsnotify's
+    # kqueue backend opens every entry in it. Keep the target in its own store
+    # directory so that is not all of /nix/store.
+    xdg.configFile."tuios/config.d/nix.toml".source = "${pkgs.writeTextDir "nix.toml" ''
       [startup]
       tiled = true
       daemon = true
@@ -29,10 +32,16 @@
       [appearance]
       preferred_shell = "${pkgs.zsh}/bin/zsh"
 
+      [appearance.sidebar]
+      sections = "sessions,terminals,agents"
+
+      [appearance.sidebar.right]
+      sections = "sessions,terminals,agents"
+
       [keybindings]
       leader_key = "ctrl+a"
       preset = "tmux"
-    '';
+    ''}/nix.toml";
 
     home.packages = [pkgs.neovim];
 

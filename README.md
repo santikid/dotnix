@@ -181,7 +181,7 @@ MANGOHUD=1 gamemoderun %command%
 
 ## Drift From `main`
 
-`razer` is a long-lived branch: `main` is merged into it, never the other way round. Last synced with `main` at `2616eba` (2026-11-02).
+`razer` is a long-lived branch: `main` is merged into it, never the other way round. Last synced with `main` at `79bcb71` (2026-11-14).
 
 Razer-only, by design:
 
