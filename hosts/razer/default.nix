@@ -29,11 +29,6 @@
       ${razer-performance}/bin/razer-performance balanced
     fi
   '';
-  intel-undervolt-apply = pkgs.writeShellScript "intel-undervolt-apply" ''
-    set -eu
-    ${pkgs.intel-undervolt}/bin/intel-undervolt apply
-    ${pkgs.intel-undervolt}/bin/intel-undervolt read
-  '';
 in {
   imports = [
     ./hardware-configuration.nix
@@ -105,37 +100,6 @@ in {
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
 
-  hardware.cpu.x86.msr.enable = true;
-  environment.etc."intel-undervolt.conf".text = ''
-    enable no
-    undervolt 0 'CPU' -50
-    undervolt 1 'GPU' 0
-    undervolt 2 'CPU Cache' -50
-    undervolt 3 'System Agent' 0
-    undervolt 4 'Analog I/O' 0
-  '';
-  systemd.services.undervolt = {
-    description = "Apply Intel CPU/cache undervolt and log readback";
-    wantedBy = ["multi-user.target"];
-    after = ["systemd-modules-load.service"];
-    restartTriggers = [config.environment.etc."intel-undervolt.conf".source];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = intel-undervolt-apply;
-    };
-  };
-  systemd.services.undervolt-sleep = {
-    description = "Reapply Intel CPU/cache undervolt after sleep";
-    wantedBy = ["sleep.target"];
-    before = ["sleep.target"];
-    unitConfig.StopWhenUnneeded = true;
-    restartTriggers = [config.environment.etc."intel-undervolt.conf".source];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStop = intel-undervolt-apply;
-    };
-  };
   services.logind.settings.Login = {
     HandleLidSwitch = "suspend";
     HandleLidSwitchDocked = "suspend";

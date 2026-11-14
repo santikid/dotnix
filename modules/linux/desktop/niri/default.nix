@@ -165,6 +165,7 @@ in {
             tap = true;
             natural-scroll = true;
             dwt = true;
+            disabled-on-external-mouse = true;
           };
           focus-follows-mouse = {
             enable = true;
