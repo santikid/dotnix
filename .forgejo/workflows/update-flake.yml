@@ -2,9 +2,9 @@ name: Update flake
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 2 * * 0"
-      timezone: Europe/Vienna
+#  schedule:
+#    - cron: "0 2 * * 0"
+#      timezone: Europe/Vienna
 
 concurrency:
   group: flake-lock-updates
